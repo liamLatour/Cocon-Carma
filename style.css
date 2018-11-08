@@ -1,0 +1,119 @@
+body, html {
+    margin: 0;
+    height: 100%;
+    font-family: "Lucida Console";
+    padding: 0px;
+    text-align:center;
+    background-color: rgb(233, 233, 233);
+    color: rgb(0, 0, 0);
+    font-size: 20px;
+}
+h1 {
+    margin: 0;
+    font-size: 50px;
+    background-color: black;
+    color: white;
+    padding: 10px;
+}
+input[type=text] {
+    margin: 0;
+    margin-top: 10px;
+    padding: 0;
+    max-width: 400px;
+    width: 50%;
+    min-width: 200px;
+    background-color: transparent;
+    color: rgb(0, 0, 0);
+    font-size: 20px;
+    border: none;
+    border-bottom: 1.5px solid rgb(192, 192, 192);
+    transition: 0.5s;
+    margin-bottom: 25px;
+}
+input[type=text]:focus {
+    border-bottom: 1.5px solid #555;
+}
+#search{
+    display: inline-block;
+    background-color: #7c7c7c;
+    border: none;
+    transition: 0.1s;
+    cursor: pointer;
+    clip-path: polygon(0 0, 15% 50%, 0 100%, 100% 50%);
+    height: 30px;
+    width: 30px;
+    position: relative;
+}
+#search:hover {
+    background-color: black;
+    transition: 0s;
+}
+#search:active {
+    height: 32px;
+    width: 32px;
+}
+
+/*Gere le split screen*/
+.split {
+    height: calc(100% - 80px);
+    width: 50%;
+    position: fixed;
+    overflow-x: hidden;
+}
+.left {
+    left: 0;
+    background-color: rgb(233, 233, 233);
+}
+.right {
+    right: 0;
+    background-color: rgb(216, 216, 216);
+}
+.centered {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    width: 100%;
+    height: calc(100% - 150px);
+    transform: translate(-50%, 0);
+    text-align: center;
+}
+
+/*Gere les listes*/
+.itemList{
+    border-collapse:separate; 
+    border-spacing: 0 0.5em;
+
+    width: 98%;
+    margin-left: 1%;
+}
+td.titre{
+    text-align: left;
+    background-color: #B2DB77;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    padding-left: 15px;
+    margin-bottom: 100px;
+}
+td.prix{
+    text-align: center;
+    background-color: rgb(3, 170, 192);
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+th.titre{
+    text-align: center;
+    padding-left: 15px;
+    margin-bottom: 100px;
+}
+th.prix{
+    text-align: center;
+    width: 18%;
+}
+tr.item{
+    height: 45px;
+    padding-bottom: 10px;
+}
+div.overflow{
+    height: 100%;
+    overflow:auto;
+}
