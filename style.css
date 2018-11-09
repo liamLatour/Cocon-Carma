@@ -26,7 +26,8 @@ h2{
 /*Change le curseur en pointer pour toute les classes hover*/
 .hover:hover{
     cursor: pointer;
-
+}
+.noSelect{
     -webkit-touch-callout: none; /* iOS Safari */
     -webkit-user-select: none; /* Safari */
     -khtml-user-select: none; /* Konqueror HTML */
@@ -226,6 +227,7 @@ tr.item{
     padding: 5px;
     background-color: rgb(255, 255, 255);
     border-radius: 20px;
+    margin-top: 0;
 }
 #commandeName::before{
     font-size: 30px;

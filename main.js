@@ -1,11 +1,14 @@
 // Function pour modifier nombre de produit
 function add(produit, nombre){
+    // Si le nombre de produit est zéro ou moins on le détruit
     if(produit.data("item-number")+nombre <= 0){
         produit.remove();
+        return;
     }
 
     produit.data("item-number", produit.data("item-number")+nombre);
     produit.children(".quantite").html("<span class='moins hover'>-</span>"+produit.data("item-number")+"<span class='plus hover'>+</span>");
+    produit.children(".prix").html(produit.data("item-number") * produit.data("item-price"));
 }
 
 // Recupère les clicks sur les elements 'tr' qui ont un parent avec l'id 'from' 
