@@ -15,6 +15,13 @@ h1 {
     color: white;
     padding: 10px;
 }
+h2{
+    margin: 0;
+    font-size: 35px;
+    color: rgb(0, 0, 0);
+    padding: 15px;
+    margin-bottom: 10px;
+}
 input[type=text] {
     margin: 0;
     margin-top: 10px;
@@ -86,34 +93,87 @@ input[type=text]:focus {
     width: 98%;
     margin-left: 1%;
 }
-td.titre{
+div.overflow{
+    height: 100%;
+    overflow:auto;
+}
+tr.item{
+    height: 45px;
+    padding-bottom: 10px;
+}
+
+/*Spécifique au tableau de gauche*/
+#tFrom th.titre{
+    text-align: center;
+    padding-left: 15px;
+    margin-bottom: 100px;
+    width: 75%;
+}
+#tFrom th.prix{
+    text-align: center;
+}
+#from td.titre{
     text-align: left;
     background-color: #B2DB77;
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
     padding-left: 15px;
     margin-bottom: 100px;
+    width: 75%;
 }
-td.prix{
+#from td.prix{
     text-align: center;
     background-color: rgb(3, 170, 192);
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
 }
-th.titre{
+#from tr.item:hover{
+    cursor: pointer;
+}
+
+/*Spécifique au tableau de droite*/
+#tTo th.titre{
     text-align: center;
     padding-left: 15px;
     margin-bottom: 100px;
+    width: 50%;
 }
-th.prix{
+#tTo th.quantite{
     text-align: center;
-    width: 18%;
+    width: 25%;
 }
-tr.item{
+#tTo th.prix{
+    text-align: center;
+}
+#to td.titre{
+    text-align: left;
+    background-color: #B2DB77;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    padding-left: 15px;
+    margin-bottom: 100px;
+    width: 50%;
+}
+#to td.quantite{
+    text-align: center;
+    background-color: rgb(192, 179, 3);
+    width: 25%;
+}
+#to td.prix{
+    text-align: center;
+    background-color: rgb(3, 170, 192);
+}
+#to td.supr::before{
+    content: "✕";
+    position: absolute;
+    width: 45px;
     height: 45px;
-    padding-bottom: 10px;
+    right: 1%;
+
+    background-color: red;
+    border-radius: 50%;
 }
-div.overflow{
-    height: 100%;
-    overflow:auto;
+#to td.supr{
+    background-color: rgb(3, 170, 192);
+    width: 45px;
 }

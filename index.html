@@ -13,12 +13,12 @@
      <div class="split left">
         <div class="centered">
             <form action="/action_page.php">
-                Chercher un menu ou un plat:<br>
+                Cherchez un menu ou un plat:<br>
                 <input type="text" name="searchText" value="Ex: panna cotta" onblur="if (this.value == '') {this.value = 'Ex: panna cotta';}"  onfocus="if (this.value == 'Ex: panna cotta') {this.value = '';}">
                 <input type="submit" value="" id="search">
             </form>
 
-            <table class="itemList">
+            <table class="itemList" id="tFrom">
                 <tr>
                     <th class="titre">Titre</th>
                     <th class="prix">Prix</th>
@@ -39,7 +39,7 @@
     <div class="split right">
         <div class="centered">
             <h2>John Doe</h2>
-            <table class="itemList">
+            <table class="itemList" id="tTo">
                 <tr>
                     <th class="titre">Titre</th>
                     <th class="quantite">Qantité</th>
@@ -58,20 +58,29 @@
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 <script>
     $("#from").on('click', 'tr', function(){
+        let id = $(this).data("item-id");
+        let createNew = true;
 
+        $("#to").children().children("tr").each(function (){
+            if($(this).data("item-id") == id){
+                $(this).data("item-number", $(this).data("item-number")+1);
+                $(this).children(".quantite").html($(this).data("item-number"));
+                createNew = false;
+                return;
+            }
+        });
 
-        $("#to").append("<tr class='item' data-item-id='"+ $(this).data("item-id") +"'\
-                                          data-item-name='"+ $(this).data("item-name") +"'\
-                                          data-item-price='"+ $(this).data("item-price") +"'\
-                                          data-item-number='1'>\
-                            <td class='titre'>"+ $(this).data("item-name") +"</td>\
-                            <td class='quantite'>1</td>\
-                            <td class='prix'>"+ $(this).data("item-price") +"</td>\
-                        </tr>");
-    });
-
-    $("#to").on('click', 'tr', function(){
-        $(this).remove();
+        if(createNew){
+            $("#to").append("<tr class='item' data-item-id='"+ id +"'\
+                                            data-item-name='"+ $(this).data("item-name") +"'\
+                                            data-item-price='"+ $(this).data("item-price") +"'\
+                                            data-item-number='1'>\
+                                <td class='titre'>"+ $(this).data("item-name") +"</td>\
+                                <td class='quantite'>1</td>\
+                                <td class='prix'>"+ $(this).data("item-price") +"</td>\
+                                <td class='supr'></td>\
+                            </tr>");
+        }
     });
 </script>
 </body>
