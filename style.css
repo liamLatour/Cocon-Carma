@@ -26,6 +26,13 @@ h2{
 /*Change le curseur en pointer pour toute les classes hover*/
 .hover:hover{
     cursor: pointer;
+
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /*Chrome*/
 }
 
 /*Stylise just la barre de recherche*/
@@ -211,4 +218,18 @@ tr.item{
     padding: 5px;
     width: 20px;
     height: 20px;
+}
+
+#commandeName input{
+    text-align: center;
+    font-size: 35px;
+    padding: 5px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 20px;
+}
+#commandeName::before{
+    font-size: 30px;
+    content: "Commande:";
+    display: inline-block;
+    position: relative;
 }
