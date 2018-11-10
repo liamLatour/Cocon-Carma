@@ -39,20 +39,26 @@ h2{
 
 /*Stylise just la barre de recherche*/
 input[type=text] {
+    padding: 0;
     margin: 0;
     margin-top: 10px;
-    padding: 0;
+    margin-bottom: 25px;
+
     max-width: 400px;
     width: 50%;
-    min-width: 200px;
+
     background-color: transparent;
     color: rgb(0, 0, 0);
     font-size: 20px;
     border: none;
     border-bottom: 1.5px solid rgb(192, 192, 192);
     transition: 0.5s;
-    margin-bottom: 25px;
 }
 input[type=text]:focus {
     border-bottom: 1.5px solid #555;
+}
+
+.required::after{
+    content: "*";
+    color: red;
 }

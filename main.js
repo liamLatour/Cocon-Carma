@@ -8,7 +8,7 @@ function add(produit, nombre){
 
     produit.data("item-number", produit.data("item-number")+nombre);
     produit.children(".quantite").html("<span class='moins hover'>-</span>"+produit.data("item-number")+"<span class='plus hover'>+</span>");
-    produit.children(".prix").html(produit.data("item-number") * produit.data("item-price"));
+    produit.children(".prix").html(Math.round(produit.data("item-number") * produit.data("item-price")*100)/100);
 }
 
 // Recupère les clicks sur les elements 'tr' qui ont un parent avec l'id 'from' 
@@ -33,7 +33,7 @@ $("#from").on('click', 'tr', function(){
                                         data-item-name='"+ $(this).data("item-name") +"'\
                                         data-item-price='"+ $(this).data("item-price") +"'\
                                         data-item-number='1'>\
-                            <td class='titre'>"+ $(this).data("item-name") +"</td>\
+                            <td class='titre'>"+ decodeURI($(this).data("item-name")) +"</td>\
                             <td class='quantite'><span class='moins hover'>-</span>1<span class='plus hover'>+</span></td>\
                             <td class='prix'>"+ $(this).data("item-price") +"</td>\
                             <td class='supr hover'></td>\
@@ -58,3 +58,23 @@ $("#to").on('click', 'span', function(){
         add(parent, 1);
     }
 });
+
+if (typeof(Storage) !== "undefined") {
+    // Récupère et affiche les produits
+    for (let i = 0; i < localStorage.length; i++){
+        if(localStorage.key(i).includes("item")){
+            let retrievedObject = JSON.parse(localStorage.getItem(localStorage.key(i)));
+            let id = localStorage.key(i).replace("item", "");
+            let name = retrievedObject.title;
+            let price = retrievedObject.price;
+
+            console.log(name);
+            $("#from").append('<tr class="item hover" data-item-id="'+ id +'"\
+                                            data-item-name="'+ encodeURI(name) +'"\
+                                            data-item-price="'+ price +'">\
+                                <td class="titre">'+ name +'</td>\
+                                <td class="prix">'+ price +'</td>\
+                                </tr>');
+        }
+    }
+}

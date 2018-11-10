@@ -1,0 +1,69 @@
+/*Stylise la saisie du nom de la commande*/
+#titre input{
+    text-align: center;
+    font-size: 35px;
+    padding: 5px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 20px;
+    margin-top: 40px;
+    margin-bottom: 10px;
+    max-width: 500px;
+}
+#titre::before{
+    font-size: 30px;
+    content: "Titre:";
+    display: inline-block;
+    position: absolute;
+    transform: translate(-120%, 125%);
+}
+
+#description{
+    display: block;
+
+    width: 50vw;
+    height: 30vh;
+    margin: 2vh 25vw 5vh 25vw;
+
+    font-size: 3vh;
+    resize: none;
+    border: 5px solid black;
+    border-radius: 20px;
+    padding: 15px;
+}
+
+#prix{
+    position: absolute;
+    left: 25vw;
+}
+#prix input{
+    text-align: center;
+    background-color: #03AAC0;
+    border-radius: 20px;
+    min-width: 40px;
+    width: auto;
+    padding: 10px;
+}
+#prix::before{
+    font-size: 20px;
+    content: "Prix:";
+    display: inline-block;
+    position: absolute;
+    transform: translate(-120%, 85%);
+}
+
+
+#submit{
+    position: absolute;
+    right: 25vw;
+    font-size: 20px;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    background-color: #B2DB77;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+#submit:hover{
+    background-color: rgb(123, 189, 32);
+}

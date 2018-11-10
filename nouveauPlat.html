@@ -5,6 +5,7 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="nouveauPlat.css">
     <title>Cocon Carma</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
@@ -13,8 +14,61 @@
 
     <h1>Ajouter Un Plat</h1>
 
-    
+
+    <label id="titre">
+        <input type="text" name="titre" value="Soupe d'automne" onblur="if (this.value == '') {this.value = 'Soupe d\'automne';}"  onfocus="if (this.value == 'Soupe d\'automne') {this.value = '';}">
+        <span class="required" title="Obligatoire"></span>
+    </label>
+
+    <textarea id="description"></textarea>
+
+    <label id="prix">
+        <input type="text" name="prix" value="5.3" size="4" onblur="if (this.value == '') {this.value = '5.3';}"  onfocus="if (this.value == '5.3') {this.value = '';}">
+        <span class="required" title="Obligatoire"></span>
+    </label>
+
+    <input id="submit" type="submit" value="Ajouter">
+
 
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script>
+
+    /*
+        The 'obj' format has to be as follow:
+            {
+                "index": value,
+                "index2": value2,
+                ...
+            }
+    */
+    function save(obj){
+        if (typeof(Storage) !== "undefined") {
+            //alert(localStorage.getItem("lastname"));
+            if(localStorage.curid){
+                localStorage.curid = Number(localStorage.curid) + 1;
+            }
+            else{
+                localStorage.curid = 0;
+            }
+
+            localStorage.setItem("item" + localStorage.curid, JSON.stringify(obj));
+        }
+        else {
+            alert("Désolé ce navigateur ne supporte pas cette fonctionalitée");
+        }
+    }
+
+    $("#submit").on('click', function(){
+        if(Number($("#prix input").val()) <= 0){
+            return;
+        }
+
+        save({
+            title: $("#titre input").val(),
+            description: $("#description").val(),
+            price: $("#prix input").val()
+        });
+    });
+</script>
 </body>
 </html>
