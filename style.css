@@ -24,6 +24,12 @@ h2{
     padding: 15px;
     margin-bottom: 10px;
 }
+a{
+    text-decoration: none;
+    color: rgb(255, 255, 255);
+}
+
+
 /*Change le curseur en pointer pour toute les classes hover*/
 .hover:hover{
     cursor: pointer;

@@ -1,3 +1,13 @@
+function recalculateSum(){
+    let total = 0;
+
+    $("#to tr").each(function(){
+        total += $(this).data("item-price") * $(this).data("item-number");
+    });
+
+    $("#fTo .prix").html((Math.round(total*100)/100) + "€");
+}
+
 // Function pour modifier nombre de produit
 function add(produit, nombre){
     // Si le nombre de produit est zéro ou moins on le détruit
@@ -9,6 +19,8 @@ function add(produit, nombre){
     produit.data("item-number", produit.data("item-number")+nombre);
     produit.children(".quantite").html("<span class='moins hover'>-</span>"+produit.data("item-number")+"<span class='plus hover'>+</span>");
     produit.children(".prix").html(Math.round(produit.data("item-number") * produit.data("item-price")*100)/100);
+
+    recalculateSum();
 }
 
 // Recupère les clicks sur les elements 'tr' qui ont un parent avec l'id 'from' 
@@ -38,6 +50,7 @@ $("#from").on('click', 'tr', function(){
                             <td class='prix'>"+ $(this).data("item-price") +"</td>\
                             <td class='supr hover'></td>\
                         </tr>");
+        recalculateSum();
     }
 });
 
@@ -59,6 +72,8 @@ $("#to").on('click', 'span', function(){
     }
 });
 
+
+// vérifie que le naviguateur supporte cette fonctionalitée
 if (typeof(Storage) !== "undefined") {
     // Récupère et affiche les produits
     for (let i = 0; i < localStorage.length; i++){
@@ -78,3 +93,13 @@ if (typeof(Storage) !== "undefined") {
         }
     }
 }
+
+$("#hamClick").on('click', function(){
+    document.getElementById("hamburger").classList.toggle("change");
+    if($("#menuContainer").css("visibility") == "hidden"){
+        $("#menuContainer").css('visibility', 'visible');
+    }
+    else{
+        $("#menuContainer").css('visibility', 'hidden');
+    }
+});

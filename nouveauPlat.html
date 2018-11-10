@@ -6,14 +6,41 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="nouveauPlat.css">
+    <link rel="stylesheet" href="menu.css">    
     <title>Cocon Carma</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <!--Ici commence le vrai code-->
 <body>
 
-    <h1>Ajouter Un Plat</h1>
+    <div id="menu">
+        <div id="menuContainer">
+            <ul>
+                <li><a href="index.html">Nouvelle commande</a></li>
+                <li><a href="mesCommandes.html">Mes commandes</a></li>
+                <li><a href="mesPlats.html">Mes plats</a></li>
+            </ul>
+        </div>
+        <div id="hamClick"></div>
+        <div id="hamburger">
+            <div class="bar1"></div>
+            <div class="bar2"></div>
+            <div class="bar3"></div>
+        </div>        
+    </div>
 
+    <div id="modal">
+        <div id="content">
+            <h2>Nouveau plat ajouté !</h2>
+            <p>Voulez-vous en ajoutez un autre, 
+            allez voir vos différents plats enregistrées ou vos statistics ?</p>
+            <a href="mesPlats.html" class="leftLink">Mes Plats</a>
+            <a href="nouveauPlat.html" class="midLink">Encore un !</a>
+            <a href="" class="rightLink">Mes Stats</a>
+        </div>
+    </div>
+
+    <h1>Ajouter Un Plat</h1>
 
     <label id="titre">
         <input type="text" name="titre" value="Soupe d'automne" onblur="if (this.value == '') {this.value = 'Soupe d\'automne';}"  onfocus="if (this.value == 'Soupe d\'automne') {this.value = '';}">
@@ -33,25 +60,37 @@
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 <script>
 
-    /*
-        The 'obj' format has to be as follow:
-            {
-                "index": value,
-                "index2": value2,
-                ...
-            }
-    */
+    var get = window.location.search.substr(1);
+    var id;
+    if(get != null && get.includes("itemId")){
+        id = Number(get.replace("itemId=", ""));
+        let obj = JSON.parse(localStorage.getItem("item"+id));
+        $("#titre input").val(obj.title);
+        $("#description").val(obj.description);
+        $("#prix input").val(obj.price);
+
+        //pour que ça 'fit'
+        $("h1").html("Modifier Un Plat");
+        $("#submit").val("Modifier");
+        $("#modal h2").html("Plat modifié !");
+        $("#modal p").html("Voulez-vous allez voir vos différents plats enregistrées ou vos statistics ?");
+        $("#modal .midLink").remove();
+    }
+
+
     function save(obj){
         if (typeof(Storage) !== "undefined") {
-            //alert(localStorage.getItem("lastname"));
-            if(localStorage.curid){
-                localStorage.curid = Number(localStorage.curid) + 1;
+            if(id === null || isNaN(id)){
+                if(localStorage.curid){
+                    localStorage.curid = Number(localStorage.curid) + 1;
+                }
+                else{ localStorage.curid = 0; }
+
+                localStorage.setItem("item" + localStorage.curid, JSON.stringify(obj));
             }
             else{
-                localStorage.curid = 0;
+                localStorage.setItem("item" + id, JSON.stringify(obj));
             }
-
-            localStorage.setItem("item" + localStorage.curid, JSON.stringify(obj));
         }
         else {
             alert("Désolé ce navigateur ne supporte pas cette fonctionalitée");
@@ -68,6 +107,19 @@
             description: $("#description").val(),
             price: $("#prix input").val()
         });
+
+        $("#modal").css("visibility", "visible");
+    });
+
+
+    $("#hamClick").on('click', function(){
+        document.getElementById("hamburger").classList.toggle("change");
+        if($("#menuContainer").css("visibility") == "hidden"){
+            $("#menuContainer").css('visibility', 'visible');
+        }
+        else{
+            $("#menuContainer").css('visibility', 'hidden');
+        }
     });
 </script>
 </body>

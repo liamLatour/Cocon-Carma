@@ -7,22 +7,34 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="tableau.css">
     <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="menu.css">
     <title>Cocon Carma</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <!--Ici commence le vrai code-->
 <body>
 
+    <div id="menu">
+        <div id="menuContainer">
+            <ul>
+                <li><a href="mesCommandes.html">Mes commandes</a></li>
+                <li><a href="nouveauPlat.html">Nouveau plat</a></li>
+                <li><a href="mesPlats.html">Mes plats</a></li>
+            </ul>
+        </div>
+        <div id="hamClick">
+        </div>
+        <div id="hamburger">
+            <div class="bar1"></div>
+            <div class="bar2"></div>
+            <div class="bar3"></div>
+        </div>        
+    </div>
+
     <h1>Nouvelle Commande</h1>
 
     <!--Partie gauche de l'écran qui affiche les différents plats-->
-    <div class="split left"><!--
-        <form action="/action_page.php">
-            Cherchez un menu ou un plat:<br>
-            <input type="text" name="searchText" value="Ex: panna cotta" onblur="if (this.value == '') {this.value = 'Ex: panna cotta';}"  onfocus="if (this.value == 'Ex: panna cotta') {this.value = '';}">
-            <input type="submit" value="" id="search">
-        </form>-->
-
+    <div class="split left">
         <table class="itemList" id="tFrom">
             <tr>
                 <th class="titre">Titre</th>
@@ -32,15 +44,7 @@
 
         <div class="noSelect overflow">
             <table class="itemList" id="from">
-                <!--Pour tester-->
-                <tr class="item hover" data-item-id="0" data-item-name="Panna cotta" data-item-price="5">
-                    <td class="titre">Panna cotta</td>
-                    <td class="prix">5£</td>
-                </tr>
-                <tr class="item hover" data-item-id="1" data-item-name="Crème chocolat" data-item-price="9">
-                    <td class="titre">Crème chocolat</td>
-                    <td class="prix">5£</td>
-                </tr>
+
             </table>  
         </div>
     </div>
@@ -63,6 +67,13 @@
                 <!--C'est ici qu'arrive les produits-->
             </table>  
         </div>
+        <table class="itemList" id="fTo">
+            <tr>
+                <th class="titre">Total:</th>
+                <th class="prix">0.0€</th>
+                <th class="confirm"></th>
+            </tr>
+        </table>
     </div>
 
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>

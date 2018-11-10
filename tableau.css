@@ -41,8 +41,6 @@ tr.item{
     width: 75%;
 }
 #from td.prix{
-    text-align: center;
-    background-color: rgb(3, 170, 192);
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
 }
@@ -61,6 +59,45 @@ tr.item{
 #tTo th.prix{
     text-align: center;
 }
+
+#fTo{
+    position: absolute;
+    bottom: 50px;
+}
+#fTo th.titre{
+    text-align: center;
+    padding-left: 15px;
+    margin-bottom: 100px;
+    width: 50%;
+    background-color: #B2DB77;
+    padding: 10px;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+#fTo th.prix{
+    text-align: center;
+    width: 25%;
+    background-color: #03AAC0;
+}
+#fTo th.confirm{
+    background-color: #03AAC0;
+    border-top-right-radius: 22px;
+    border-bottom-right-radius: 22px;
+    text-align: right;
+    font-weight: 500;
+}
+#fTo th.confirm::after{
+    content: "Confirmer";
+    background-color: red;
+    padding: 13px;
+    border-radius: 20px;
+}
+#fTo th.confirm:hover{
+    font-weight: 900;
+    cursor: pointer;
+}
+
+
 #to td.titre{
     text-align: left;
     background-color: #B2DB77;
@@ -70,36 +107,34 @@ tr.item{
     margin-bottom: 100px;
     width: 50%;
 }
-#to td.quantite{
+td.quantite{
     text-align: center;
     background-color: rgb(192, 179, 3);
     width: 25%;
 }
-#to td.prix{
+td.prix{
     text-align: center;
     background-color: rgb(3, 170, 192);
 }
-#to td.supr::after{
+.supr::after{
     display: block;
-
     padding: 9px;
     margin-left: 1%;
-
     background-color: red;
     border-radius: 50%;
-
     content: "✕";
     text-align: center;
 }
-#to td.supr{
+.supr{
     background-color: rgb(3, 170, 192);
-
     border-top-right-radius: 50%;
     border-bottom-right-radius: 50%;
-
     padding: 0;
     width: 45px;
     height: 45px;
+}
+.supr:hover{
+    font-weight: 900;
 }
 .moins{
     display: inline-block;
@@ -118,4 +153,24 @@ tr.item{
     padding: 5px;
     width: 20px;
     height: 20px;
+}
+
+/*Spécifique au tableau permettant de modifier*/
+#tManage th.titre{
+    text-align: center;
+    padding-left: 15px;
+    margin-bottom: 100px;
+    width: 75%;
+}
+#tManage th.prix{
+    text-align: center;
+}
+#manage td.titre{
+    text-align: left;
+    background-color: #B2DB77;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    padding-left: 15px;
+    margin-bottom: 100px;
+    width: 75%;
 }

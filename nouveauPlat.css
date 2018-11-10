@@ -67,3 +67,50 @@
 #submit:hover{
     background-color: rgb(123, 189, 32);
 }
+
+
+#modal{
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: 1;
+    background-color: rgba(128, 128, 128, 0.7);
+    visibility: hidden;
+}
+#modal #content{
+    position: fixed;
+    top: 25vh;
+    margin-left: 25%;
+    margin-right: 25%;
+    border-radius: 20px;
+    background-color: #B2DB77;
+}
+.leftLink{
+    padding: 20px;
+    float: left;
+    padding-left: 10px;
+}
+.rightLink{
+    padding: 20px;
+    float: right;
+    padding-right: 10px;
+}
+.midLink{
+    display:inline-block;
+    padding: 20px;
+}
+
+.leftLink:hover{
+    background-color: rgb(153, 189, 104);
+    border-radius: 20px;
+}
+.rightLink:hover{
+    background-color: rgb(153, 189, 104);
+    border-radius: 20px;
+}
+.midLink:hover{
+    background-color: rgb(153, 189, 104);
+    border-radius: 20px;
+}
