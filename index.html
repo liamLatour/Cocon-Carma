@@ -5,66 +5,65 @@
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="tableau.css">
+    <link rel="stylesheet" href="index.css">
     <title>Cocon Carma</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <!--Ici commence le vrai code-->
 <body>
+
     <h1>Nouvelle Commande</h1>
 
     <!--Partie gauche de l'écran qui affiche les différents plats-->
-     <div class="split left">
-        <div class="centered">
-            <form action="/action_page.php">
-                Cherchez un menu ou un plat:<br>
-                <input type="text" name="searchText" value="Ex: panna cotta" onblur="if (this.value == '') {this.value = 'Ex: panna cotta';}"  onfocus="if (this.value == 'Ex: panna cotta') {this.value = '';}">
-                <input type="submit" value="" id="search">
-            </form>
+    <div class="split left">
+        <form action="/action_page.php">
+            Cherchez un menu ou un plat:<br>
+            <input type="text" name="searchText" value="Ex: panna cotta" onblur="if (this.value == '') {this.value = 'Ex: panna cotta';}"  onfocus="if (this.value == 'Ex: panna cotta') {this.value = '';}">
+            <input type="submit" value="" id="search">
+        </form>
 
-            <table class="itemList" id="tFrom">
-                <tr>
-                    <th class="titre">Titre</th>
-                    <th class="prix">Prix</th>
+        <table class="itemList" id="tFrom">
+            <tr>
+                <th class="titre">Titre</th>
+                <th class="prix">Prix</th>
+            </tr>
+        </table>
+
+        <div class="noSelect overflow">
+            <table class="itemList" id="from">
+                <!--Pour tester-->
+                <tr class="item hover" data-item-id="0" data-item-name="Panna cotta" data-item-price="5">
+                    <td class="titre">Panna cotta</td>
+                    <td class="prix">5£</td>
                 </tr>
-            </table>
-            <div class="overflow noSelect">
-                <table class="itemList" id="from">
-                    <!--Pour tester-->
-                    <tr class="item hover" data-item-id="0" data-item-name="Panna cotta" data-item-price="5">
-                        <td class="titre">Panna cotta</td>
-                        <td class="prix">5£</td>
-                    </tr>
-                    <tr class="item hover" data-item-id="1" data-item-name="Crème chocolat" data-item-price="9">
-                        <td class="titre">Crème chocolat</td>
-                        <td class="prix">5£</td>
-                    </tr>
-                </table>  
-            </div>
+                <tr class="item hover" data-item-id="1" data-item-name="Crème chocolat" data-item-price="9">
+                    <td class="titre">Crème chocolat</td>
+                    <td class="prix">5£</td>
+                </tr>
+            </table>  
         </div>
     </div>
 
     <!--Partie droite de l'écran qui affiche ce qu'il y a dans la commande actuel-->
     <div class="split right">
-        <div class="centered">
-            <label id="commandeName">
-                <input type="text" name="commandeName" value="Couvert 1" onblur="if (this.value == '') {this.value = 'Couvert 1';}"  onfocus="if (this.value == 'Couvert 1') {this.value = '';}">
-            </label>
-            <table class="itemList" id="tTo">
-                <tr>
-                    <th class="titre">Titre</th>
-                    <th class="quantite">Qantité</th>
-                    <th class="prix">Prix</th>
-                    <th width="45"></th>
-                </tr>
-            </table>
-            <div class="overflow noSelect">
-                <table class="itemList" id="to">
-                    <!--C'est ici qu'arrive les produits-->
-                </table>  
-            </div>
+        <label id="commandeName">
+            <input type="text" name="commandeName" value="Couvert 1" onblur="if (this.value == '') {this.value = 'Couvert 1';}"  onfocus="if (this.value == 'Couvert 1') {this.value = '';}">
+        </label>
+        <table class="itemList" id="tTo">
+            <tr>
+                <th class="titre">Titre</th>
+                <th class="quantite">Qantité</th>
+                <th class="prix">Prix</th>
+                <th width="45"></th>
+            </tr>
+        </table>
+        <div class="overflow noSelect">
+            <table class="itemList" id="to">
+                <!--C'est ici qu'arrive les produits-->
+            </table>  
         </div>
     </div>
-
 
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="main.js"></script>

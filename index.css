@@ -1,0 +1,53 @@
+/*====================*/
+/*Gere le split screen*/
+/*====================*/
+.split {
+    width: 50%;
+    position: absolute;
+    height: 94%;
+}
+.left {
+    left: 0;
+    background-color: rgb(201, 52, 52);
+}
+.right {
+    right: 0;
+    background-color: rgb(172, 120, 120);
+}
+
+/*Stylise la saisie du nom de la commande*/
+#commandeName input{
+    text-align: center;
+    font-size: 35px;
+    padding: 5px;
+    background-color: rgb(255, 255, 255);
+    border-radius: 20px;
+    margin-top: 20px;
+}
+#commandeName::before{
+    font-size: 30px;
+    content: "Commande:";
+    display: inline-block;
+    position: relative;
+}
+
+/*Défini la partie de recherche*/
+#search{
+    display: inline-block;
+    background-color: #7c7c7c;
+    border: none;
+    transition: 0.1s;
+    cursor: pointer;
+    clip-path: polygon(0 0, 15% 50%, 0 100%, 100% 50%);
+    height: 30px;
+    width: 30px;
+    position: relative;
+}
+#search:hover {
+    background-color: black;
+    transition: 0s;
+}
+#search:active {
+    height: 32px;
+    width: 32px;
+}

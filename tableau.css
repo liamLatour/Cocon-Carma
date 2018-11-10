@@ -1,0 +1,122 @@
+/*----------------*/
+/*Gere les tableau*/
+/*----------------*/
+.itemList{
+    border-collapse:separate; 
+    border-spacing: 0 0.5em;
+
+    width: 98%;
+    margin-left: 1%;
+}
+div.overflow{
+    position: absolute;
+    bottom: 0;
+    top: 120px;
+    right: 0;
+    left: 0;
+
+    overflow: auto;
+}
+tr.item{
+    height: 45px;
+    padding-bottom: 10px;
+}
+
+/*Spécifique au tableau de gauche*/
+#tFrom th.titre{
+    text-align: center;
+    padding-left: 15px;
+    margin-bottom: 100px;
+    width: 75%;
+}
+#tFrom th.prix{
+    text-align: center;
+}
+#from td.titre{
+    text-align: left;
+    background-color: #B2DB77;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    padding-left: 15px;
+    margin-bottom: 100px;
+    width: 75%;
+}
+#from td.prix{
+    text-align: center;
+    background-color: rgb(3, 170, 192);
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+/*Spécifique au tableau de droite*/
+#tTo th.titre{
+    text-align: center;
+    padding-left: 15px;
+    margin-bottom: 100px;
+    width: 50%;
+}
+#tTo th.quantite{
+    text-align: center;
+    width: 25%;
+}
+#tTo th.prix{
+    text-align: center;
+}
+#to td.titre{
+    text-align: left;
+    background-color: #B2DB77;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+    padding-left: 15px;
+    margin-bottom: 100px;
+    width: 50%;
+}
+#to td.quantite{
+    text-align: center;
+    background-color: rgb(192, 179, 3);
+    width: 25%;
+}
+#to td.prix{
+    text-align: center;
+    background-color: rgb(3, 170, 192);
+}
+#to td.supr::after{
+    display: block;
+
+    padding: 9px;
+    margin-left: 1%;
+
+    background-color: red;
+    border-radius: 50%;
+
+    content: "✕";
+    text-align: center;
+}
+#to td.supr{
+    background-color: rgb(3, 170, 192);
+
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
+
+    padding: 0;
+    width: 45px;
+    height: 45px;
+}
+.moins{
+    display: inline-block;
+    margin-right: 5%;
+    background-color: rgb(148, 138, 0);
+    border-radius: 50%;
+    padding: 5px;
+    width: 20px;
+    height: 20px;
+}
+.plus{
+    display: inline-block;
+    margin-left: 5%;
+    background-color: rgb(148, 138, 0);    
+    border-radius: 50%;
+    padding: 5px;
+    width: 20px;
+    height: 20px;
+}
