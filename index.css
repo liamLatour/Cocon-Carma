@@ -8,11 +8,11 @@
 }
 .left {
     left: 0;
-    background-color: rgb(201, 52, 52);
+    background-color: rgb(233, 233, 233);
 }
 .right {
     right: 0;
-    background-color: rgb(172, 120, 120);
+    background-color: rgb(226, 226, 226);
 }
 
 /*Stylise la saisie du nom de la commande*/
@@ -23,6 +23,7 @@
     background-color: rgb(255, 255, 255);
     border-radius: 20px;
     margin-top: 20px;
+    margin-bottom: 10px;
 }
 #commandeName::before{
     font-size: 30px;
