@@ -18,7 +18,7 @@
             <ul>
                 <li><a href="index.html">Nouvelle commande</a></li>
                 <li><a href="mesCommandes.html">Mes commandes</a></li>
-                <li><a href="nouveauPlat.html">Nouveau plats</a></li>
+                <li><a href="nouveauPlat.html">Nouveau plat</a></li>
             </ul>
         </div>
         <div id="hamClick"></div>
@@ -46,32 +46,12 @@
 
 
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="main.js"></script>
 <script>
-
-    // vérifie que le naviguateur supporte cette fonctionalitée
-    if (typeof(Storage) !== "undefined") {
-        // Récupère et affiche les produits
-        for (let i = 0; i < localStorage.length; i++){
-            if(localStorage.key(i).includes("item")){
-                let retrievedObject = JSON.parse(localStorage.getItem(localStorage.key(i)));
-                let id = localStorage.key(i).replace("item", "");
-                let name = retrievedObject.title;
-                let price = retrievedObject.price;
-
-                console.log(name);
-                $("#manage").append('<tr class="item hover" data-item-id="'+ id +'"\
-                                                data-item-name="'+ encodeURI(name) +'"\
-                                                data-item-price="'+ price +'">\
-                                    <td class="titre">'+ name +'</td>\
-                                    <td class="prix">'+ price +'</td>\
-                                    <td class="supr hover"></td>\
-                                    </tr>');
-            }
-        }
-    }
+    getProducts("#manage", sup="<td class='supr hover'></td>");
 
     $("#manage").on('click', 'td:not(.supr)', function(){
-        window.location.href = "nouveauPlat.html?itemId=" + $(this).data("item-id");
+        window.location.href = "nouveauPlat.html?itemId=" + $(this).parent().data("item-id");
     });
 
     $(".supr").on('click', function(){
@@ -79,16 +59,6 @@
         if(destr){
             localStorage.removeItem("item" + $(this).parent().data("item-id"));
             $(this).parent().remove();
-        }
-    });
-
-    $("#hamClick").on('click', function(){
-        document.getElementById("hamburger").classList.toggle("change");
-        if($("#menuContainer").css("visibility") == "hidden"){
-            $("#menuContainer").css('visibility', 'visible');
-        }
-        else{
-            $("#menuContainer").css('visibility', 'hidden');
         }
     });
 </script>

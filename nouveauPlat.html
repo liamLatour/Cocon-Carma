@@ -58,13 +58,13 @@
 
 
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script src="main.js"></script>
 <script>
-
     var get = window.location.search.substr(1);
-    var id;
+    var idd;
     if(get != null && get.includes("itemId")){
-        id = Number(get.replace("itemId=", ""));
-        let obj = JSON.parse(localStorage.getItem("item"+id));
+        idd = Number(get.replace("itemId=", ""));
+        let obj = JSON.parse(localStorage.getItem("item"+idd));
         $("#titre input").val(obj.title);
         $("#description").val(obj.description);
         $("#prix input").val(obj.price);
@@ -75,27 +75,7 @@
         $("#modal h2").html("Plat modifié !");
         $("#modal p").html("Voulez-vous allez voir vos différents plats enregistrées ou vos statistics ?");
         $("#modal .midLink").remove();
-    }
-
-
-    function save(obj){
-        if (typeof(Storage) !== "undefined") {
-            if(id === null || isNaN(id)){
-                if(localStorage.curid){
-                    localStorage.curid = Number(localStorage.curid) + 1;
-                }
-                else{ localStorage.curid = 0; }
-
-                localStorage.setItem("item" + localStorage.curid, JSON.stringify(obj));
-            }
-            else{
-                localStorage.setItem("item" + id, JSON.stringify(obj));
-            }
-        }
-        else {
-            alert("Désolé ce navigateur ne supporte pas cette fonctionalitée");
-        }
-    }
+    }    
 
     $("#submit").on('click', function(){
         if(Number($("#prix input").val()) <= 0){
@@ -106,20 +86,9 @@
             title: $("#titre input").val(),
             description: $("#description").val(),
             price: $("#prix input").val()
-        });
+        }, "item", id=idd);
 
         $("#modal").css("visibility", "visible");
-    });
-
-
-    $("#hamClick").on('click', function(){
-        document.getElementById("hamburger").classList.toggle("change");
-        if($("#menuContainer").css("visibility") == "hidden"){
-            $("#menuContainer").css('visibility', 'visible');
-        }
-        else{
-            $("#menuContainer").css('visibility', 'hidden');
-        }
     });
 </script>
 </body>

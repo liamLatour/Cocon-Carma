@@ -174,3 +174,88 @@ td.prix{
     margin-bottom: 100px;
     width: 75%;
 }
+
+/*Spécifique au tableau de gestion de commande*/
+#tCommande th.titre{
+    width: 30%;
+}
+#tCommande th.time{
+    width: 50%;
+}
+#commande td.titre{
+    text-align: left;
+    background-color: #B2DB77;
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+
+    padding-left: 15px;
+    margin-bottom: 50px;
+    width: 30%;
+}
+#commande td.time{
+    background-color: #C0B303;
+    width: 50%
+}
+#commande td.prix{
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+#commande tr.desc{
+    display: table-row;
+    display: none;
+    position: relative;
+    top: -10px;
+}
+#commande td.desc{
+    display: table-cell;
+    background-color: #B2DB77;
+    border-bottom-right-radius: 20px;
+    padding: 10px;
+}
+#commande ul{
+    list-style-type: none;
+    text-align: left;
+    margin-left: 2%;
+}
+
+.check{
+    position: absolute;
+    background-color: rgb(27, 126, 24);
+    border-radius: 50%;
+
+    bottom: 20%;
+    right: 10px;
+    width: 60px;
+    height: 60px;
+
+    cursor: pointer;
+}
+.check::after{
+    position: absolute;
+    right: 30%;
+    top: 15%;
+    font-size: 150%;
+    color: white;
+    content: "✔";
+}
+.modify{
+    position: absolute;
+    background-color: rgb(160, 150, 9);
+    border-radius: 50%;
+
+    bottom: 20%;
+    right: 80px;
+    width: 60px;
+    height: 60px;
+
+    cursor: pointer;
+}
+.modify::after{
+    position: absolute;
+    right: 30%;
+    top: 15%;
+    font-size: 150%;
+    color: white;
+    content: "✎";
+}

@@ -31,6 +31,16 @@
         </div>        
     </div>
 
+    <div id="modal">
+        <div id="content">
+            <h2>Nouvelle commande ajoutée !</h2>
+            <p>Voulez-vous en ajoutez une autre ou 
+            allez voir vos commandes ?</p>
+            <a href="mesCommandes.html" class="leftLink">Mes Commandes</a>
+            <a href="index.html" class="rightLink">Encore une !</a>
+        </div>
+    </div>
+
     <h1>Nouvelle Commande</h1>
 
     <!--Partie gauche de l'écran qui affiche les différents plats-->
@@ -71,12 +81,13 @@
             <tr>
                 <th class="titre">Total:</th>
                 <th class="prix">0.0€</th>
-                <th class="confirm"></th>
+                <th class="confirm" id="submit"></th>
             </tr>
         </table>
     </div>
 
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="main.js"></script>
+<script src="index.js"></script>
 </body>
 </html>

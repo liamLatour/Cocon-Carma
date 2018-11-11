@@ -34,7 +34,7 @@
     <table class="itemList" id="tCommande">
         <tr>
             <th class="titre">Titre</th>
-            <th class="date">Heure de commande</th>
+            <th class="time">Heure de commande</th>
             <th class="prix">Total</th>
         </tr>
     </table>
@@ -46,20 +46,7 @@
 
 
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-<script>
-
-
-
-
-    $("#hamClick").on('click', function(){
-        document.getElementById("hamburger").classList.toggle("change");
-        if($("#menuContainer").css("visibility") == "hidden"){
-            $("#menuContainer").css('visibility', 'visible');
-        }
-        else{
-            $("#menuContainer").css('visibility', 'hidden');
-        }
-    });
-</script>
+<script src="main.js"></script>
+<script src="mesCommandes.js"></script>
 </body>
 </html>
