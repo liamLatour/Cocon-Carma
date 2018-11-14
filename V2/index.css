@@ -52,3 +52,9 @@
     height: 32px;
     width: 32px;
 }
+
+
+
+#tBoi, #tPla, #tFor, #tMen, #tPai, #tCou{
+    display: none;
+}

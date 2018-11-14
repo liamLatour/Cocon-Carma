@@ -21,7 +21,7 @@ if(get != null && get.includes("cmdId")){
         }
     }
     recalculateSum();
-}   
+}
 
 function recalculateSum(){
     let total = 0;
