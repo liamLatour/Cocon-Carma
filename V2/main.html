@@ -14,8 +14,8 @@
 <!--Ici commence le vrai code-->
 <body>
 
-    <div id="modal">
-        <div id="content">
+    <div id="modal" class="modal">
+        <div class="content">
             <h2>Finalisez la commande</h2>
 
             <div id="modes">
@@ -37,7 +37,12 @@
         </div>
     </div>
 
-    <h1>Cocon Carma</h1>
+    <div id="cmds" class="modal">
+        <div class="content">
+            <h2>Anciennes commandes</h2>
+            <ul id="cmdConteneur"></ul>
+        </div>
+    </div>
 
     <!--Partie gauche de l'écran qui affiche les différents plats-->
     <div class="split left">
@@ -84,6 +89,7 @@
 
     <!--Partie droite de l'écran qui affiche ce qu'il y a dans la commande actuel-->
     <div class="split right">
+        <span id="myCmd">📰</span>
         <label id="commandeName">
             <input type="text" name="commandeName" value="1" onblur="if (this.value == '') {this.value = '1';}"  onfocus="if (this.value == '1') {this.value = '';}">
         </label>

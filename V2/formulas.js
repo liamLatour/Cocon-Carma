@@ -9,6 +9,7 @@
 var curCommande = {};
 var rawCommande = {};
 var total = 0;
+var modifyCmd = -1;
 
 var formules = {
     1 : ["Snack", 7.5, 11],
@@ -42,12 +43,38 @@ var products = {
     19 : ['Remise euro', -1, 'E']
 };
 
+// Hide commands
+$("#cmds").on('click', function(e){
+    if (e.target !== this)
+        return;
+
+    $("#cmds").css('visibility', 'hidden');
+});
+
+// Shows commands
+$("#myCmd").on('click', function(){
+    $("#cmds").css('visibility', 'visible');
+    $("#cmdConteneur").empty();
+    for(let i = 0; i < localStorage.length; i++){
+        $("#cmdConteneur").prepend("<li>" + localStorage.getItem(localStorage.key(i)) + "</li>");
+    }
+});
+
+
 // Fills the from tables on startUp
 $(".from .item").each(function(index){
     $(this).append('<td class="titre">'+ products[$(this).data("item-id")][0] +'</td>\
                     <td class="prix">'+ products[$(this).data("item-id")][1] +'</td>');
 });
 
+
+// Hide OnSubmit
+$("#modal").on('click', function(e){
+    if (e.target !== this)
+        return;
+
+    $("#modal").css('visibility', 'hidden');
+});
 // Manages the modal OnSubmit
 $("#submit").on('click', function(){
     if(total <= 0){
@@ -69,7 +96,28 @@ $(".payMode").on('change', function(){
 });
 
 $("#End").on('click', function(){
+    if($("#Rest").text() > 0){
+       return; 
+    }
     
+    $("#modal").css('visibility', 'hidden');
+    $("#to").empty();
+    rawCommande = {};
+
+    if (typeof(Storage) !== "undefined") {
+
+        //localStorage.getItem(name)
+        
+        if(modifyCmd == -1){
+            localStorage.setItem("C"+localStorage.length, JSON.stringify(curCommande));
+        }
+        else{
+            localStorage.setItem(modifyCmd, JSON.stringify(curCommande));
+        }
+    }
+    else {
+        alert("Désolé ce navigateur ne supporte pas la sauvegarde");
+    }
 });
 
 // Manages the list of items
@@ -253,7 +301,7 @@ $("#to").on('click', 'td.supr', function(){
         }
     }
     else{
-        delete rawCommande[parent];
+        rawCommande[parent] -= curCommande[parent];
     }
     redraw();
 });

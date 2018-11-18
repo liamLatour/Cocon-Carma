@@ -70,7 +70,7 @@ input[type=text]:focus {
 /*==================*/
 /*Stylise les popups*/
 /*==================*/
-#modal{
+.modal{
     position: fixed;
     top: 0;
     bottom: 0;
@@ -80,7 +80,7 @@ input[type=text]:focus {
     background-color: rgba(128, 128, 128, 0.7);
     visibility: hidden;
 }
-#modal #content{
+.content{
     position: fixed;
     top: 25vh;
     margin-left: 25%;
