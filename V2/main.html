@@ -30,6 +30,10 @@
                 <label>Cheques</label>
                 <input type="text" class="payMode" id="usr">
             </div>
+
+            <span id="Rest">42</span>
+
+            <span id="End">Finaliser</span>
         </div>
     </div>
 
@@ -39,39 +43,41 @@
     <div class="split left">
         <table id="menu">
             <tr>
+                <td id="Pri">Principale</td>
                 <td id="Boi">Boissons</td>
-                <td id="Pla">Plats seuls</td>
-                <td id="For">Formules</td>
-                <td id="Men">Menus</td>
-                <td id="Pai">Pains</td>
                 <td id="Cou">Couverts</td>
+                <td id="Red">Réductions</td>
             </tr>
         </table>
 
         <div class="noSelect overflow">
+            <table class="itemList from" id="tPri">
+                <tr class='item' data-item-id='0'></tr>
+                <tr class='item' data-item-id='1'></tr>
+                <tr class='item' data-item-id='2'></tr>
+                <tr class='item' data-item-id='3'></tr>
+                <tr class='item' data-item-id='4'></tr>
+                <tr class='item' data-item-id='5'></tr>
+            </table>
             <table class="itemList from" id="tBoi">
-                <tr class='item' data-item-id='0' data-item-name='Homnivore' data-item-price='5'></tr>
-                <tr class='item' data-item-id='1' data-item-name='Vegan' data-item-price='2'></tr>
-            </table>
-            <table class="itemList from" id="tPla">
-                <tr class='item' data-item-id='2' data-item-name='Panna cotta' data-item-price='7'></tr>
-                <tr class='item' data-item-id='3' data-item-name='Tarte pomme' data-item-price='3'></tr>
-            </table>
-            <table class="itemList from" id="tFor">
-                <tr class='item' data-item-id='2' data-item-name='Jus orange' data-item-price='7'></tr>
-                <tr class='item' data-item-id='3' data-item-name='Pomme de terre' data-item-price='3'></tr>
-            </table>
-            <table class="itemList from" id="tMen">
-                <tr class='item' data-item-id='2' data-item-name='Riz complet' data-item-price='7'></tr>
-                <tr class='item' data-item-id='3' data-item-name='Chou fleur' data-item-price='3'></tr>
-            </table>
-            <table class="itemList from" id="tPai">
-                <tr class='item' data-item-id='2' data-item-name='Pains complet' data-item-price='7'></tr>
-                <tr class='item' data-item-id='3' data-item-name='Pain blanc' data-item-price='3'></tr>
+                <tr class='item' data-item-id='6'></tr>
+                <tr class='item' data-item-id='7'></tr>
+                <tr class='item' data-item-id='8'></tr>
+                <tr class='item' data-item-id='9'></tr>
+                <tr class='item' data-item-id='10'></tr>
+                <tr class='item' data-item-id='11'></tr>
+                <tr class='item' data-item-id='12'></tr>
+                <tr class='item' data-item-id='13'></tr>
             </table>
             <table class="itemList from" id="tCou">
-                <tr class='item' data-item-id='2' data-item-name="Remise pourcentage" data-item-price='-1'></tr>
-                <tr class='item' data-item-id='3' data-item-name='Remise euro' data-item-price='-1'></tr>
+                <tr class='item' data-item-id='14'></tr>
+                <tr class='item' data-item-id='15'></tr>
+                <tr class='item' data-item-id='16'></tr>
+                <tr class='item' data-item-id='17'></tr>
+            </table>
+            <table class="itemList from" id="tRed">
+                <tr class='item' data-item-id='18'></tr>
+                <tr class='item' data-item-id='19'></tr>
             </table>
         </div>
     </div>
@@ -89,7 +95,7 @@
                 <th width="45"></th>
             </tr>
         </table>
-        <div class="overflow noSelect">
+        <div class="overflow noSelect stop">
             <table class="itemList" id="to">
                 <!--C'est ici qu'arrive les produits-->
             </table>  
@@ -104,113 +110,6 @@
     </div>
 
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
-<script>
-    // Fills the from tables on startUp
-    $(".from .item").each(function(index){
-        $(this).data("item-id", index);
-        $(this).append('<td class="titre">'+ $(this).data("item-name") +'</td>\
-                        <td class="prix">'+ $(this).data("item-price") +'</td>');
-    });
-
-
-    // Manages the modal OnSubmit
-    $("#submit").on('click', function(){
-        $("#modal").css('visibility', 'visible');
-    });
-
-    // Manages the list of items
-    var id = null;
-    $("#menu").on('click', 'td', function(){
-        $("#t"+id).css('display', 'none');
-
-        id = $(this).attr('id');
-        $("#t"+id).css('display', 'table');
-    });
-
-
-    function recalculateSum(){
-        let total = 0;
-        let remise = 0;
-
-        $("#to tr").each(function(){
-            if($(this).data("item-price") < 0 && $(this).data("item-name").includes("pour")){
-                remise = $(this).data("item-price");
-            }
-            else{
-                total += $(this).data("item-price") * $(this).data("item-number");
-            }
-        });
-
-        console.log(remise);
-        total = total/100*(100- Math.abs(remise) );
-
-        $("#fTo .prix").html((Math.round(total*100)/100) + "€");
-    }
-
-    // Function pour modifier le nombre de produit
-    function add(produit, nombre){
-        // Si le nombre de produit est zéro ou moins on le détruit
-        if(produit.data("item-number")+nombre <= 0){
-            produit.remove();
-            return;
-        }
-
-        produit.data("item-number", produit.data("item-number")+nombre);
-        produit.children(".quantite").html("<span class='moins hover'>-</span>"+produit.data("item-number")+"<span class='plus hover'>+</span>");
-        produit.children(".prix").html(Math.round(produit.data("item-number") * produit.data("item-price")*100)/100);
-
-        recalculateSum();
-    }
-
-    // Recupère les clicks sur les elements 'tr' qui ont un parent avec l'id 'from' 
-    $("table.from").on('click', 'tr', function(){
-        // declare une variable locale(qui se détruit quand la function à fini) 'id' qui stocke l'identité du produit
-        let id = $(this).data("item-id");
-        // variable pour savoir si le produit doit être modifié ou ajouté
-        let createNew = true;
-
-        // Fonction qui vérifie si il éxiste déjà ce produit, si oui on en rajoute 1
-        $("#to").children().children("tr").each(function (){
-            if($(this).data("item-id") == id){
-                add($(this), 1);
-                createNew = false;
-                return;
-            }
-        });
-
-        // Si le produit n'est pas déjà dans la commande on l'ajoute (c'est juste du html que l'on ajoute dans le tableau 'to')
-        if(createNew){
-            $("#to").append("<tr class='item' data-item-id='"+ id +"'\
-                                            data-item-name='"+ $(this).data("item-name") +"'\
-                                            data-item-price='"+ $(this).data("item-price") +"'\
-                                            data-item-number='1'>\
-                                <td class='titre'>"+ decodeURI($(this).data("item-name")) +"</td>\
-                                <td class='quantite'><span class='moins hover'>-</span>1<span class='plus hover'>+</span></td>\
-                                <td class='prix'>"+ $(this).data("item-price") +"</td>\
-                                <td class='supr hover'></td>\
-                            </tr>");
-            recalculateSum();
-        }
-    });
-
-
-    // Recupère les clicks sur les éléments fils de '#to' ayant la classe 'supr' (et de type 'td')
-    $("#to").on('click', 'td.supr', function(){
-        // Détruit le parent(le 'tr') de cette élément
-        $(this).parent().remove();
-    });
-
-    // Gère les '+' et '-'
-    $("#to").on('click', 'span', function(){
-        let parent = $(this).parent().parent();
-
-        if($(this).hasClass('moins')){
-            add(parent, -1);
-        }
-        else if($(this).hasClass('plus')){
-            add(parent, 1);
-        }
-    });
-</script>
+<script src="formulas.js"></script>
 </body>
 </html>

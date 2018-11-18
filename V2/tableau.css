@@ -10,11 +10,13 @@
 }
 div.overflow{
     position: absolute;
-    bottom: 0;
     top: 120px;
     right: 0;
     left: 0;
     overflow: auto;
+}
+.stop{
+    bottom: 110px;    
 }
 tr.item{
     height: 45px;
@@ -31,6 +33,9 @@ tr.item{
 #tFrom th.prix{
     text-align: center;
 }
+.from tr{
+    cursor: pointer;
+} 
 td.titre{
     text-align: left;
     background-color: #B2DB77;
@@ -103,9 +108,10 @@ td.titre{
     background-color: #B2DB77;
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
-    padding-left: 15px;
     margin-bottom: 100px;
     width: 50%;
+    padding: 10px;
+    padding-left: 15px;
 }
 td.quantite{
     text-align: center;
@@ -127,8 +133,8 @@ td.prix{
 }
 .supr{
     background-color: rgb(3, 170, 192);
-    border-top-right-radius: 50%;
-    border-bottom-right-radius: 50%;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
     padding: 0;
     width: 45px;
     height: 45px;
@@ -276,18 +282,12 @@ td.prix{
 #Boi{
     background-color: rgb(119, 119, 255);
 }
-#Pla{
+#Pri{
     background-color: rgb(88, 216, 71);
 }
-#For{
+#Cou{
     background-color: rgb(197, 187, 39);
 }
-#Men{
+#Red{
     background-color: rgb(255, 119, 119);
-}
-#Pai{
-    background-color: rgb(239, 119, 255);
-}
-#Cou{
-    background-color: rgb(54, 207, 212);
 }

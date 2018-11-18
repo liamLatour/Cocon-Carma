@@ -53,8 +53,26 @@
     width: 32px;
 }
 
-
-
-#tBoi, #tPla, #tFor, #tMen, #tPai, #tCou{
+#tBoi, #tCou, #tRed{
     display: none;
+}
+
+#Rest{
+    position: absolute;
+    top: 70px;
+    right: 10px;;
+    font-size: 40px;
+    background-color: aliceblue;
+    border-radius: 20px;
+    padding: 20px;
+}
+#End{
+    background-color: blue;
+    cursor: pointer;
+    padding: 10px;
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    border-radius: 20px;
+    color: white;
 }
