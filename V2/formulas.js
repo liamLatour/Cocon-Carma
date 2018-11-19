@@ -219,8 +219,9 @@ function recalculateSum(){
     }
 
     total = total/100*(100- Math.abs(remise));
+    total = Math.round(total*100)/100;
 
-    $("#fTo .prix").html((Math.round(total*100)/100) + "€");
+    $("#fTo .prix").html(total + "€");
 }
 
 
