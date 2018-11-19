@@ -146,6 +146,8 @@ function checkFormules(cmd){
     let desert = commande[5] === undefined ? 0 : commande[5];
     let nb = entree > desert ? entree : desert;
 
+    // Add support for drinks
+    
     for(let formu = 0; formu<nb; formu++){
         for(let i=1; i<5; i++){
             if(i in commande && commande[i] > 0){
