@@ -88,7 +88,7 @@ $(".payMode").on('change', function(){
     let subTotal = total;
     $(".payMode").each(function(){
         try{
-            subTotal -= $(this).val().match(/\d+/)[0];
+            subTotal -= parseFloat($(this).val());
         }
         catch{}
     });
