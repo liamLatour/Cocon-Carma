@@ -181,50 +181,6 @@ td.prix{
     width: 75%;
 }
 
-/*Spécifique au tableau de gestion de commande*/
-#tCommande th.titre{
-    width: 30%;
-}
-#tCommande th.time{
-    width: 50%;
-}
-#commande td.titre{
-    text-align: left;
-    background-color: #B2DB77;
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-
-    padding-left: 15px;
-    margin-bottom: 50px;
-    width: 30%;
-}
-#commande td.time{
-    background-color: #C0B303;
-    width: 50%
-}
-#commande td.prix{
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
-}
-
-#commande tr.desc{
-    display: table-row;
-    display: none;
-    position: relative;
-    top: -10px;
-}
-#commande td.desc{
-    display: table-cell;
-    background-color: #B2DB77;
-    border-bottom-right-radius: 20px;
-    padding: 10px;
-}
-#commande ul{
-    list-style-type: none;
-    text-align: left;
-    margin-left: 2%;
-}
-
 .check{
     position: absolute;
     background-color: rgb(27, 126, 24);
