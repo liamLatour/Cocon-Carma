@@ -20,23 +20,38 @@ $("#myCmd").on('click', function(){
 
         let obj = JSON.parse(localStorage.getItem(localStorage.key(i)));
         for(let key in obj){
-            if(!isNaN(key)){
-                toShow += products[key][0];
+            try{
+                if(!isNaN(key)){
+                    toShow += products[key][0];
+                }
+                else if(key.includes('M')){
+                    toShow += "Menu "+formules[key[1]][0];
+                }
+                else{
+                    toShow += "Formules "+formules[key[2]][0];
+                }
+                toShow += ", ";
             }
-            else if(key.includes('M')){
-                toShow += "Menu "+formules[key[1]][0];
-            }
-            else{
-                toShow += "Formules "+formules[key[2]][0];
-            }
-            toShow += ", ";
+            catch{}
         }
         toShow = toShow.substring(0, toShow.length-2);
 
-        $("#cmdConteneur").prepend("<li class='cmdList' data-command='"+localStorage.key(i)+"'>"+toShow+"</li>");
+        $("#cmdConteneur").prepend("<li class='cmdList' data-command='"+localStorage.key(i)+"'>"+toShow+"<span class='suprCmd'></span></li>");
     }
 });
 
+
+$("#cmdConteneur").on('click', ".suprCmd", function(event){
+    localStorage.removeItem($(this).parent().data("command"));
+    $(this).parent().remove();
+
+    event.stopPropagation();
+});
+
+$("#clearCmd").on('click', function(){
+    localStorage.clear();
+    $("#cmds").css('visibility', 'hidden');
+});
 
 // Get clicks on commands
 $("#cmdConteneur").on('click', ".cmdList", function(){
@@ -53,7 +68,7 @@ $("#cmdConteneur").on('click', ".cmdList", function(){
     rawCommande[4] = 0;
 
     for(let item in curCommande){
-        if(isNaN(item)){
+        if(isNaN(item) && item[0].toUpperCase() === item[0]){
             if(item.includes('M') || item.includes('e')){
                 rawCommande[0]++;
             }
@@ -94,7 +109,11 @@ $("#submit").on('click', function(){
     }
     $("#Rest").html(total);
     $(".payMode").each(function(){
-        $(this).val('');
+        if(modifyCmd != -1){
+            $(this).val(curCommande[$(this).attr("id")]);
+        }else{
+            $(this).val('');
+        }
     });
     $("#modal").css('visibility', 'visible');
 });
@@ -107,6 +126,7 @@ $(".payMode").on('input', function(){
             subTotal -= parseFloat($(this).val());
         }
     });
+    subTotal = Math.round(subTotal*100)/100;
     $("#Rest").html(subTotal);
 });
 
@@ -120,9 +140,22 @@ $("#End").on('click', function(){
     $("#to").empty();
     rawCommande = {};
 
+    // add the payment mode to curCommand
+    $(".payMode").each(function(){
+        if(!isNaN(parseFloat($(this).val()))){
+            curCommande[$(this).attr('id')] = parseFloat($(this).val());
+        }
+    });
+
     if (typeof(Storage) !== "undefined") {
         if(modifyCmd == -1){
-            localStorage.setItem("C"+localStorage.length, JSON.stringify(curCommande));
+            if(localStorage.getItem("nbC") === null){
+                localStorage.setItem("nbC", 0);
+            }
+            else{
+                localStorage.setItem("nbC", Number(localStorage.getItem("nbC"))+1);
+            }
+            localStorage.setItem("C"+localStorage.getItem("nbC"), JSON.stringify(curCommande));
         }
         else{
             localStorage.setItem(modifyCmd, JSON.stringify(curCommande));
@@ -208,4 +241,32 @@ $("#to").on('click', 'span', function(){
         }
     }
     redraw();
+});
+
+
+$("#toExcel").on('click', function(){
+    let wb = XLSX.utils.book_new();
+    wb.Props = {
+        Title: "Cocon Carma",
+        Subject: "Bilan",
+        Author: "Cocon-Carma",
+        CreatedDate: new Date()
+    };
+    wb.SheetNames.push("Main Sheet");
+
+    var ws_data = [['Nombre de Formules' , 'Nombre de Menus'],
+                    [4, 5]];
+    var ws = XLSX.utils.aoa_to_sheet(ws_data);
+
+    wb.Sheets["Main Sheet"] = ws;
+    var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
+
+    function s2ab(s) { 
+        var buf = new ArrayBuffer(s.length); //convert s to arrayBuffer
+        var view = new Uint8Array(buf);  //create uint8array as viewer
+        for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
+        return buf;    
+    }
+
+    saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'Bilan.xlsx');
 });

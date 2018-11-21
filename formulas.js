@@ -123,7 +123,7 @@ function recalculateSum(){
             if(key.includes('M')){
                 total += formules[key.replace('M', '')][2];
             }
-            else{
+            else if(key.includes('F')){
                 total += formules[key.substring(2, 3)][1];
             }
         }
@@ -149,7 +149,7 @@ function redraw(){
 
     $("#to").empty();
     for(let key in curCommande){
-        if(isNaN(key)){
+        if(isNaN(key) && key[0].toUpperCase() == key[0]){
             let itemData = "<tr class='item' data-item-id='"+key+"'>\
                                 <td class='titre'>";
 
@@ -177,7 +177,7 @@ function redraw(){
 
             $("#to").prepend(itemData);
         }
-        else{
+        else if(!isNaN(key)){
             let itemData = "<tr class='item' data-item-id='"+ key +"'>\
                                 <td class='titre'>"+ products[key][0] +"</td>\
                                 <td class='quantite'><span class='moins hover'>-</span>"+ curCommande[key] +"<span class='plus hover'>+</span></td>\

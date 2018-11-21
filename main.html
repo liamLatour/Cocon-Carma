@@ -21,13 +21,13 @@
                 <label>Mode de paiment:</label><br>
 
                 <label>CB</label>
-                <input type="text" class="payMode" id="usr"><br>
+                <input type="text" class="payMode" id="cb"><br>
                 <label>Espèces</label>
-                <input type="text" class="payMode" id="usr"><br>
+                <input type="text" class="payMode" id="es"><br>
                 <label>Tickets restaurants</label>
-                <input type="text" class="payMode" id="usr"><br>
+                <input type="text" class="payMode" id="ti"><br>
                 <label>Cheques</label>
-                <input type="text" class="payMode" id="usr">
+                <input type="text" class="payMode" id="ch">
             </div>
 
             <span id="Rest">42</span>
@@ -40,6 +40,8 @@
         <div class="content" id="contentCmd">
             <h2>Anciennes commandes</h2>
             <ul id="cmdConteneur"></ul>
+            <span id="clearCmd">Remise à zero</span>
+            <span id="toExcel">Excel</span>
         </div>
     </div>
 
@@ -115,6 +117,8 @@
     </div>
 
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script lang="javascript" src="xlsx.full.min.js"></script>
+<script lang="javascript" src="FileSaver.min.js"></script>
 <script src="formulas.js"></script>
 <script src="events.js"></script>
 </body>
