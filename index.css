@@ -1,3 +1,9 @@
+/*Global variables*/
+:root{
+    --darker: 20%;
+}
+
+
 /*====================*/
 /*Gere le split screen*/
 /*====================*/
@@ -32,26 +38,7 @@
     position: relative;
 }
 
-/*Défini la partie de recherche*/
-#search{
-    display: inline-block;
-    background-color: #7c7c7c;
-    border: none;
-    transition: 0.1s;
-    cursor: pointer;
-    clip-path: polygon(0 0, 15% 50%, 0 100%, 100% 50%);
-    height: 30px;
-    width: 30px;
-    position: relative;
-}
-#search:hover {
-    background-color: black;
-    transition: 0s;
-}
-#search:active {
-    height: 32px;
-    width: 32px;
-}
+
 
 #tBoi, #tCou, #tRed{
     display: none;
@@ -81,11 +68,14 @@
     position: absolute;
     right: 15px;
     top: 15px;
-    background-color: #7c7c7c;
+    background-color: hsl(0, 0%, 50%);
     color: rgb(255, 0, 0);
     padding: 15px;
     border-radius: 20px;
     cursor: pointer;
+}
+#myCmd:hover{
+    background-color: hsl(0, 0%, calc(50% - var(--darker)));
 }
 
 
@@ -137,9 +127,47 @@
     background-color: #ff0000;    
 }
 
+/*Autre truc*/
+#menu{
+    width: 100%;
+    padding: 10px;
+    background-color: rgb(156, 156, 156);
+}
+#menu td{
+    border-radius: 20px;
+    padding: 3px;
+    color: rgb(0, 0, 0);
+    cursor: pointer;
+}
+#Boi{
+    background-color: hsl(240, 100%, 80%);
+}
+#Boi:hover{
+    background-color: hsl(240, 100%, calc(80% - var(--darker)));
+}
+#Pri{
+    background-color: hsl(113, 100%, 80%);
+}
+#Pri:hover{
+    background-color: hsl(113, 100%, calc(80% - var(--darker)));
+}
+#Cou{
+    background-color: hsl(44, 100%, 80%);
+}
+#Cou:hover{
+    background-color: hsl(44, 100%, calc(80% - var(--darker)));
+}
+#Red{
+    background-color: hsl(352, 100%, 80%);
+}
+#Red:hover{
+    background-color: hsl(352, 100%, calc(80% - var(--darker)));
+}
+
+/*The second modal*/
 #toExcel{
     position: absolute;
-    background: rgb(234, 255, 196);
+    background: rgb(217, 255, 146);
     border-radius: 20px;
     padding: 10px;
 
@@ -149,9 +177,10 @@
 }
 #clearCmd{
     position: absolute;
-    background: rgb(226, 78, 9);
+    background: rgb(175, 0, 0);
     border-radius: 20px;
     padding: 10px;
+    color: white;
 
     bottom: 10px;
     left: 10px;

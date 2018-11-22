@@ -24,18 +24,9 @@ tr.item{
 }
 
 /*Spécifique au tableau de gauche*/
-#tFrom th.titre{
-    text-align: center;
-    padding-left: 15px;
-    margin-bottom: 100px;
-    width: 75%;
-}
-#tFrom th.prix{
-    text-align: center;
-}
 .from tr{
     cursor: pointer;
-} 
+}
 td.titre{
     text-align: left;
     background-color: #B2DB77;
@@ -51,7 +42,7 @@ td.titre{
 }
 
 /*Spécifique au tableau de droite*/
-#tTo th.titre{
+th.titre{
     text-align: center;
     padding-left: 15px;
     margin-bottom: 100px;
@@ -61,7 +52,7 @@ td.titre{
     text-align: center;
     width: 25%;
 }
-#tTo th.prix{
+th.prix{
     text-align: center;
 }
 
@@ -70,17 +61,12 @@ td.titre{
     bottom: 50px;
 }
 #fTo th.titre{
-    text-align: center;
-    padding-left: 15px;
-    margin-bottom: 100px;
-    width: 50%;
     background-color: #B2DB77;
     padding: 10px;
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
 }
 #fTo th.prix{
-    text-align: center;
     width: 25%;
     background-color: #03AAC0;
 }
@@ -90,6 +76,7 @@ td.titre{
     border-bottom-right-radius: 22px;
     text-align: right;
     font-weight: 500;
+    cursor: pointer;
 }
 #fTo th.confirm::after{
     content: "Confirmer";
@@ -99,7 +86,6 @@ td.titre{
 }
 #fTo th.confirm:hover{
     font-weight: 900;
-    cursor: pointer;
 }
 
 
@@ -142,108 +128,16 @@ td.prix{
 .supr:hover{
     font-weight: 900;
 }
-.moins{
+.moins, .plus{
     display: inline-block;
     margin-right: 5%;
-    background-color: rgb(148, 138, 0);
-    border-radius: 50%;
-    padding: 5px;
-    width: 20px;
-    height: 20px;
-}
-.plus{
-    display: inline-block;
     margin-left: 5%;
-    background-color: rgb(148, 138, 0);    
+    background-color: hsl(56, 100%, 29%);
     border-radius: 50%;
     padding: 5px;
     width: 20px;
     height: 20px;
 }
-
-/*Spécifique au tableau permettant de modifier*/
-#tManage th.titre{
-    text-align: center;
-    padding-left: 15px;
-    margin-bottom: 100px;
-    width: 75%;
-}
-#tManage th.prix{
-    text-align: center;
-}
-#manage td.titre{
-    text-align: left;
-    background-color: #B2DB77;
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
-    padding-left: 15px;
-    margin-bottom: 100px;
-    width: 75%;
-}
-
-.check{
-    position: absolute;
-    background-color: rgb(27, 126, 24);
-    border-radius: 50%;
-
-    bottom: 20%;
-    right: 10px;
-    width: 60px;
-    height: 60px;
-
-    cursor: pointer;
-}
-.check::after{
-    position: absolute;
-    right: 30%;
-    top: 15%;
-    font-size: 150%;
-    color: white;
-    content: "✔";
-}
-.modify{
-    position: absolute;
-    background-color: rgb(160, 150, 9);
-    border-radius: 50%;
-
-    bottom: 20%;
-    right: 80px;
-    width: 60px;
-    height: 60px;
-
-    cursor: pointer;
-}
-.modify::after{
-    position: absolute;
-    right: 30%;
-    top: 15%;
-    font-size: 150%;
-    color: white;
-    content: "✎";
-}
-
-
-
-#menu{
-    width: 100%;
-    padding: 10px;
-    background-color: #B2DB77;
-}
-#menu td{
-    border-radius: 20px;
-    padding: 3px;
-    color: white;
-    cursor: pointer;
-}
-#Boi{
-    background-color: rgb(119, 119, 255);
-}
-#Pri{
-    background-color: rgb(88, 216, 71);
-}
-#Cou{
-    background-color: rgb(197, 187, 39);
-}
-#Red{
-    background-color: rgb(255, 119, 119);
+.moins:hover, .plus:hover{
+    background-color: hsl(56, 98%, calc(29% + var(--darker)));
 }

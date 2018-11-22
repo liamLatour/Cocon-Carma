@@ -9,24 +9,12 @@ body, html {
     color: rgb(0, 0, 0);
     font-size: 20px;
 }
-h1 {
-    margin: auto;
-    font-size: 4vh;
-    background-color: black;
-    line-height: 150%;
-    color: white;
-    height: 6%;
-}
 h2{
     margin: 0;
     font-size: 35px;
     color: rgb(0, 0, 0);
     padding: 15px;
     margin-bottom: 10px;
-}
-a{
-    text-decoration: none;
-    color: rgb(255, 255, 255);
 }
 
 
@@ -62,11 +50,6 @@ input[type=text]:focus {
     border-bottom: 1.5px solid #555;
 }
 
-.required::after{
-    content: "*";
-    color: red;
-}
-
 /*==================*/
 /*Stylise les popups*/
 /*==================*/
@@ -88,33 +71,6 @@ input[type=text]:focus {
     border-radius: 20px;
     background-color: #B2DB77;
     width: 50%;
-}
-/*Les position des liens*/
-.leftLink{
-    padding: 20px;
-    float: left;
-    padding-left: 10px;
-}
-.rightLink{
-    padding: 20px;
-    float: right;
-    padding-right: 10px;
-}
-.midLink{
-    display:inline-block;
-    padding: 20px;
-}
-.leftLink:hover{
-    background-color: rgb(153, 189, 104);
-    border-radius: 20px;
-}
-.rightLink:hover{
-    background-color: rgb(153, 189, 104);
-    border-radius: 20px;
-}
-.midLink:hover{
-    background-color: rgb(153, 189, 104);
-    border-radius: 20px;
 }
 
 
