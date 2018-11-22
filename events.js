@@ -201,6 +201,9 @@ $("#to").on('click', 'td.supr', function(){
         if(parent.includes('M') || parent.includes('d')){
             rawCommande[5] -= curCommande[parent];
         }
+        if(parent.includes('B')){
+            rawCommande[Number(parent.substring(parent.length-1, parent.length))+6] -= curCommande[parent];
+        }
     }
     else{
         rawCommande[parent] -= curCommande[parent];
@@ -211,52 +214,56 @@ $("#to").on('click', 'td.supr', function(){
 // Gère les '+' et '-'
 $("#to").on('click', 'span', function(){
     let parent = $(this).parent().parent().data("item-id");
+    let add = 0;
 
     if($(this).hasClass('moins')){
-        if(isNaN(parent)){
-            if(parent.includes('M') || parent.includes('e')){
-                rawCommande[0]--;
-            }
-            rawCommande[parent.match(/\d+/)[0]]--;
-            if(parent.includes('M') || parent.includes('d')){
-                rawCommande[5]--;
-            }
-        }
-        else{
-            rawCommande[parent]--;
-        }
+        add = -1;
     }
     else if($(this).hasClass('plus')){
-        if(isNaN(parent)){
-            if(parent.includes('M') || parent.includes('e')){
-                rawCommande[0]++;
-            }
-            rawCommande[parent.match(/\d+/)[0]]++;
-            if(parent.includes('M') || parent.includes('d')){
-                rawCommande[5]++;
-            }
+        add = 1;
+    }
+
+    if(isNaN(parent)){
+        if(parent.includes('M') || parent.includes('e')){
+            rawCommande[0] += add;
         }
-        else{
-            rawCommande[parent]--;
+        rawCommande[parent.match(/\d+/)[0]] += add;
+        if(parent.includes('M') || parent.includes('d')){
+            rawCommande[5] += add
+        }
+        if(parent.includes('B')){
+            rawCommande[Number(parent.substring(parent.length-1, parent.length))+6] += add;
         }
     }
+    else{
+        rawCommande[parent] += add;
+    }
+
     redraw();
 });
 
 
 $("#toExcel").on('click', function(){
+    let name = "Bilan " + new Date().toDateString().substring(4);
     let wb = XLSX.utils.book_new();
     wb.Props = {
         Title: "Cocon Carma",
-        Subject: "Bilan",
+        Subject: name,
         Author: "Cocon-Carma",
         CreatedDate: new Date()
     };
     wb.SheetNames.push("Main Sheet");
 
-    var ws_data = [['Nombre de Formules' , 'Nombre de Menus'],
-                    [4, 5]];
+
+    var ws_data = [['Plats par popularité' , 'Nombre de commande', 'Recette', 'Ticket moyen']];
+    // loop through commands
+    for(let item in localStorage){
+        if(item[0] == 'C'){
+            // Find formula to add to average
+        }
+    }
     var ws = XLSX.utils.aoa_to_sheet(ws_data);
+
 
     wb.Sheets["Main Sheet"] = ws;
     var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
@@ -268,5 +275,5 @@ $("#toExcel").on('click', function(){
         return buf;    
     }
 
-    saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), 'Bilan.xlsx');
+    saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), name+'.xlsx');
 });

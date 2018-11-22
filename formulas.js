@@ -64,43 +64,48 @@ function checkFormules(cmd){
     let nb = entree > desert ? entree : desert;
 
     // Add support for drinks
+    // drinks with tag 'b5' and nb (5) + 6
     
     for(let formu = 0; formu<nb; formu++){
         for(let i=1; i<5; i++){
             if(i in commande && commande[i] > 0){
+                let tag = "";
                 if(entree > 0 && desert > 0){
                     commande[i]--;
                     commande[0]--;
                     commande[5]--;
                     entree--;
                     desert--;
-                    if(("M"+i) in commande){
-                        commande["M"+i]++;                            
-                    }
-                    else{
-                        commande["M"+i] = 1;
-                    }
+                    tag = ("M"+i);
                 }
                 else if(entree > 0){
                     commande[i]--;
                     commande[0]--;
                     entree--;
-                    if(("Fe"+i) in commande){
-                        commande["Fe"+i]++;                            
-                    }
-                    else{
-                        commande["Fe"+i] = 1;
-                    }
+                    tag = ("Fe"+i);
                 }
                 else if(desert > 0){
                     commande[i]--;
                     commande[5]--;
                     desert--;
-                    if(("Fd"+i) in commande){
-                        commande["Fd"+i]++;                            
+                    tag = ("Fd"+i);
+                }
+
+                if(tag != ""){
+                    // Add drinks
+                    for(let b=0; b<8; b++){
+                        if((b+6) in commande && commande[(b+6)] > 0){
+                            commande[(b+6)]--;
+                            tag += "B"+b;
+                            break;
+                        }
+                    }
+
+                    if(tag in commande){
+                        commande[tag]++;                            
                     }
                     else{
-                        commande["Fd"+i] = 1;
+                        commande[tag] = 1;
                     }
                 }
             }
@@ -121,10 +126,14 @@ function recalculateSum(){
     for(let key in curCommande){
         if(isNaN(key)){
             if(key.includes('M')){
-                total += formules[key.replace('M', '')][2];
+                total += formules[key.replace('M', '')][2] * curCommande[key];
             }
             else if(key.includes('F')){
-                total += formules[key.substring(2, 3)][1];
+                total += formules[key.substring(2, 3)][1] * curCommande[key];
+            }
+
+            if(key.includes('B')){
+                total += (products[Number(key.substring(key.length-1, key.length))+6][1] - 0.5) * curCommande[key];
             }
         }
         else{
@@ -150,6 +159,7 @@ function redraw(){
     $("#to").empty();
     for(let key in curCommande){
         if(isNaN(key) && key[0].toUpperCase() == key[0]){
+            let reducEau = 0;
             let itemData = "<tr class='item' data-item-id='"+key+"'>\
                                 <td class='titre'>";
 
@@ -164,13 +174,19 @@ function redraw(){
                 itemData += "</br>" + products[5][0];
             }
 
+            // drinks
+            if(key.includes('B')){
+                itemData += "</br>" + products[Number(key.substring(key.length-1, key.length))+6][0];
+                reducEau = products[Number(key.substring(key.length-1, key.length))+6][1] - 0.5;
+            }
+
             itemData += "<td class='quantite'><span class='moins hover'>-</span>"+ curCommande[key] +"<span class='plus hover'>+</span></td>";
 
             if(key.includes('M')){
-                itemData += "<td class='prix'>"+ formules[id][2] * curCommande[key] +"</td>";
+                itemData += "<td class='prix'>"+ ((formules[id][2]+ reducEau) * curCommande[key]) +"</td>";
             }
             else{
-                itemData += "<td class='prix'>"+ formules[id][1] * curCommande[key] +"</td>";
+                itemData += "<td class='prix'>"+ ((formules[id][1]+ reducEau) * curCommande[key]) +"</td>";
             }
 
             itemData += "<td class='supr hover'></td></tr>";
