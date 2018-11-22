@@ -126,7 +126,7 @@ function recalculateSum(){
     for(let key in curCommande){
         if(isNaN(key)){
             if(key.includes('M')){
-                total += formules[key.replace('M', '')][2] * curCommande[key];
+                total += formules[key.replace('M', '')[0]][2] * curCommande[key];
             }
             else if(key.includes('F')){
                 total += formules[key.substring(2, 3)][1] * curCommande[key];

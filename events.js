@@ -255,15 +255,74 @@ $("#toExcel").on('click', function(){
     wb.SheetNames.push("Main Sheet");
 
 
-    var ws_data = [['Plats par popularité' , 'Nombre de commande', 'Recette', 'Ticket moyen']];
+    var ws_data = [];
+    let totalNb = 0;
+    let totalMoney = 0;
+    let totalCmd = 0;
+
     // loop through commands
     for(let item in localStorage){
         if(item[0] == 'C'){
-            // Find formula to add to average
+            let obj = JSON.parse(localStorage.getItem(item));
+            totalCmd++;
+            for(let product in obj){
+                try{
+                    let id = -1;
+                    let thisName = "";
+                    let thisCost = 0;
+
+                    if(!isNaN(product)){
+                        thisName = products[product][0];
+                        thisCost = products[product][1];
+                    }
+                    else if(product.includes('M')){
+                        thisName = "Menu "+formules[product[1]][0];
+                        thisCost = formules[product[1]][2];
+                    }
+                    else{
+                        thisName = "Formule "+formules[product[2]][0];
+                        thisCost = formules[product[2]][1];
+                    }
+
+                    // Check if already here
+                    for(let i=0; i<ws_data.length; i++){
+                        if(ws_data[i][0] == thisName){
+                            id = i;
+                            break;
+                        }
+                    }
+
+                    if(id != -1){
+                        ws_data[id][1]+=1;
+                        ws_data[id][3]+=thisCost;
+                    }
+                    else{
+                        ws_data.push([thisName, 1, thisCost, thisCost]);
+                    }
+                    totalNb++;
+                    totalMoney+=thisCost;
+                }
+                catch{}
+            }
         }
     }
+    ws_data.sort(sortCommand);
+    ws_data.unshift(['Plats par popularités' , 'Nombre de plats', 'Coût seul', 'Coût total', '', 'Ticket moyen', 'Nombre de repas']);
+    ws_data[1].push("", totalMoney/totalCmd, totalCmd);
+    ws_data.push([], ['TOTAL', totalNb, "", totalMoney]);
     var ws = XLSX.utils.aoa_to_sheet(ws_data);
 
+    var wscols = [
+        {wch:20},
+        {wch:15},
+        {wch:8},
+        {wch:8},
+        {wch:7},
+        {wch:15},
+        {wch:15}
+    ];
+
+    ws['!cols'] = wscols;
 
     wb.Sheets["Main Sheet"] = ws;
     var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
@@ -273,6 +332,15 @@ $("#toExcel").on('click', function(){
         var view = new Uint8Array(buf);  //create uint8array as viewer
         for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF; //convert to octet
         return buf;    
+    }
+
+    function sortCommand(a, b) {
+        if (a[1] === b[1]) {
+            return 0;
+        }
+        else {
+            return (a[1] < b[1]) ? 1 : -1;
+        }
     }
 
     saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), name+'.xlsx');
