@@ -44,7 +44,6 @@ input[type=text] {
     font-size: 20px;
     border: none;
     border-bottom: 1.5px solid rgb(146, 146, 146);
-    transition: 0.5s;
 }
 input[type=text]:focus {
     border-bottom: 1.5px solid #555;

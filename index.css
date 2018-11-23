@@ -1,6 +1,7 @@
 /*Global variables*/
 :root{
     --darker: 20%;
+    --highlight: 35%;
 }
 
 
@@ -54,7 +55,7 @@
     padding: 20px;
 }
 #End{
-    background-color: blue;
+    background-color: hsl(239, 100%, 43%);
     cursor: pointer;
     padding: 10px;
     position: absolute;
@@ -62,6 +63,9 @@
     bottom: 10px;
     border-radius: 20px;
     color: white;
+}
+#End:hover{
+    background-color: hsl(239, 100%, calc(43% - var(--darker)));
 }
 
 #myCmd{
@@ -131,7 +135,7 @@
 #menu{
     width: 100%;
     padding: 10px;
-    background-color: rgb(156, 156, 156);
+    background-color: hsl(0, 0%, 50%);
 }
 #menu td{
     border-radius: 20px;
@@ -145,11 +149,19 @@
 #Boi:hover{
     background-color: hsl(240, 100%, calc(80% - var(--darker)));
 }
+#Boi.highlight{
+    background-color: hsl(240, 100%, calc(80% - var(--highlight)));
+    color: white;
+}
 #Pri{
     background-color: hsl(113, 100%, 80%);
 }
 #Pri:hover{
     background-color: hsl(113, 100%, calc(80% - var(--darker)));
+}
+#Pri.highlight{
+    background-color: hsl(113, 100%, calc(80% - var(--highlight)));
+    color: white;
 }
 #Cou{
     background-color: hsl(44, 100%, 80%);
@@ -157,17 +169,25 @@
 #Cou:hover{
     background-color: hsl(44, 100%, calc(80% - var(--darker)));
 }
+#Cou.highlight{
+    background-color: hsl(44, 100%, calc(80% - var(--highlight)));
+    color: white;
+}
 #Red{
     background-color: hsl(352, 100%, 80%);
 }
 #Red:hover{
     background-color: hsl(352, 100%, calc(80% - var(--darker)));
 }
+#Red.highlight{
+    background-color: hsl(352, 100%, calc(80% - var(--highlight)));
+    color: white;
+}
 
 /*The second modal*/
 #toExcel{
     position: absolute;
-    background: rgb(217, 255, 146);
+    background: hsl(81, 100%, 79%);
     border-radius: 20px;
     padding: 10px;
 
@@ -175,9 +195,12 @@
     bottom: 10px;
     cursor: pointer;
 }
+#toExcel:hover{
+    background: hsl(81, 100%, calc(79% + var(--darker)));
+}
 #clearCmd{
     position: absolute;
-    background: rgb(175, 0, 0);
+    background: hsl(0, 100%, 35%);
     border-radius: 20px;
     padding: 10px;
     color: white;
@@ -185,4 +208,7 @@
     bottom: 10px;
     left: 10px;
     cursor: pointer;
+}
+#clearCmd:hover{
+    background: hsl(0, 100%, calc(35% - var(--darker)));
 }
