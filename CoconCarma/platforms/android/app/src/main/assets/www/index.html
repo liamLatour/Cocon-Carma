@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html lang="fr">
+    <head>
+        <!--
+        Customize this policy to fit your own app's needs. For more guidance, see:
+            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+        Some notes:
+            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+        <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link rel="stylesheet" type="text/css" href="css/tableau.css">
+        <title>Cocon Carma</title>
+    </head>
+
+    <body>
+    <!--
+    <div class="app">
+        <h1>Apache Cordova</h1>
+        <div id="deviceready" class="blink">
+            <p class="event listening">Connecting to Device</p>
+            <p class="event received">Device is Ready</p>
+        </div>
+    </div>
+    -->
+        <div id="modal" class="modal">
+            <div class="content">
+                <h2>Finalisez la commande</h2>
+
+                <div id="modes">
+                    <label>Mode de paiment:</label><br>
+
+                    <label>CB</label>
+                    <input type="text" class="payMode" id="cb"><br>
+                    <label>Espèces</label>
+                    <input type="text" class="payMode" id="es"><br>
+                    <label>Tickets restaurants</label>
+                    <input type="text" class="payMode" id="ti"><br>
+                    <label>Cheques</label>
+                    <input type="text" class="payMode" id="ch">
+                </div>
+
+                <span id="Rest">42</span>
+
+                <span id="End">Finaliser</span>
+            </div>
+        </div>
+
+        <div id="cmds" class="modal">
+            <div class="content" id="contentCmd">
+                <h2>Anciennes commandes</h2>
+                <ul id="cmdConteneur"></ul>
+                <span id="clearCmd">Remise à zero</span>
+                <span id="toExcel">Excel</span>
+            </div>
+        </div>
+
+        <table id="menu">
+            <tr>
+                <td id="Pri" class="">Principale</td>
+                <td id="Boi" class="">Boissons</td>
+                <td id="Cou" class="">Couverts</td>
+                <td id="Red" class="">Réductions</td>
+                <td width="5%"><span id="myCmd">📰</span></td>
+            </tr>
+        </table>
+
+        <!--Partie gauche de l'écran qui affiche les différents plats-->
+        <div class="split left">
+            <div class="noSelect overflow">
+                <table class="itemList from" id="tPri">
+                    <tr class='item' data-item-id='0'></tr>
+                    <tr class='item' data-item-id='1'></tr>
+                    <tr class='item' data-item-id='2'></tr>
+                    <tr class='item' data-item-id='3'></tr>
+                    <tr class='item' data-item-id='4'></tr>
+                    <tr class='item' data-item-id='5'></tr>
+                </table>
+                <table class="itemList from" id="tBoi">
+                    <tr class='item' data-item-id='6'></tr>
+                    <tr class='item' data-item-id='7'></tr>
+                    <tr class='item' data-item-id='8'></tr>
+                    <tr class='item' data-item-id='9'></tr>
+                    <tr class='item' data-item-id='10'></tr>
+                    <tr class='item' data-item-id='11'></tr>
+                    <tr class='item' data-item-id='12'></tr>
+                    <tr class='item' data-item-id='13'></tr>
+                </table>
+                <table class="itemList from" id="tCou">
+                    <tr class='item' data-item-id='14'></tr>
+                    <tr class='item' data-item-id='15'></tr>
+                    <tr class='item' data-item-id='16'></tr>
+                    <tr class='item' data-item-id='17'></tr>
+                </table>
+                <table class="itemList from" id="tRed">
+                    <tr class='item' data-item-id='18'></tr>
+                    <tr class='item' data-item-id='19'></tr>
+                </table>
+            </div>
+        </div><div class="split right">
+            <div class="overflow noSelect stop">
+                <table class="itemList" id="to">
+                    <!--C'est ici qu'arrive les produits-->
+                </table>
+            </div>
+            <table class="itemList" id="fTo">
+                <tr>
+                    <th class="titre">Total:</th>
+                    <th class="prix">0.0€</th>
+                    <th class="confirm" id="submit"></th>
+                </tr>
+            </table>
+        </div>
+
+
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/xlsx.full.min.js"></script>
+
+    <script src="cordova.js"></script>
+    <script src="js/formulas.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/index.js"></script>
+    
+    </body>
+</html>
