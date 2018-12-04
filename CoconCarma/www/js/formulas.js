@@ -45,7 +45,7 @@ var products = {
 
 var id = "Pri";
 
-
+// Cleans the array
 function supZeros(c){
     for(let key in c){
         if(c[key] <= 0){
@@ -201,11 +201,64 @@ function redraw(){
                                 <td class='supr hover'></td>\
                             </tr>";
                     if(products[key][1] < 0){
-                    $("#to").append(itemData);
+                        $("#to").append(itemData);
                     }
                     else{
-                    $("#to").prepend(itemData);
+                        $("#to").prepend(itemData);
                     }
         }
+    }
+}
+
+
+function addItem(item, quantity=null){
+    if(quantity == null){
+        quantity = -curCommande[item];
+    }
+
+    if(!(item in rawCommande)){
+        rawCommande[item] = quantity;
+    }
+    else{
+        if(isNaN(item)){
+            if(item.includes('M') || item.includes('e')){
+                rawCommande[0] += quantity;
+            }
+            rawCommande[item.match(/\d+/)[0]] += quantity;
+            if(item.includes('M') || item.includes('d')){
+                rawCommande[5] += quantity;
+            }
+            if(item.includes('B')){
+                rawCommande[Number(item.substring(item.length-1, item.length))+6] += quantity;
+            }
+        }
+        else{
+            rawCommande[item] += quantity;
+        }
+    }
+    redraw();
+}
+
+
+function saveData(key, value){
+    localStorage.setItem(key, value);
+}
+
+function removeData(key=null){
+    if(key == null){
+        localStorage.clear();
+    }
+    else{
+        localStorage.removeItem(key);
+    }
+}
+
+function getData(key=null){
+    if(key == null){
+        // send a list of items
+        return localStorage;
+    }
+    else{
+        return localStorage.getItem(key);
     }
 }

@@ -171,7 +171,7 @@ label{
     padding: 10px;
     background-color: white;
     border-radius: 20px;
-    width: 45%;
+    width: 65%;
     text-align: center;
     font-size: 1.5vw;
     margin-bottom: 10px;
@@ -226,6 +226,7 @@ label{
     border-radius: 20px;
     margin-bottom: 10px;
     cursor: pointer;
+    margin-right: 30px;
 
     text-overflow: ellipsis;
     overflow: hidden;
@@ -339,4 +340,25 @@ label{
 }
 #clearCmd:hover{
     background: hsl(0, 100%, calc(35% - var(--darker)));
+}
+
+
+#settings{
+    background-color: hsl(0, 0%, 50%);
+    padding: 15px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+#settings:hover{
+    background-color: hsl(0, 0%, calc(50% - var(--darker)));
+}
+
+#pricesSetting{
+    position: relative;
+    text-align: left;
+    margin-left: 15px;
+    margin-right: 15px;
+    padding: 0;
+    height: calc(90vh - 110px);
+    overflow-y: auto;
 }
