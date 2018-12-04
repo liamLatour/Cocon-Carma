@@ -20,7 +20,7 @@ var formules = {
 var products = {
     0 : ['Entrée', 4],
     1 : ['Snack', 5],
-    2 : ['Salade/Buddha Bowl', 7.5],
+    2 : ['Salade/Buddha Bowl', 8],
     3 : ['Végétarian', 8],
     4 : ['Omnivore', 10],
     5 : ['Dessert', 4],

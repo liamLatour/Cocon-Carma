@@ -11,7 +11,7 @@ body, html {
 }
 h2{
     margin: 0;
-    font-size: 35px;
+    font-size: 3vw;
     color: rgb(0, 0, 0);
     padding: 15px;
     margin-bottom: 10px;
@@ -36,8 +36,10 @@ input[type=text] {
     padding: 0;
     margin: 0;
 
-    width: 50px;
+    width: 45%;
     text-align: center;
+
+    float: right;
 
     background-color: transparent;
     color: rgb(0, 0, 0);
@@ -64,16 +66,11 @@ input[type=text]:focus {
 }
 .content{
     position: fixed;
-    top: 25vh;
+    top: 5vh;
+    height: 90vh;
     margin-left: 25%;
     margin-right: 25%;
     border-radius: 20px;
     background-color: #B2DB77;
     width: 50%;
-}
-
-
-#modes{
-    margin: 20px;
-    text-align: left;
 }

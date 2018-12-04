@@ -12,6 +12,9 @@
     },
     "cordova-plugin-file": {
       "PACKAGE_NAME": "com.fainting.CoconCarma"
+    },
+    "cordova-plugin-fullscreen": {
+      "PACKAGE_NAME": "com.fainting.CoconCarma"
     }
   },
   "dependent_plugins": {}

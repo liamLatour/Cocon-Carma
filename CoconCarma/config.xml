@@ -18,6 +18,12 @@
     <allow-intent href="geo:*" />
     <platform name="android">
         <allow-intent href="market:*" />
+        <icon density="ldpi" src="res/icon/android/ldpi.png" />
+        <icon density="mdpi" src="res/icon/android/mdpi.png" />
+        <icon density="hdpi" src="res/icon/android/hdpi.png" />
+        <icon density="xhdpi" src="res/icon/android/xhdpi.png" />
+        <icon density="xxhdpi" src="res/icon/android/xxhdpi.png" />
+        <icon density="xxxhdpi" src="res/icon/android/xxxhdpi.png" />
     </platform>
     <platform name="ios">
         <allow-intent href="itms:*" />
@@ -25,7 +31,9 @@
     </platform>
     <plugin name="cordova-plugin-file" spec="^6.0.1" />
     <preference name="Fullscreen" value="true" />
+    <preference name="Orientation" value="landscape" />
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
     <preference name="AndroidExtraFilesystems" value="files,cache, sdcard, cache-external, files-external" />
+    <plugin name="cordova-plugin-fullscreen" spec="^1.2.0" />
     <engine name="android" spec="^7.1.4" />
 </widget>

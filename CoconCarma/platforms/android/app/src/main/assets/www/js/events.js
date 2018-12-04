@@ -1,4 +1,4 @@
-// Hide commands
+﻿// Hide commands
 $("#cmds").on('click', function(e){
     if (e.target !== this)
         return;
@@ -163,12 +163,15 @@ $("#End").on('click', function(){
         modifyCmd = -1;
     }
     else {
-        alert("Désolé ce navigateur ne supporte pas la sauvegarde");
+        alert("DÃ©solÃ© ce navigateur ne supporte pas la sauvegarde");
     }
 });
 
 
 $("#menu").on('click', 'td', function(){
+    if($(this).attr('id') == null || $(this).attr('id') == undefined ){
+        return;
+    }
     $("#t"+id).css('display', 'none');
     $("#"+id).removeClass('highlight');
 
@@ -178,7 +181,7 @@ $("#menu").on('click', 'td', function(){
 });
 
 
-// Recupère les clicks sur les elements 'tr' qui ont un parent avec l'id 'from' 
+// RecupÃ¨re les clicks sur les elements 'tr' qui ont un parent avec l'id 'from' 
 $("table.from").on('click', 'tr', function(){
 
     let id = $(this).data("item-id");
@@ -192,7 +195,7 @@ $("table.from").on('click', 'tr', function(){
 });
 
 
-// Recupère les clicks sur les éléments fils de '#to' ayant la classe 'supr' (et de type 'td')
+// RecupÃ¨re les clicks sur les Ã©lÃ©ments fils de '#to' ayant la classe 'supr' (et de type 'td')
 $("#to").on('click', 'td.supr', function(){
     let parent = $(this).parent().data("item-id");
     if(isNaN(parent)){
@@ -213,7 +216,7 @@ $("#to").on('click', 'td.supr', function(){
     redraw();
 });
 
-// Gère les '+' et '-'
+// GÃ¨re les '+' et '-'
 $("#to").on('click', 'span', function(){
     let parent = $(this).parent().parent().data("item-id");
     let add = 0;
@@ -352,7 +355,7 @@ $("#toExcel").on('click', function(){
         }
     }
     ws_data.sort(sortCommand);
-    ws_data.unshift(['Plats par popularités' , 'Nombre de plats', 'Coût seul', 'Coût total', '', 'Ticket moyen', 'Nombre de repas']);
+    ws_data.unshift(['Plats par popularitÃ©s' , 'Nombre de plats', 'CoÃ»t seul', 'CoÃ»t total', '', 'Ticket moyen', 'Nombre de repas']);
     ws_data[1].push("", totalMoney/totalCmd, totalCmd);
     ws_data.push([], ['TOTAL', totalNb, "", totalMoney]);
     var ws = XLSX.utils.aoa_to_sheet(ws_data);
@@ -399,6 +402,7 @@ $("#toExcel").on('click', function(){
         }
     }
 
+    try{
     window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
         var absPath = cordova.file.externalRootDirectory;
         var fileDir = cordova.file.externalDataDirectory.replace(cordova.file.externalRootDirectory, '');
@@ -409,6 +413,8 @@ $("#toExcel").on('click', function(){
             fileEntry.createWriter(function (fileWriter) {
                 fileWriter.onwriteend = function () {
                     console.log("Success");
+                    alert(fileName + " sauvegardé dans vos documents.");
+                    $("#cmds").css('visibility', 'hidden');
                 };
                 fileWriter.onerror = function (e) {
                     console.log("Fail with ", e);
@@ -418,6 +424,8 @@ $("#toExcel").on('click', function(){
 
         }, function(err) {});
     }, function(err) {});
-
-    //saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), name+".xlsx");
+    }
+    catch(error){
+        saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), name+".xlsx");
+    }
 });

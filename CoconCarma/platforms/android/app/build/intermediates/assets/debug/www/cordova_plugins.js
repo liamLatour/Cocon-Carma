@@ -172,13 +172,22 @@ module.exports = [
       "cordova"
     ],
     "runs": true
+  },
+  {
+    "id": "cordova-plugin-fullscreen.AndroidFullScreen",
+    "file": "plugins/cordova-plugin-fullscreen/www/AndroidFullScreen.js",
+    "pluginId": "cordova-plugin-fullscreen",
+    "clobbers": [
+      "AndroidFullScreen"
+    ]
   }
 ];
 module.exports.metadata = 
 // TOP OF METADATA
 {
   "cordova-plugin-whitelist": "1.3.3",
-  "cordova-plugin-file": "6.0.1"
+  "cordova-plugin-file": "6.0.1",
+  "cordova-plugin-fullscreen": "1.1.0"
 };
 // BOTTOM OF METADATA
 });
