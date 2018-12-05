@@ -1,33 +1,14 @@
 <!DOCTYPE html>
 <!--
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-     KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
+    To BUILD in release mode:
+        1- 'cordova build --release android' in VSCode
+        2- 'jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore CoconCarma-App.keystore E:\Cocon-Carma\CoconCarma\platforms\android\app\build\outputs\apk\release\app-release-unsigned.apk CoconCarma'
+            in cmd at C:\Program Files\Java\jdk1.8.0_191\bin
+        3- 'C:\Users\Administrateur\AppData\Local\Android\Sdk\build-tools\28.0.1\zipalign -v 4 app-release-unsigned.apk CoconCarma.apk'
+            in VSCode at the release folder after having supressed the old one
 -->
 <html lang="fr">
     <head>
-        <!--
-        Customize this policy to fit your own app's needs. For more guidance, see:
-            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
-        Some notes:
-            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
-            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
-            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
-                * Enable inline JS: add 'unsafe-inline' to default-src
-        -->
         <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
@@ -76,15 +57,8 @@
                 <h2>Prix des plats</h2>
 
                 <div id="pricesSetting">
-                    <label>CB</label>
-                    <input type="text" class="payMode"><br>
-                    <label>Espèces</label>
-                    <input type="text" class="payMode"><br>
-                    <label>Tickets restaurants</label>
-                    <input type="text" class="payMode"><br>
-                    <label>Cheques</label>
-                    <input type="text" class="payMode">
                 </div>
+                <span id="confirmPrice">Sauvegarder</span>
             </div>
         </div>
 

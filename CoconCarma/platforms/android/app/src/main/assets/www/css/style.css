@@ -33,22 +33,22 @@ h2{
 
 /*Stylise just la barre de recherche*/
 input[type=text] {
-    padding: 0;
     margin: 0;
+    padding: 5px;
 
-    width: 45%;
+    font-size: 1.5vw;
+    width: calc(30% - 30px);
     text-align: center;
 
     float: right;
 
-    background-color: transparent;
-    color: rgb(0, 0, 0);
-    font-size: 20px;
-    border: none;
-    border-bottom: 1.5px solid rgb(146, 146, 146);
+    background-color: grey;
+    color: rgb(255, 255, 255);
+    border-radius: 20px;
+    border-color: transparent;
 }
 input[type=text]:focus {
-    border-bottom: 1.5px solid #555;
+    background-color: rgb(107, 107, 107);
 }
 
 /*==================*/

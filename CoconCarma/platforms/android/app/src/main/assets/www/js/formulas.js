@@ -10,7 +10,7 @@ var curCommande = {};
 var rawCommande = {};
 var total = 0;
 var modifyCmd = -1;
-
+// Add em to the modify price thing
 var formules = {
     1 : ["Snack", 7.5, 11],
     2 : ["Salade", 10, 13.5],
@@ -43,9 +43,23 @@ var products = {
     19 : ['Remise euro', -1, 'E']
 };
 
-var id = "Pri";
+var currentMenuId = "Pri";
 
 
+// Does startup things
+let savedProducts = getData("Prods");
+let savedFormules = getData("Forms");
+
+if(savedProducts !== false && savedProducts !== null){
+    products = JSON.parse(savedProducts);
+}
+if(savedFormules !== false && savedProducts !== null){
+    formules = JSON.parse(savedFormules);
+}
+fillTable();
+
+
+// Cleans the array
 function supZeros(c){
     for(let key in c){
         if(c[key] <= 0){
@@ -62,9 +76,6 @@ function checkFormules(cmd){
     let entree = commande[0] === undefined ? 0 : commande[0];
     let desert = commande[5] === undefined ? 0 : commande[5];
     let nb = entree > desert ? entree : desert;
-
-    // Add support for drinks
-    // drinks with tag 'b5' and nb (5) + 6
     
     for(let formu = 0; formu<nb; formu++){
         for(let i=1; i<5; i++){
@@ -201,11 +212,95 @@ function redraw(){
                                 <td class='supr hover'></td>\
                             </tr>";
                     if(products[key][1] < 0){
-                    $("#to").append(itemData);
+                        $("#to").append(itemData);
                     }
                     else{
-                    $("#to").prepend(itemData);
+                        $("#to").prepend(itemData);
                     }
+        }
+    }
+}
+
+function fillTable(){
+    $(".from .item").empty();
+    $(".from .item").each(function(){
+        $(this).append('<td class="titre">'+ products[$(this).data("item-id")][0] +'</td>\
+                        <td class="prix">'+ products[$(this).data("item-id")][1] +'</td>');
+    });
+}
+
+
+function addItem(item, quantity=null){
+    if(quantity == null){
+        quantity = -curCommande[item];
+    }
+
+    if(!(item in rawCommande)){
+        rawCommande[item] = quantity;
+    }
+    else{
+        if(isNaN(item)){
+            if(item.includes('M') || item.includes('e')){
+                rawCommande[0] += quantity;
+            }
+            rawCommande[item.match(/\d+/)[0]] += quantity;
+            if(item.includes('M') || item.includes('d')){
+                rawCommande[5] += quantity;
+            }
+            if(item.includes('B')){
+                rawCommande[Number(item.substring(item.length-1, item.length))+6] += quantity;
+            }
+        }
+        else{
+            rawCommande[item] += quantity;
+        }
+    }
+    redraw();
+}
+
+
+function saveData(key, value){
+    try{
+        localStorage.setItem(key, value);
+    }
+    catch(error){
+        console.log(error);
+        alert("Sauvegarde échouée");
+        return false;
+    }
+}
+
+function removeData(key=null){
+    if(key == null){
+        localStorage.clear();
+        saveData("Prods", JSON.stringify(products));
+        saveData("Forms", JSON.stringify(formules));
+    }
+    else{
+        try{
+            localStorage.removeItem(key);
+        }
+        catch(error){
+            console.log(error);
+            alert("Sauvegarde échouée");
+            return false;
+        }
+    }
+}
+
+function getData(key=null){
+    if(key === null){
+        // send a list of items
+        return localStorage;
+    }
+    else{
+        try{
+            return localStorage.getItem(key);
+        }
+        catch(error){
+            console.log(error);
+            alert("Sauvegarde échouée");
+            return false;
         }
     }
 }

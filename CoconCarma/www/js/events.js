@@ -5,13 +5,48 @@
     $("#sets").css('visibility', 'hidden');
 });
 
+// Fills prices
 $("#settings").on('click', function(){
     $("#sets").css('visibility', 'visible');
     $("#pricesSetting").empty();
 
     for(let i in products){
+        if(products[i].length == 3){
+            continue;
+        }
         $("#pricesSetting").append("<label>"+ products[i][0] +"</label><input type='text' class='payMode' value='"+ products[i][1] +"'><br>");
     }
+
+    for(let i in formules){
+        $("#pricesSetting").append("<label class='formul' id='NB"+ i +"'>Formule "+ formules[i][0] +"</label>\
+                                        <input type='text' class='payMode' value='"+ formules[i][1] +"'><br>");
+        $("#pricesSetting").append("<label class='formul'>Menu "+ formules[i][0] +"</label>\
+                                        <input type='text' class='payMode' value='"+ formules[i][2] +"'><br>");
+    }
+});
+
+// Saves prices
+$("#confirmPrice").on('click', function(){
+    $("#sets").css('visibility', 'hidden');
+
+    $("#pricesSetting label").each(function(index){
+        if($(this).attr('class') == "formul"){
+            if($(this).attr('id')!=undefined){
+                formules[ parseInt($(this).attr('id')[2]) ] = [$(this).html().substring(8), 
+                                                                parseFloat($(this).next().val()), 
+                                                                parseFloat($(this).next().next().next().next().val())
+                                                              ];
+            }
+        }
+        else{
+            products[index] = [$(this).html(), parseFloat($(this).next().val())];
+        }
+    });
+
+    saveData("Prods", JSON.stringify(products));
+    saveData("Forms", JSON.stringify(formules));
+    fillTable();
+    redraw();
 });
 
 // Hide commands
@@ -28,11 +63,12 @@ $("#myCmd").on('click', function(){
     $("#cmds").css('visibility', 'visible');
     $("#cmdConteneur").empty();
     for(let item in getData()){
-        let toShow = "";
         if(item[0] != 'C'){
             continue;
         }
 
+        let toShow = "";
+        console.log(item);
         let obj = JSON.parse(getData(item));
         for(let key in obj){
             try{
@@ -99,14 +135,6 @@ $("#cmdConteneur").on('click', ".cmdList", function(){
     $("#cmds").css('visibility', 'hidden');
     redraw();
 });
-
-
-// Fills the from tables on startUp
-$(".from .item").each(function(index){
-    $(this).append('<td class="titre">'+ products[$(this).data("item-id")][0] +'</td>\
-                    <td class="prix">'+ products[$(this).data("item-id")][1] +'</td>');
-});
-
 
 // Hide OnSubmit
 $("#modal").on('click', function(e){
@@ -189,12 +217,12 @@ $("#menu").on('click', 'td', function(){
     if($(this).attr('id') == null || $(this).attr('id') == undefined ){
         return;
     }
-    $("#t"+id).css('display', 'none');
-    $("#"+id).removeClass('highlight');
+    $("#t"+currentMenuId).css('display', 'none');
+    $("#"+currentMenuId).removeClass('highlight');
 
-    id = $(this).attr('id');
-    $("#"+id).addClass('highlight');
-    $("#t"+id).css('display', 'table');
+    currentMenuId = $(this).attr('id');
+    $("#"+currentMenuId).addClass('highlight');
+    $("#t"+currentMenuId).css('display', 'table');
 });
 
 
