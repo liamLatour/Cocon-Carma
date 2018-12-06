@@ -170,7 +170,7 @@ $(".payMode").on('input', function(){
             subTotal -= parseFloat($(this).val());
         }
     });
-    subTotal = Math.round(subTotal*100)/100;
+    subTotal = coolRound(subTotal);
     $("#Rest").html(subTotal);
 });
 

@@ -62,7 +62,7 @@ fillTable();
 // Cleans the array
 function supZeros(c){
     for(let key in c){
-        if(c[key] <= 0){
+        if(c[key] <= 0 || isNaN(c[key])){
             delete c[key];
         }
     }
@@ -127,6 +127,7 @@ function checkFormules(cmd){
 
 
 function recalculateSum(){
+    rawCommande = supZeros(rawCommande);
     let remise = 0;
     total = 0;
 
@@ -158,12 +159,12 @@ function recalculateSum(){
     }
 
     total = total/100*(100- Math.abs(remise));
-    total = Math.round(total*100)/100;
+    total = coolRound(total);
 
     $("#fTo .prix").html(total + "€");
 }
 
-
+// Sanitize prices
 function redraw(){
     recalculateSum();
 
@@ -194,10 +195,10 @@ function redraw(){
             itemData += "<td class='quantite'><span class='moins hover'>-</span>"+ curCommande[key] +"<span class='plus hover'>+</span></td>";
 
             if(key.includes('M')){
-                itemData += "<td class='prix'>"+ ((formules[id][2]+ reducEau) * curCommande[key]) +"</td>";
+                itemData += "<td class='prix'>"+ coolRound((formules[id][2]+ reducEau) * curCommande[key]) +"</td>";
             }
             else{
-                itemData += "<td class='prix'>"+ ((formules[id][1]+ reducEau) * curCommande[key]) +"</td>";
+                itemData += "<td class='prix'>"+ coolRound((formules[id][1]+ reducEau) * curCommande[key]) +"</td>";
             }
 
             itemData += "<td class='supr hover'></td></tr>";
@@ -208,7 +209,7 @@ function redraw(){
             let itemData = "<tr class='item' data-item-id='"+ key +"'>\
                                 <td class='titre'>"+ products[key][0] +"</td>\
                                 <td class='quantite'><span class='moins hover'>-</span>"+ curCommande[key] +"<span class='plus hover'>+</span></td>\
-                                <td class='prix'>"+ curCommande[key] * products[key][1] +"</td>\
+                                <td class='prix'>"+ coolRound(curCommande[key] * products[key][1]) +"</td>\
                                 <td class='supr hover'></td>\
                             </tr>";
                     if(products[key][1] < 0){
@@ -235,7 +236,7 @@ function addItem(item, quantity=null){
         quantity = -curCommande[item];
     }
 
-    if(!(item in rawCommande)){
+    if(!isNaN(item) && (rawCommande[item] == undefined || rawCommande[item] == null)){
         rawCommande[item] = quantity;
     }
     else{
@@ -303,4 +304,8 @@ function getData(key=null){
             return false;
         }
     }
+}
+
+function coolRound(nb){
+    return Math.round(nb*100)/100;
 }
