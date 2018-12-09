@@ -1,35 +1,71 @@
-﻿$("#sets").on('click', function(e){
+﻿// Hide modals when clicks away
+$(".modal").on('click', function(e){
     if (e.target !== this)
         return;
 
-    $("#sets").css('visibility', 'hidden');
+    $(this).css('visibility', 'hidden');
 });
+
 
 // Fills prices
 $("#settings").on('click', function(){
     $("#sets").css('visibility', 'visible');
-    $("#pricesSetting").empty();
+    fillPrices();
+});
 
-    for(let i in products){
-        if(products[i].length == 3){
-            continue;
+// Remove Item
+$("#pricesSetting").on('click', '.remProd', function(){
+    var r = confirm("Voulez vous supprimer ce plat ?");
+    if (r == true) {
+        delete products[$(this).parent().data("id")];
+        saveData("Prods", JSON.stringify(products));
+        fillTable();
+        redraw();
+        fillPrices();
+    }
+});
+
+
+// Add new item
+$("#addPrice").on('click', function(){
+    $("#addItem").css('visibility', 'visible');
+});
+
+$("#confirmNewItem").on('click', function(){
+    if($("#newName").val() == "" || $("#newName").val() == undefined ||
+       $("#newPrice").val() == "" || $("#newPrice").val() == undefined ||
+       $("#newCategorie").val() == "" || $("#newCategorie").val() == undefined){
+        return;
+    }
+
+    $("#addItem").css('visibility', 'hidden');
+
+    let newIndex = 0;
+
+    for(let index in products){
+        if(parseInt(index) >= newIndex){
+            newIndex = parseInt(index)+1;
         }
-        $("#pricesSetting").append("<label>"+ products[i][0] +"</label><input type='text' class='payMode' value='"+ products[i][1] +"'><br>");
     }
 
-    for(let i in formules){
-        $("#pricesSetting").append("<label class='formul' id='NB"+ i +"'>Formule "+ formules[i][0] +"</label>\
-                                        <input type='text' class='payMode' value='"+ formules[i][1] +"'><br>");
-        $("#pricesSetting").append("<label class='formul'>Menu "+ formules[i][0] +"</label>\
-                                        <input type='text' class='payMode' value='"+ formules[i][2] +"'><br>");
-    }
+    products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val())];
+
+    saveData("Prods", JSON.stringify(products));
+    fillTable();
+    redraw();
+    fillPrices();
 });
 
 // Saves prices
 $("#confirmPrice").on('click', function(){
     $("#sets").css('visibility', 'hidden');
+    products = {};
+    formules = {};
+    
+    products[0] = ['Remise pourcentage', -1, 3, 'P'];
+    products[1] = ['Remise euro', -1, 3, 'E'];
 
-    $("#pricesSetting label").each(function(index){
+    $("#pricesSetting label").each(function(){
         if($(this).attr('class') == "formul"){
             if($(this).attr('id')!=undefined){
                 formules[ parseInt($(this).attr('id')[2]) ] = [$(this).html().substring(8), 
@@ -39,7 +75,7 @@ $("#confirmPrice").on('click', function(){
             }
         }
         else{
-            products[index] = [$(this).html(), parseFloat($(this).next().val())];
+            products[ parseInt($(this).data('id')) ] = [$(this).text(), parseFloat($(this).next().val()), parseInt($(this).data("catid"))];
         }
     });
 
@@ -47,14 +83,6 @@ $("#confirmPrice").on('click', function(){
     saveData("Forms", JSON.stringify(formules));
     fillTable();
     redraw();
-});
-
-// Hide commands
-$("#cmds").on('click', function(e){
-    if (e.target !== this)
-        return;
-
-    $("#cmds").css('visibility', 'hidden');
 });
 
 
@@ -68,7 +96,6 @@ $("#myCmd").on('click', function(){
         }
 
         let toShow = "";
-        console.log(item);
         let obj = JSON.parse(getData(item));
         for(let key in obj){
             try{
@@ -93,9 +120,11 @@ $("#myCmd").on('click', function(){
 
 
 $("#cmdConteneur").on('click', ".suprCmd", function(event){
-    removeData($(this).parent().data("command"));
-    $(this).parent().remove();
-
+    var r = confirm("Voulez vous supprimer cette commande ?");
+    if (r == true) {
+        removeData($(this).parent().data("command"));
+        $(this).parent().remove();
+    }
     event.stopPropagation();
 });
 
@@ -136,14 +165,6 @@ $("#cmdConteneur").on('click', ".cmdList", function(){
     redraw();
 });
 
-// Hide OnSubmit
-$("#modal").on('click', function(e){
-    if (e.target !== this)
-        return;
-
-    $("#modal").css('visibility', 'hidden');
-});
-
 
 // Manages the modal OnSubmit
 $("#submit").on('click', function(){
@@ -182,6 +203,7 @@ $("#End").on('click', function(){
     
     $("#modal").css('visibility', 'hidden');
     $("#to").empty();
+    $("#fTo .prix").html("");
     rawCommande = {};
 
     // add the payment mode to curCommand

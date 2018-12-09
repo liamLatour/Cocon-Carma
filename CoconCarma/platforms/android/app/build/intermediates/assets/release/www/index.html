@@ -23,17 +23,17 @@
     <body>
         <div id="modal" class="modal">
             <div class="content">
-                <h2>Mode de paiment</h2>
+                <h2>Mode de paiement</h2>
 
                 <div id="modes">
                     <label>CB</label>
-                    <input type="text" class="payMode" id="cb"><br>
+                    <input type="number" step="0.01" class="payMode" id="cb"><br>
                     <label>Espèces</label>
-                    <input type="text" class="payMode" id="es"><br>
+                    <input type="number" step="0.01" class="payMode" id="es"><br>
                     <label>Tickets restaurants</label>
-                    <input type="text" class="payMode" id="ti"><br>
-                    <label>Cheques</label>
-                    <input type="text" class="payMode" id="ch">
+                    <input type="number" step="0.01" class="payMode" id="ti"><br>
+                    <label>Chèques</label>
+                    <input type="number" step="0.01" class="payMode" id="ch">
                 </div>
 
                 <span id="Rest">42</span>
@@ -46,7 +46,7 @@
             <div class="content" id="contentCmd">
                 <h2>Anciennes commandes</h2>
                 <ul id="cmdConteneur"></ul>
-                <span id="clearCmd">Remise à zero</span>
+                <span id="clearCmd">Remise à zéro</span>
                 <span id="toExcel">Excel</span>
             </div>
         </div>
@@ -57,7 +57,28 @@
 
                 <div id="pricesSetting">
                 </div>
+                <span id="addPrice">Ajouter</span>
                 <span id="confirmPrice">Sauvegarder</span>
+            </div>
+        </div>
+
+        <div id="addItem" class="modal">
+            <div class="content" id="addItemContent">
+                <h2>Nouveau Plat</h2>
+
+                <div id="inputs">
+                    Nom<input type="text" id="newName"><br><br>
+                    Prix<input type="number" min="0" step="0.01" id="newPrice"><br><br>
+                    Catégorie<select id="newCategorie">
+                                    <option value="">--Choisisez une catégorie--</option>
+                                    <option value="0">Principale</option>
+                                    <option value="1">Boissons</option>
+                                    <option value="2">Couverts</option>
+                                    <option value="3">Autres</option>
+                                </select>
+                </div>
+
+                <span id="confirmNewItem">Confirmer</span>
             </div>
         </div>
 
@@ -66,7 +87,7 @@
                 <td id="Pri" class="">Principale</td>
                 <td id="Boi" class="">Boissons</td>
                 <td id="Cou" class="">Couverts</td>
-                <td id="Red" class="">Réductions</td>
+                <td id="Red" class="">Autres</td>
                 <td width="3%"><span id="myCmd">📰</span></td>
                 <td width="3%"><span id="settings">🔧</span></td>
             </tr>
@@ -75,34 +96,10 @@
         <!--Partie gauche de l'écran qui affiche les différents plats-->
         <div class="split left">
             <div class="overflow">
-                <table class="itemList from" id="tPri">
-                    <tr class='item' data-item-id='0'></tr>
-                    <tr class='item' data-item-id='1'></tr>
-                    <tr class='item' data-item-id='2'></tr>
-                    <tr class='item' data-item-id='3'></tr>
-                    <tr class='item' data-item-id='4'></tr>
-                    <tr class='item' data-item-id='5'></tr>
-                </table>
-                <table class="itemList from" id="tBoi">
-                    <tr class='item' data-item-id='6'></tr>
-                    <tr class='item' data-item-id='7'></tr>
-                    <tr class='item' data-item-id='8'></tr>
-                    <tr class='item' data-item-id='9'></tr>
-                    <tr class='item' data-item-id='10'></tr>
-                    <tr class='item' data-item-id='11'></tr>
-                    <tr class='item' data-item-id='12'></tr>
-                    <tr class='item' data-item-id='13'></tr>
-                </table>
-                <table class="itemList from" id="tCou">
-                    <tr class='item' data-item-id='14'></tr>
-                    <tr class='item' data-item-id='15'></tr>
-                    <tr class='item' data-item-id='16'></tr>
-                    <tr class='item' data-item-id='17'></tr>
-                </table>
-                <table class="itemList from" id="tRed">
-                    <tr class='item' data-item-id='18'></tr>
-                    <tr class='item' data-item-id='19'></tr>
-                </table>
+                <table class="itemList from" id="tPri"></table>
+                <table class="itemList from" id="tBoi"></table>
+                <table class="itemList from" id="tCou"></table>
+                <table class="itemList from" id="tRed"></table>
             </div>
         </div><div class="split right">
             <div class="overflow stop">
