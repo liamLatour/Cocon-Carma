@@ -1,4 +1,5 @@
-﻿// Hide modals when clicks away
+﻿"use strict";
+// Hide modals when clicks away
 $(".modal").on('click', function(e){
     if (e.target !== this)
         return;
@@ -42,6 +43,7 @@ $("#confirmNewItem").on('click', function(){
 
     let newIndex = 0;
 
+    // Avoids to overwrite anything
     for(let index in products){
         if(parseInt(index) >= newIndex){
             newIndex = parseInt(index)+1;
@@ -56,11 +58,11 @@ $("#confirmNewItem").on('click', function(){
     fillPrices();
 });
 
+
 // Saves prices
 $("#confirmPrice").on('click', function(){
     $("#sets").css('visibility', 'hidden');
     products = {};
-    formules = {};
     
     products[0] = ['Remise pourcentage', -1, 3, 'P'];
     products[1] = ['Remise euro', -1, 3, 'E'];
@@ -68,19 +70,19 @@ $("#confirmPrice").on('click', function(){
     $("#pricesSetting label").each(function(){
         if($(this).attr('class') == "formul"){
             if($(this).attr('id')!=undefined){
-                formules[ parseInt($(this).attr('id')[2]) ] = [$(this).html().substring(8), 
-                                                                parseFloat($(this).next().val()), 
-                                                                parseFloat($(this).next().next().next().next().val())
-                                                              ];
+                    
+                products[ parseInt($(this).attr('id')[2]) ].push([parseFloat($(this).next().val()), 
+                                                                    parseFloat($(this).next().next().next().next().val()),
+                                                                    $(this).html().substring(8)
+                                                                ]);
             }
         }
         else{
-            products[ parseInt($(this).data('id')) ] = [$(this).text(), parseFloat($(this).next().val()), parseInt($(this).data("catid"))];
+            products[ parseInt($(this).data('id')) ] = [$(this).children().eq(1).val(), parseFloat($(this).next().val()), parseInt($(this).data("catid"))];
         }
     });
 
     saveData("Prods", JSON.stringify(products));
-    saveData("Forms", JSON.stringify(formules));
     fillTable();
     redraw();
 });
@@ -103,10 +105,10 @@ $("#myCmd").on('click', function(){
                     toShow += products[key][0];
                 }
                 else if(key.includes('M')){
-                    toShow += "Menu "+formules[key[1]][0];
+                    toShow += "Menu "+ products[key[1]][3][2];
                 }
                 else{
-                    toShow += "Formules "+formules[key[2]][0];
+                    toShow += "Formules "+ products[key[2]][3][2];
                 }
                 toShow += ", ";
             }
@@ -138,29 +140,8 @@ $("#cmdConteneur").on('click', ".cmdList", function(){
     modifyCmd = $(this).data("command");
     // Cur to raw
     curCommande = JSON.parse(getData(modifyCmd));
-    rawCommande = {};
-    // Pour simplifier
-    rawCommande[0] = 0;
-    rawCommande[5] = 0;
-    rawCommande[1] = 0;
-    rawCommande[2] = 0;
-    rawCommande[3] = 0;
-    rawCommande[4] = 0;
+    rawCommande = demystify(curCommande)[0];
 
-    for(let item in curCommande){
-        if(isNaN(item) && item[0].toUpperCase() === item[0]){
-            if(item.includes('M') || item.includes('e')){
-                rawCommande[0]++;
-            }
-            rawCommande[item.match(/\d+/)[0]]++;
-            if(item.includes('M') || item.includes('d')){
-                rawCommande[5]++;
-            }
-        }
-        else{
-            rawCommande[item] = curCommande[item];
-        }
-    }
     $("#cmds").css('visibility', 'hidden');
     redraw();
 });
@@ -227,6 +208,9 @@ $("#End").on('click', function(){
             saveData(modifyCmd, JSON.stringify(curCommande));
         }
         modifyCmd = -1;
+
+        // Update the Real Time Peolple Count
+        updateRealTimeStats();
     }
     else {
         alert("Désolé ce navigateur ne supporte pas la sauvegarde");
@@ -251,6 +235,10 @@ $("#menu").on('click', 'td', function(){
 // Recupère les clicks sur les elements 'tr' qui ont un parent avec l'id 'from' 
 $("table.from").on('click', 'tr', function(){
     let item = $(this).data("item-id");
+    if($(this).data("nbper")){
+        addItem(item, Number($(this).data("nbper")));
+        return;
+    }
     addItem(item, 1);
 });
 

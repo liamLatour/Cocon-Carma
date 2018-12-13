@@ -437,3 +437,42 @@ select{
     left: 0;
     right: 0;
 }
+
+.transparent{
+    all: unset;
+    text-align: center;
+    width: 100%;
+}
+
+
+/*####################*/
+/*# Real Time Things #*/
+/*####################*/
+
+#realPeople{
+    position: fixed;
+    display: inline;
+    background-color: #a15050;
+    padding: 10px;
+    border-radius: 20px;
+    left: 10px;
+}
+
+#realMoney{
+    position: fixed;
+    display: inline;
+    background-color: #7b9c2d;
+    padding: 10px;
+    border-radius: 20px;
+    right: 75%;
+    transform: translateX(50%);
+}
+
+#realAverage{
+    position: fixed;
+    display: inline;
+    background-color: #5070a1;
+    padding: 10px;
+    border-radius: 20px;
+    right: calc(50% + 10px);
+}
