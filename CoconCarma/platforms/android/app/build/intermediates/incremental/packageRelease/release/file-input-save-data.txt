@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Sun Dec 09 14:59:29 CET 2018
+#Thu Dec 13 21:06:07 CET 2018
 5.base=E\:\\Cocon-Carma\\CoconCarma\\platforms\\android\\app\\build\\intermediates\\assets\\release
 42.base=E\:\\Cocon-Carma\\CoconCarma\\platforms\\android\\app\\build\\intermediates\\assets\\release
 22.path=www/css/tableau.css

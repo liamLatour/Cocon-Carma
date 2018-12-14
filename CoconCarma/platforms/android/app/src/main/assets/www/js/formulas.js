@@ -1,32 +1,20 @@
 "use strict";
-// Shape is :
-/*
-    curCommande = {
-        id : quantity,
-        ...
-    }
-*/
+
 var curCommande = {};
 var rawCommande = {};
 var total = 0;
 var modifyCmd = -1;
-// Add em to the modify price thing
-var formules = {
-    3 : ["Snack", 7.5, 11],
-    4 : ["Salade", 10, 13.5],
-    5 : ["Végé", 10, 13.5],
-    6 : ["Omni", 12, 15]
-};
+
 var products = {
     0 : ['Remise pourcentage', -1, 3, 'P'],
     1 : ['Remise euro', -1, 3, 'E'],
 
-    2 : ['Entrée', 4, 0],
-    3 : ['Snack', 5, 0],
-    4 : ['Salade/Buddha Bowl', 8, 0],
-    5 : ['Végétarian', 8, 0],
-    6 : ['Omnivore', 10, 0],
-    7 : ['Dessert', 4, 0],
+    2 : ['Entrée', 4, 0, 'S'],
+    3 : ['Snack', 5, 0, [7.5, 11, 'Snack']],
+    4 : ['Salade/Buddha Bowl', 8, 0, [10, 13.5, 'Salade']],
+    5 : ['Végétarien', 8, 0, [10, 13.5, 'Végé']],
+    6 : ['Omnivore', 10, 0, [12, 15, 'Omni']],
+    7 : ['Dessert', 4, 0, 'D'],
 
     8 : ['Eau détox', 1.5, 1],
     9 : ['Eau minérale plate', 1.5, 1],
@@ -48,15 +36,12 @@ var currentMenuId = "Pri";
 
 // Does startup things
 let savedProducts = getData("Prods");
-let savedFormules = getData("Forms");
 
 if(savedProducts !== false && savedProducts !== null){
     products = JSON.parse(savedProducts);
 }
-if(savedFormules !== false && savedFormules !== null){
-    formules = JSON.parse(savedFormules);
-}
 fillTable();
+updateRealTimeStats();
 
 
 // Cleans the array
@@ -71,6 +56,7 @@ function supZeros(c){
 
 // Check for Formulas
 function checkFormules(cmd){
+    // commande is just a copy of raw command here
     let commande = supZeros(cmd);
     
     let entree = commande[2] === undefined ? 0 : commande[2];
@@ -78,7 +64,7 @@ function checkFormules(cmd){
     let nb = entree > desert ? entree : desert;
     
     for(let formu = 0; formu<nb; formu++){
-        for(let i=3; i<7; i++){
+        for(let i=3; i<7; i++){   // PROBLEM HERE
             if(i in commande && commande[i] > 0){
                 let tag = "";
                 if(entree > 0 && desert > 0){
@@ -130,96 +116,55 @@ function checkFormules(cmd){
 
 function recalculateSum(){
     rawCommande = supZeros(rawCommande);
-    let remise = 0;
-    total = 0;
 
     curCommande = {};
     Object.assign(curCommande, rawCommande);
     curCommande = checkFormules(curCommande);
 
-    for(let key in curCommande){
-        if(isNaN(key)){
-            if(key.includes('M')){
-                total += formules[key.replace('M', '')[0]][2] * curCommande[key];
-            }
-            else if(key.includes('F')){
-                total += formules[key.substring(2, 3)][1] * curCommande[key];
-            }
-
-            if(key.includes('B')){
-                total += (products[ Number(key.match(/\d+$/)[0]) ][1] - 0.5) * curCommande[key];
-            }
-        }
-        else{
-            if(products[key][1] < 0 && products[key][3] === 'P'){
-                remise = curCommande[key];
-            }
-            else{
-                total += products[key][1] * curCommande[key];
-            }
-        }
-    }
-
-    total = total/100*(100- Math.abs(remise));
-    total = coolRound(total);
-
-    $("#fTo .prix").html(total + "€");
+    $("#fTo .prix").html(demystify(curCommande)[1] + "€");
 }
 
-// Sanitize prices
+
 function redraw(){
     recalculateSum();
 
     $("#to").empty();
     for(let key in curCommande){
-        if(isNaN(key) && key[0].toUpperCase() == key[0]){
-            let reducEau = 0;
+        if(key[0].toUpperCase() != key[0]){
+            continue;
+        }
+        if(isNaN(key)){
             let itemData = "<tr class='item' data-item-id='"+key+"'>\
                                 <td class='titre'>";
 
-            if(key.includes('M') || key.includes('e')){
-                itemData += products[2][0] + "</br>";
+            let curObj = {};
+            curObj[key] = 1;
+            let curItem = demystify(curObj);
+
+            for(let it in curItem[0]){
+                itemData += products[it][0] + "</br>";
             }
 
-            let id = key.match(/\d+/)[0];
-            itemData += products[id][0];
-
-            if(key.includes('M') || key.includes('d')){
-                itemData += "</br>" + products[7][0];
-            }
-
-            // drinks
-            if(key.includes('B')){
-                itemData += "</br>" + products[Number(key.match(/\d+$/)[0])][0];
-                reducEau = products[Number(key.match(/\d+$/)[0])][1] - 0.5;
-            }
-
-            itemData += "<td class='quantite'><span class='moins hover'>-</span>"+ curCommande[key] +"<span class='plus hover'>+</span></td>";
-
-            if(key.includes('M')){
-                itemData += "<td class='prix'>"+ coolRound((formules[id][2]+ reducEau) * curCommande[key]) +"</td>";
-            }
-            else{
-                itemData += "<td class='prix'>"+ coolRound((formules[id][1]+ reducEau) * curCommande[key]) +"</td>";
-            }
-
-            itemData += "<td class='supr hover'></td></tr>";
+            itemData += "<td class='quantite'><span class='moins hover'>-</span>"+ curCommande[key] +"<span class='plus hover'>+</span></td>\
+                         <td class='prix'>"+ curItem[1] * curCommande[key] +"</td>\
+                         <td class='supr hover'></td>\
+                    </tr>";
 
             $("#to").prepend(itemData);
         }
-        else if(!isNaN(key)){
+        else{
             let itemData = "<tr class='item' data-item-id='"+ key +"'>\
                                 <td class='titre'>"+ products[key][0] +"</td>\
                                 <td class='quantite'><span class='moins hover'>-</span>"+ curCommande[key] +"<span class='plus hover'>+</span></td>\
                                 <td class='prix'>"+ coolRound(curCommande[key] * products[key][1]) +"</td>\
                                 <td class='supr hover'></td>\
                             </tr>";
-                    if(products[key][1] < 0){
-                        $("#to").append(itemData);
-                    }
-                    else{
-                        $("#to").prepend(itemData);
-                    }
+            if(products[key][1] < 0){
+                $("#to").append(itemData);
+            }
+            else{
+                $("#to").prepend(itemData);
+            }
         }
     }
 }
@@ -232,6 +177,16 @@ function fillTable(){
                                                         <td class='prix'>"+ products[item][1] +"</td>\
                                                     </tr>");
     }
+
+    // Add the 5% and 10%
+    $(".from:eq(3)").append("<tr class='item' data-item-id='0' data-catid='3' data-nbper='5'>\
+                                <td class='titre'>Remise pourcentage 5%</td>\
+                                <td class='prix'>-5%</td>\
+                            </tr>");
+    $(".from:eq(3)").append("<tr class='item' data-item-id='0' data-catid='3' data-nbper='10'>\
+                                <td class='titre'>Remise pourcentage 10%</td>\
+                                <td class='prix'>-10%</td>\
+                            </tr>");
 }
 
 
@@ -239,21 +194,110 @@ function fillPrices(){
     $("#pricesSetting").empty();
 
     for(let i in products){
-        if(products[i].length == 4){
+        if(products[i].length == 4 && products[i][1] < 0){
             continue;
         }
-        $("#pricesSetting").append("<label data-id='"+ i +"' data-catid='"+ products[i][2] +"'><span class='remProd'></span>"+ products[i][0] +"</label>\
+        
+        $("#pricesSetting").append("<label data-id='"+ i +"' data-catid='"+ products[i][2] +"'><span class='remProd'></span><input class='transparent' value='"+products[i][0]+"'></input></label>\
                                         <input type='number' step='0.01' class='payMode' value='"+ products[i][1] +"'><br>");
     }
 
-    for(let i in formules){
+    let formulas = getFormulas();
+    for(let i in formulas){
         // Formule
-        $("#pricesSetting").append("<label class='formul' id='NB"+ i +"'>Formule "+ formules[i][0] +"</label>\
-                                        <input type='number' step='0.01' class='payMode' value='"+ formules[i][1] +"'><br>");
+        $("#pricesSetting").append("<label class='formul' id='NB"+ formulas[i] +"'>Formule "+  products[formulas[i]][3][2] +"</label>\
+                                        <input type='number' step='0.01' class='payMode' value='"+ products[formulas[i]][3][0] +"'><br>");
         // Menu
-        $("#pricesSetting").append("<label class='formul'>Menu "+ formules[i][0] +"</label>\
-                                        <input type='number' step='0.01' class='payMode' value='"+ formules[i][2] +"'><br>");
+        $("#pricesSetting").append("<label class='formul'>Menu "+ products[formulas[i]][3][2] +"</label>\
+                                        <input type='number' step='0.01' class='payMode' value='"+ products[formulas[i]][3][1] +"'><br>");
     }
+}
+
+//FIXME: fix the fucking 2 and 7 dependencie
+// Gets an object of compressed data and uncompress it && also the sum
+function demystify(obj){
+    let realObj = {};
+    let sum = 0;
+    let remise = 0;
+
+    function easyAdd(id, nb){
+        if(realObj[id] === undefined){
+            realObj[id] = nb;
+        }
+        else{
+            realObj[id] += nb;
+        }
+    }
+
+    for(let key in obj){
+        if(isNaN(key)){
+            // Check whether it is a payment mode
+            if(key[0] != key[0].toUpperCase()){
+                continue;
+            }
+
+            // For the sum
+            if(key.includes('M')){
+                sum += products[key[1]][3][1] * obj[key];
+            }
+            else if(key.includes('F')){
+                sum += products[key[2]][3][0] * obj[key];
+            }
+            if(key.includes('B')){
+                sum += (products[ Number(key.match(/\d+$/)[0]) ][1] - 0.5) * obj[key];
+            }
+
+            // For the rest
+            if(key.includes('M') || key.includes('e')){
+                // Find where starters are
+                easyAdd(   2   , obj[key]);
+            }
+            easyAdd(Number(key.match(/\d+/)[0]), obj[key]);
+            if(key.includes('M') || key.includes('d')){
+                // Find where deserts are
+                easyAdd(   7   , obj[key]);
+            }
+            if(key.includes('B')){
+                easyAdd(Number(key.match(/\d+$/)[0]), obj[key]);
+            }
+        }
+        else{
+            if(products[key][1] < 0 && products[key][3] === 'P'){
+                remise = obj[key];
+            }
+            else{
+                sum += products[key][1] * obj[key];
+            }
+            easyAdd(key, obj[key]);
+        }
+    }
+    sum = sum/100*(100- Math.abs(remise));
+
+    return [realObj, coolRound(sum)];
+}
+
+function getFormulas(){
+    let indices = [];
+    for(let i in products){
+        if(products[i].length == 4 && products[i][3] instanceof Array){
+            indices.push(i);
+        }
+    }
+    return indices;
+}
+
+function updateRealTimeStats(){
+    let nbPeople = 0;
+    let totMoney = 0;
+    for(let item in getData()){
+        if(item[0] === "C"){
+            nbPeople++;
+            totMoney += demystify( JSON.parse(getData(item)) )[1];
+        }
+    }
+    $("#realPeople").html("👥 "+nbPeople);
+    $("#realMoney").html("💰 "+coolRound(totMoney));
+    $("#realAverage").html("📈 "+coolRound(totMoney/nbPeople));
 }
 
 
@@ -266,20 +310,12 @@ function addItem(item, quantity=null){
         rawCommande[item] = quantity;
     }
     else{
-        if(isNaN(item)){
-            if(item.includes('M') || item.includes('e')){
-                rawCommande[2] += quantity;
-            }
-            rawCommande[item.match(/\d+/)[0]] += quantity;
-            if(item.includes('M') || item.includes('d')){
-                rawCommande[7] += quantity;
-            }
-            if(item.includes('B')){
-                rawCommande[Number(item.match(/\d+$/)[0])] += quantity;
-            }
-        }
-        else{
-            rawCommande[item] += quantity;
+        let thisItem = {};
+        thisItem[item] = quantity;
+        let items = demystify(thisItem)[0];
+
+        for(let it in items){
+            rawCommande[it] += items[it];
         }
     }
     redraw();
@@ -301,7 +337,6 @@ function removeData(key=null){
     if(key == null){
         localStorage.clear();
         saveData("Prods", JSON.stringify(products));
-        saveData("Forms", JSON.stringify(formules));
     }
     else{
         try{
@@ -333,5 +368,6 @@ function getData(key=null){
 }
 
 function coolRound(nb){
-    return Math.round(nb*100)/100;
+    let finNb = Math.round(nb*100)/100;
+    return isNaN(finNb) ? 0 : finNb;
 }

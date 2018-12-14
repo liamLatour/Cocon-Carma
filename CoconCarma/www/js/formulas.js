@@ -1,5 +1,7 @@
 "use strict";
 
+//TODO: Check what happens when an item is suppressed
+
 var curCommande = {};
 var rawCommande = {};
 var total = 0;
@@ -56,11 +58,38 @@ function supZeros(c){
 
 // Check for Formulas
 function checkFormules(cmd){
-    // commande is just a copy of raw command here
+    // 'commande' is just a copy of 'rawcommand' here
     let commande = supZeros(cmd);
     
-    let entree = commande[2] === undefined ? 0 : commande[2];
-    let desert = commande[7] === undefined ? 0 : commande[7];
+    let formules = getFormulas();
+    let DnS = getStartersDeserts();
+    let entree = {};
+    let desert = {};
+    let meals = {};
+
+    // Does the link between DnS/formules and the real command
+    for(let it in DnS[0]){
+        entree[it] = commande[it] === undefined ? 0 : commande[it];
+    }
+    for(let it in DnS[1]){
+        desert[it] = commande[it] === undefined ? 0 : commande[it];
+    }
+    for(let it in formules){
+        meals[it] = commande[it] === undefined ? 0 : commande[it];
+    }
+    entree = supZeros(entree);
+    desert = supZeros(desert);
+    meals = supZeros(meals);
+
+    // Loop through meals, sure there is some because of supZeros();
+    for(let m in meals){
+        for(){
+
+        }
+    }
+
+    //let entree = commande[2] === undefined ? 0 : commande[2];
+    //let desert = commande[7] === undefined ? 0 : commande[7];
     let nb = entree > desert ? entree : desert;
     
     for(let formu = 0; formu<nb; formu++){
@@ -214,7 +243,7 @@ function fillPrices(){
 }
 
 //FIXME: fix the fucking 2 and 7 dependencie
-// Gets an object of compressed data and uncompress it && also the sum
+// Gets an object of compressed data and uncompress it && also sums it
 function demystify(obj){
     let realObj = {};
     let sum = 0;
@@ -276,6 +305,23 @@ function demystify(obj){
     return [realObj, coolRound(sum)];
 }
 
+function getStartersDeserts(){
+    let starters = [];
+    let deserts = [];
+
+    for(let it in products){
+        if(products[it].length === 4){
+            if(products[it][3] === 'S'){
+                starters.push(it);
+            }
+            else if(products[it][3] === 'D'){
+                deserts.push(it);
+            }
+        }
+    }
+
+    return [starters, deserts];
+}
 function getFormulas(){
     let indices = [];
     for(let i in products){

@@ -29,7 +29,7 @@ function exportExcel(){
                     let thisCost = 0;
 
                     if(!isNaN(product)){
-                        if(products[product][1] < 0 && products[product][2] === 'P'){
+                        if(products[product][1] < 0 && products[product][3] === 'P'){
                             reducPour = obj[product];
                         }
                         thisName = products[product][0];
@@ -40,7 +40,7 @@ function exportExcel(){
                         thisCost = formules[product[1]][2];
                         if(product.includes('B')){
                             thisName += " + Boisson";
-                            thisCost += products[Number(product.substring(product.length-1, product.length))+6][1];
+                            thisCost += products[ Number(product.match(/\d+$/)[0]) ][1];
                         }
                     }
                     else if(product.includes('F')){
@@ -48,7 +48,7 @@ function exportExcel(){
                         thisCost = formules[product[2]][1];
                         if(product.includes('B')){
                             thisName += " + Boisson";
-                            thisCost += products[Number(product.substring(product.length-1, product.length))+6][1];
+                            thisCost += products[ Number(product.match(/\d+$/)[0]) ][1];
                         }
                     }
                     else{
