@@ -7,7 +7,7 @@ var rawCommande = {};
 var total = 0;
 var modifyCmd = -1;
 
-var products = {
+var defaults = {
     0 : ['Remise pourcentage', -1, 3, 'P'],
     1 : ['Remise euro', -1, 3, 'E'],
 
@@ -37,6 +37,8 @@ var products = {
     22 : ['Consigne 1€', 1, 2]
 };
 
+var products;
+
 var currentMenuId = "Pri";
 
 
@@ -45,6 +47,9 @@ let savedProducts = getData("Prods");
 
 if(savedProducts !== false && savedProducts !== null){
     products = JSON.parse(savedProducts);
+}
+else{
+    products = JSON.parse(JSON.stringify(defaults));
 }
 fillTable();
 updateRealTimeStats();

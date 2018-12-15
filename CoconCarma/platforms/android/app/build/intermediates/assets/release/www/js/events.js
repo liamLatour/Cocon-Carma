@@ -16,16 +16,39 @@ $("#settings").on('click', function(){
 
 // Remove Item
 $("#pricesSetting").on('click', '.remProd', function(){
-    var r = confirm("Voulez vous supprimer ce plat ?");
-    if (r == true) {
-        delete products[$(this).parent().data("id")];
-        saveData("Prods", JSON.stringify(products));
-        fillTable();
-        redraw();
-        fillPrices();
+    let id = $(this).parent().data("id");
+    
+    // Check whether this item is used or not
+    for(let com in getData()){
+        if(com[0] != 'C'){
+            continue;
+        }
+        let obj = JSON.parse(getData(com));
+        let decompressedObj = demystify(obj)[0];
+
+        for(let it in decompressedObj){
+            if(it == id){
+                alert("Ce plat est dans au moins une formule, il ne peut être suprimé");
+                return;
+            }
+        }
     }
+
+
+    delete products[id];
+    saveData("Prods", JSON.stringify(products));
+    fillTable();
+    redraw();
+    fillPrices();
 });
 
+$("#resetPrices").on('click', function(){
+    removeData("Prods");
+    products = JSON.parse(JSON.stringify(defaults));
+    fillTable();
+    redraw();
+    fillPrices();
+});
 
 // Add new item
 $("#addPrice").on('click', function(){
@@ -39,6 +62,19 @@ $("#confirmNewItem").on('click', function(){
         return;
     }
 
+    let radioValue = $("input[name='radio']:checked").val();
+
+    if(parseInt($("#newCategorie").val()) === 1){
+        if(radioValue === "dessert"){
+            alert("Impossible d'avoir un dessert dans les boissons");
+            return;
+        }
+        else if(radioValue === "entree"){
+            alert("Impossible d'avoir une entrée dans les boissons");
+            return;
+        }
+    }
+
     $("#addItem").css('visibility', 'hidden');
 
     let newIndex = 0;
@@ -50,7 +86,15 @@ $("#confirmNewItem").on('click', function(){
         }
     }
 
-    products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val())];
+    if(radioValue === "dessert"){
+        products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val()), 'D'];
+    }
+    else if(radioValue === "entree"){
+        products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val()), 'S'];
+    }
+    else{
+        products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val())];
+    }
 
     saveData("Prods", JSON.stringify(products));
     fillTable();
@@ -59,26 +103,24 @@ $("#confirmNewItem").on('click', function(){
 });
 
 
-// Saves prices
+// Saves prices (only updates name and price)
 $("#confirmPrice").on('click', function(){
     $("#sets").css('visibility', 'hidden');
-    products = {};
-    
-    products[0] = ['Remise pourcentage', -1, 3, 'P'];
-    products[1] = ['Remise euro', -1, 3, 'E'];
 
     $("#pricesSetting label").each(function(){
         if($(this).attr('class') == "formul"){
             if($(this).attr('id')!=undefined){
-                    
-                products[ parseInt($(this).attr('id')[2]) ].push([parseFloat($(this).next().val()), 
-                                                                    parseFloat($(this).next().next().next().next().val()),
-                                                                    $(this).html().substring(8)
-                                                                ]);
+                let id = parseInt($(this).attr('id')[2]);
+                products[id][3][0] = parseFloat($(this).next().val());
+                products[id][3][1] = parseFloat($(this).next().next().next().next().val());
+                products[id][3][2] = $(this).html().replace(/formule /ig, '').replace(/menu /ig, '');
             }
         }
         else{
-            products[ parseInt($(this).data('id')) ] = [$(this).children().eq(1).val(), parseFloat($(this).next().val()), parseInt($(this).data("catid"))];
+            // MODIFY only the name and price
+            let id = parseInt($(this).data('id'));
+            products[id][0] = $(this).children().eq(1).val();
+            products[id][1] = parseFloat($(this).next().val());
         }
     });
 
@@ -150,6 +192,7 @@ $("#cmdConteneur").on('click', ".cmdList", function(){
 // Manages the modal OnSubmit
 $("#submit").on('click', function(){
     if(total <= 0){
+        console.warn("No Items");
         return;
     }
     $("#Rest").html(total);

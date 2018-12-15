@@ -44,6 +44,7 @@ $("#pricesSetting").on('click', '.remProd', function(){
 
 $("#resetPrices").on('click', function(){
     removeData("Prods");
+    products = JSON.parse(JSON.stringify(defaults));
     fillTable();
     redraw();
     fillPrices();

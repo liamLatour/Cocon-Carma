@@ -1,11 +1,13 @@
 "use strict";
 
+//TODO: Fix the fact that two items can't have the same name
+
 var curCommande = {};
 var rawCommande = {};
 var total = 0;
 var modifyCmd = -1;
 
-var products = {
+var defaults = {
     0 : ['Remise pourcentage', -1, 3, 'P'],
     1 : ['Remise euro', -1, 3, 'E'],
 
@@ -28,8 +30,14 @@ var products = {
     16 : ['Jetable écologique', 0.5, 2],
     17 : ['MontBento original', 30, 2],
     18 : ['MontBento square', 25, 2],
-    19 : ['Kit 4 couverts inox', 2, 2]
+    19 : ['Kit 4 couverts inox', 2, 2],
+
+    20 : ['Magazine Bien-être', 4.5, 3], 
+    21 : ['Consigne 0.5€', 0.5, 2],
+    22 : ['Consigne 1€', 1, 2]
 };
+
+var products;
 
 var currentMenuId = "Pri";
 
@@ -39,6 +47,9 @@ let savedProducts = getData("Prods");
 
 if(savedProducts !== false && savedProducts !== null){
     products = JSON.parse(savedProducts);
+}
+else{
+    products = JSON.parse(JSON.stringify(defaults));
 }
 fillTable();
 updateRealTimeStats();
@@ -56,57 +67,86 @@ function supZeros(c){
 
 // Check for Formulas
 function checkFormules(cmd){
-    // commande is just a copy of raw command here
+    // 'commande' is just a copy of 'rawcommand' here
     let commande = supZeros(cmd);
-    
-    let entree = commande[2] === undefined ? 0 : commande[2];
-    let desert = commande[7] === undefined ? 0 : commande[7];
-    let nb = entree > desert ? entree : desert;
-    
-    for(let formu = 0; formu<nb; formu++){
-        for(let i=3; i<7; i++){   // PROBLEM HERE
-            if(i in commande && commande[i] > 0){
-                let tag = "";
-                if(entree > 0 && desert > 0){
-                    commande[i]--;
-                    commande[2]--;
-                    commande[7]--;
-                    entree--;
-                    desert--;
-                    tag = ("M"+i);
-                }
-                else if(entree > 0){
-                    commande[i]--;
-                    commande[2]--;
-                    entree--;
-                    tag = ("Fe"+i);
-                }
-                else if(desert > 0){
-                    commande[i]--;
-                    commande[7]--;
-                    desert--;
-                    tag = ("Fd"+i);
-                }
 
-                if(tag != ""){
-                    // Add drinks inteligently
-                    if(tag.includes('M')){
-                        for(let item in commande){
-                            if(!isNaN(item) && products[item][2] == 1 && commande[item] > 0){
-                                commande[item]--;
-                                tag += "B"+item;
-                                break;
-                            }
+    function easyAdd(id){
+        if(commande[id] === undefined){
+            commande[id] = 1;
+        }
+        else{
+            commande[id]++;
+        }
+    }
+    
+    let formules = getFormulas();
+    let DnS = getStartersDeserts();
+    let entree = {};
+    let desert = {};
+    let meals = {};
+
+    // Does the link between DnS/formules and the real command
+    for(let it in DnS[0]){
+        entree[DnS[0][it]] = commande[DnS[0][it]] === undefined ? 0 : commande[DnS[0][it]];
+    }
+    for(let it in DnS[1]){
+        desert[DnS[1][it]] = commande[DnS[1][it]] === undefined ? 0 : commande[DnS[1][it]];
+    }
+    for(let it in formules){
+        meals[formules[it]] = commande[formules[it]] === undefined ? 0 : commande[formules[it]];
+    }
+    entree = supZeros(entree);
+    desert = supZeros(desert);
+    meals = supZeros(meals);
+
+    // Loop through meals, sure there is some because of supZeros();
+    noMoreMenus:
+    for(let m in meals){
+        for(let nb=0; nb<meals[m]; nb++){ // Loop through the number of main meals
+            let desertFound = -1;
+            let entreeFound = -1;
+            for(let des in desert){
+                if(desert[des] > 0){
+                    desert[des]--;
+                    commande[des]--;
+                    desertFound = des;
+                    break;
+                }
+            }
+            for(let ent in entree){
+                if(entree[ent] > 0){
+                    entree[ent]--;
+                    commande[ent]--;
+                    entreeFound = ent;
+                    break;
+                }
+            }
+
+            // Add drinks inteligently
+            if(desertFound != -1 && entreeFound != -1){
+                commande[m]--;
+                drinks:
+                {
+                    for(let item in commande){
+                        if(!isNaN(item) && products[item][2] == 1 && commande[item] > 0){
+                            commande[item]--;
+                            easyAdd("M"+m+"D"+desertFound+"E"+entreeFound+"B"+item);
+                            break drinks;
                         }
                     }
-
-                    if(tag in commande){
-                        commande[tag]++;                            
-                    }
-                    else{
-                        commande[tag] = 1;
-                    }
+                    easyAdd("M"+m+"D"+desertFound+"E"+entreeFound);
                 }
+            }
+            else if(desertFound != -1){
+                commande[m]--;
+                easyAdd("F"+m+"D"+desertFound);
+            }
+            else if(entreeFound != -1){
+                commande[m]--;
+                easyAdd("F"+m+"E"+entreeFound);
+            }
+            else{
+                break noMoreMenus;
             }
         }
     }
@@ -121,7 +161,8 @@ function recalculateSum(){
     Object.assign(curCommande, rawCommande);
     curCommande = checkFormules(curCommande);
 
-    $("#fTo .prix").html(demystify(curCommande)[1] + "€");
+    total = demystify(curCommande)[1];
+    $("#fTo .prix").html(total + "€");
 }
 
 
@@ -194,10 +235,10 @@ function fillPrices(){
     $("#pricesSetting").empty();
 
     for(let i in products){
-        if(products[i].length == 4 && products[i][1] < 0){
+        if(products[i][1] < 0 && products[i].length == 4){
             continue;
         }
-        
+
         $("#pricesSetting").append("<label data-id='"+ i +"' data-catid='"+ products[i][2] +"'><span class='remProd'></span><input class='transparent' value='"+products[i][0]+"'></input></label>\
                                         <input type='number' step='0.01' class='payMode' value='"+ products[i][1] +"'><br>");
     }
@@ -213,8 +254,8 @@ function fillPrices(){
     }
 }
 
-//FIXME: fix the fucking 2 and 7 dependencie
-// Gets an object of compressed data and uncompress it && also the sum
+
+// Gets an object of compressed data and uncompress it && also sums it
 function demystify(obj){
     let realObj = {};
     let sum = 0;
@@ -231,34 +272,38 @@ function demystify(obj){
 
     for(let key in obj){
         if(isNaN(key)){
-            // Check whether it is a payment mode
+            // Check whether it is a payment mode or not
             if(key[0] != key[0].toUpperCase()){
                 continue;
             }
 
+            let meal;
+            let drink = -1;
+
             // For the sum
             if(key.includes('M')){
-                sum += products[key[1]][3][1] * obj[key];
+                meal = key.match(/(M)\d+/)[0].substring(1);
+                sum += products[meal][3][1] * obj[key];
+                if(key.includes('B')){
+                    drink = key.match(/(B)\d+/)[0].substring(1);
+                    sum += (products[drink][1] - 0.5) * obj[key];
+                }
             }
-            else if(key.includes('F')){
-                sum += products[key[2]][3][0] * obj[key];
-            }
-            if(key.includes('B')){
-                sum += (products[ Number(key.match(/\d+$/)[0]) ][1] - 0.5) * obj[key];
+            else{
+                meal = key.match(/(F)\d+/)[0].substring(1);
+                sum += products[meal][3][0] * obj[key];
             }
 
             // For the rest
-            if(key.includes('M') || key.includes('e')){
-                // Find where starters are
-                easyAdd(   2   , obj[key]);
+            if(key.includes('E')){
+                easyAdd(   key.match(/(E)\d+/)[0].substring(1)   , obj[key]);
             }
-            easyAdd(Number(key.match(/\d+/)[0]), obj[key]);
-            if(key.includes('M') || key.includes('d')){
-                // Find where deserts are
-                easyAdd(   7   , obj[key]);
+            easyAdd(meal, obj[key]);
+            if(key.includes('D')){
+                easyAdd(   key.match(/(D)\d+/)[0].substring(1)   , obj[key]);
             }
-            if(key.includes('B')){
-                easyAdd(Number(key.match(/\d+$/)[0]), obj[key]);
+            if(drink != -1){
+                easyAdd(drink, obj[key]);
             }
         }
         else{
@@ -276,10 +321,27 @@ function demystify(obj){
     return [realObj, coolRound(sum)];
 }
 
+function getStartersDeserts(){
+    let starters = [];
+    let deserts = [];
+
+    for(let it in products){
+        if(products[it].length === 4){
+            if(products[it][3] === 'S'){
+                starters.push(it);
+            }
+            else if(products[it][3] === 'D'){
+                deserts.push(it);
+            }
+        }
+    }
+
+    return [starters, deserts];
+}
 function getFormulas(){
     let indices = [];
     for(let i in products){
-        if(products[i].length == 4 && products[i][3] instanceof Array){
+        if(products[i].length === 4 && typeof products[i][3] !== 'string'){
             indices.push(i);
         }
     }
