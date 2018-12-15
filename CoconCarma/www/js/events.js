@@ -16,16 +16,38 @@ $("#settings").on('click', function(){
 
 // Remove Item
 $("#pricesSetting").on('click', '.remProd', function(){
-    var r = confirm("Voulez vous supprimer ce plat ?");
-    if (r == true) {
-        delete products[$(this).parent().data("id")];
-        saveData("Prods", JSON.stringify(products));
-        fillTable();
-        redraw();
-        fillPrices();
+    let id = $(this).parent().data("id");
+    
+    // Check whether this item is used or not
+    for(let com in getData()){
+        if(com[0] != 'C'){
+            continue;
+        }
+        let obj = JSON.parse(getData(com));
+        let decompressedObj = demystify(obj)[0];
+
+        for(let it in decompressedObj){
+            if(it == id){
+                alert("Ce plat est dans au moins une formule, il ne peut être suprimé");
+                return;
+            }
+        }
     }
+
+
+    delete products[id];
+    saveData("Prods", JSON.stringify(products));
+    fillTable();
+    redraw();
+    fillPrices();
 });
 
+$("#resetPrices").on('click', function(){
+    removeData("Prods");
+    fillTable();
+    redraw();
+    fillPrices();
+});
 
 // Add new item
 $("#addPrice").on('click', function(){
@@ -39,6 +61,19 @@ $("#confirmNewItem").on('click', function(){
         return;
     }
 
+    let radioValue = $("input[name='radio']:checked").val();
+
+    if(parseInt($("#newCategorie").val()) === 1){
+        if(radioValue === "dessert"){
+            alert("Impossible d'avoir un dessert dans les boissons");
+            return;
+        }
+        else if(radioValue === "entree"){
+            alert("Impossible d'avoir une entrée dans les boissons");
+            return;
+        }
+    }
+
     $("#addItem").css('visibility', 'hidden');
 
     let newIndex = 0;
@@ -49,8 +84,6 @@ $("#confirmNewItem").on('click', function(){
             newIndex = parseInt(index)+1;
         }
     }
-
-    let radioValue = $("input[name='radio']:checked").val();
 
     if(radioValue === "dessert"){
         products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val()), 'D'];

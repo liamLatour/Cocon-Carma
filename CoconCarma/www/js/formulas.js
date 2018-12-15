@@ -1,9 +1,6 @@
 "use strict";
 
-//TODO: Add a 'reset' button for price settings
-//TODO: Check what happens when an item is suppressed
-//FIXME: Fix excel thing
-//FIXME: Bug quand dans boissons + un dessert ou entrée
+//TODO: Fix the fact that two items can't have the same name
 
 var curCommande = {};
 var rawCommande = {};
@@ -33,7 +30,11 @@ var products = {
     16 : ['Jetable écologique', 0.5, 2],
     17 : ['MontBento original', 30, 2],
     18 : ['MontBento square', 25, 2],
-    19 : ['Kit 4 couverts inox', 2, 2]
+    19 : ['Kit 4 couverts inox', 2, 2],
+
+    20 : ['Magazine Bien-être', 4.5, 3], 
+    21 : ['Consigne 0.5€', 0.5, 2],
+    22 : ['Consigne 1€', 1, 2]
 };
 
 var currentMenuId = "Pri";
@@ -266,7 +267,7 @@ function demystify(obj){
 
     for(let key in obj){
         if(isNaN(key)){
-            // Check whether it is a payment mode
+            // Check whether it is a payment mode or not
             if(key[0] != key[0].toUpperCase()){
                 continue;
             }
