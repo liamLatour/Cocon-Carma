@@ -1,4 +1,8 @@
 ﻿"use strict";
+
+//FIXME: Can't change the price of a product if used
+//TODO: Fix the fact that two items can't have the same name
+
 // Hide modals when clicks away
 $(".modal").on('click', function(e){
     if (e.target !== this)
@@ -42,6 +46,8 @@ $("#pricesSetting").on('click', '.remProd', function(){
     fillPrices();
 });
 
+
+//TODO: check none of them are used
 $("#resetPrices").on('click', function(){
     removeData("Prods");
     products = JSON.parse(JSON.stringify(defaults));
@@ -168,6 +174,7 @@ $("#cmdConteneur").on('click', ".suprCmd", function(event){
     if (r == true) {
         removeData($(this).parent().data("command"));
         $(this).parent().remove();
+        updateRealTimeStats();
     }
     event.stopPropagation();
 });

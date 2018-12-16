@@ -1,4 +1,4 @@
-/*TODO: Better rules for width (like clamp when too small)*/
+/*ADDON: Better rules for width (like clamp when too small)*/
 
 /*Global variables*/
 :root{
@@ -571,4 +571,10 @@ select{
     height: 8px;
     border-radius: 50%;
     background: white;
+}
+
+
+#fre{
+    color: rgb(131, 33, 243);
+    font-weight: 500;
 }

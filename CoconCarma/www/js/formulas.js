@@ -1,7 +1,5 @@
 "use strict";
 
-//TODO: Fix the fact that two items can't have the same name
-
 var curCommande = {};
 var rawCommande = {};
 var total = 0;
@@ -153,21 +151,12 @@ function checkFormules(cmd){
     return supZeros(commande);
 }
 
-
-function recalculateSum(){
-    rawCommande = supZeros(rawCommande);
-
-    curCommande = {};
-    Object.assign(curCommande, rawCommande);
-    curCommande = checkFormules(curCommande);
-
+function redraw(){
+    // Recalculate sum
+    curCommande = checkFormules(JSON.parse(JSON.stringify(supZeros(rawCommande))));
     total = demystify(curCommande)[1];
     $("#fTo .prix").html(total + "€");
-}
 
-
-function redraw(){
-    recalculateSum();
 
     $("#to").empty();
     for(let key in curCommande){
@@ -258,7 +247,8 @@ function fillPrices(){
 // Gets an object of compressed data and uncompress it && also sums it
 function demystify(obj){
     let realObj = {};
-    let sum = 0;
+    let normalSum = 0;
+    let percentagedSum = 0;
     let remise = 0;
 
     function easyAdd(id, nb){
@@ -283,15 +273,15 @@ function demystify(obj){
             // For the sum
             if(key.includes('M')){
                 meal = key.match(/(M)\d+/)[0].substring(1);
-                sum += products[meal][3][1] * obj[key];
+                percentagedSum += products[meal][3][1] * obj[key];
                 if(key.includes('B')){
                     drink = key.match(/(B)\d+/)[0].substring(1);
-                    sum += (products[drink][1] - 0.5) * obj[key];
+                    percentagedSum += (products[drink][1] - 0.5) * obj[key];
                 }
             }
             else{
                 meal = key.match(/(F)\d+/)[0].substring(1);
-                sum += products[meal][3][0] * obj[key];
+                percentagedSum += products[meal][3][0] * obj[key];
             }
 
             // For the rest
@@ -311,12 +301,18 @@ function demystify(obj){
                 remise = obj[key];
             }
             else{
-                sum += products[key][1] * obj[key];
+                // If it is a:  meal || dessert || starter || drink
+                if((products[key].length === 4 && products[key][1] > 0) || products[key][2] === 1){
+                    percentagedSum += products[key][1] * obj[key];
+                }
+                else{
+                    normalSum += products[key][1] * obj[key];
+                }
             }
             easyAdd(key, obj[key]);
         }
     }
-    sum = sum/100*(100- Math.abs(remise));
+    let sum = percentagedSum/100*(100- Math.abs(remise)) + normalSum;
 
     return [realObj, coolRound(sum)];
 }
