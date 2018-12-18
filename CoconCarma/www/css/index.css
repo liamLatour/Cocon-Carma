@@ -525,7 +525,7 @@ select{
 }
 
 /* Hide the browser's default radio button */
-.container input {
+.container input[type=radio] {
     position: absolute;
     opacity: 0;
     cursor: pointer;
@@ -542,12 +542,12 @@ select{
 }
 
 /* On mouse-over, add a grey background color */
-.container:hover input ~ .checkmark {
+.container:hover input[type=radio] ~ .checkmark {
     background-color: #ccc;
 }
 
 /* When the radio button is checked, add a blue background */
-.container input:checked ~ .checkmark {
+.container input[type=radio]:checked ~ .checkmark {
     background-color: #2196F3;
 }
 
@@ -559,7 +559,7 @@ select{
 }
 
 /* Show the indicator (dot/circle) when checked */
-.container input:checked ~ .checkmark:after {
+.container input[type=radio]:checked ~ .checkmark:after {
     display: block;
 }
 
@@ -573,8 +573,12 @@ select{
     background: white;
 }
 
+.container div{
+    display: inline;
+}
 
-#fre{
-    color: rgb(131, 33, 243);
-    font-weight: 500;
+.container div input{
+    width: 50px;
+    margin-left: 5px; 
+    float: none;
 }

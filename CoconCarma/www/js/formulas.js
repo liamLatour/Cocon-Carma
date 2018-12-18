@@ -380,6 +380,22 @@ function addItem(item, quantity=null){
 }
 
 
+function dataNotUsed(compareFunc, replyFunc){
+    for(let com in getData()){
+        if(com[0] != 'C'){
+            continue;
+        }
+        let obj = JSON.parse(getData(com));
+        let decompressedObj = demystify(obj)[0];
+        for(let it in decompressedObj){
+            if( compareFunc(it) ){
+                replyFunc(products[it][0]);
+                return;
+            }
+        }
+    }
+}
+
 function saveData(key, value){
     try{
         localStorage.setItem(key, value);

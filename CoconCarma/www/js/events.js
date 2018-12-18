@@ -1,7 +1,6 @@
 ﻿"use strict";
 
-//FIXME: Can't change the price of a product if used
-//TODO: Fix the fact that two items can't have the same name
+//FIXME: When modifying directly the name no check is made
 
 // Hide modals when clicks away
 $(".modal").on('click', function(e){
@@ -22,22 +21,16 @@ $("#settings").on('click', function(){
 $("#pricesSetting").on('click', '.remProd', function(){
     let id = $(this).parent().data("id");
     
-    // Check whether this item is used or not
-    for(let com in getData()){
-        if(com[0] != 'C'){
-            continue;
+    dataNotUsed(function(item){
+        if(item == id){
+            return true;
         }
-        let obj = JSON.parse(getData(com));
-        let decompressedObj = demystify(obj)[0];
-
-        for(let it in decompressedObj){
-            if(it == id){
-                alert("Ce plat est dans au moins une formule, il ne peut être suprimé");
-                return;
-            }
+        else{
+            return false;
         }
-    }
-
+    }, function(name){
+        alert("Le plat '"+ name +"' est dans au moins une formule, il ne peut être modifié");
+    });
 
     delete products[id];
     saveData("Prods", JSON.stringify(products));
@@ -47,8 +40,18 @@ $("#pricesSetting").on('click', '.remProd', function(){
 });
 
 
-//TODO: check none of them are used
 $("#resetPrices").on('click', function(){
+    dataNotUsed(function(item){
+        if(!(item in defaults) || (products[item][1] != defaults[item][1]) ){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }, function(name){
+        alert("Le plat '"+ name +"' est dans au moins une formule, il ne peut être modifié");
+    });
+
     removeData("Prods");
     products = JSON.parse(JSON.stringify(defaults));
     fillTable();
@@ -70,6 +73,15 @@ $("#confirmNewItem").on('click', function(){
 
     let radioValue = $("input[name='radio']:checked").val();
 
+    if(radioValue === "mf"){
+        if($("#newMenuPrice").val() == undefined || $("#newMenuPrice").val() <= 0 ||
+            $("#newFormulePrice").val() == undefined || $("#newFormulePrice").val() <= 0){
+                alert("Impossible d'avoir ce prix pour les formules");
+                return;
+        }
+    }
+
+
     if(parseInt($("#newCategorie").val()) === 1){
         if(radioValue === "dessert"){
             alert("Impossible d'avoir un dessert dans les boissons");
@@ -77,6 +89,13 @@ $("#confirmNewItem").on('click', function(){
         }
         else if(radioValue === "entree"){
             alert("Impossible d'avoir une entrée dans les boissons");
+            return;
+        }
+    }
+
+    for(let item in products){
+        if(products[item][0].toLowerCase() === $("#newName").val().toLowerCase()){
+            alert("Impossible d'avoir deux produits avec le même nom");
             return;
         }
     }
@@ -94,6 +113,16 @@ $("#confirmNewItem").on('click', function(){
 
     if(radioValue === "dessert"){
         products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val()), 'D'];
+    }
+    else if(radioValue === "mf"){
+        products[newIndex] = [$("#newName").val(),
+                                parseFloat($("#newPrice").val()),
+                                parseInt($("#newCategorie").val()),
+                                [$("#newFormulePrice").val(),
+                                    $("#newMenuPrice").val(),
+                                    $("#newName").val()
+                                ]
+                            ];
     }
     else if(radioValue === "entree"){
         products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val()), 'S'];
