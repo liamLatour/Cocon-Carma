@@ -30,7 +30,7 @@ var defaults = {
     18 : ['MontBento square', 25, 2],
     19 : ['Kit 4 couverts inox', 2, 2],
 
-    20 : ['Magazine Bien-être', 4.5, 3], 
+    20 : ['Magazine Bien-être', 4.5, 3, 'M'],
     21 : ['Consigne 0.5€', 0.5, 2],
     22 : ['Consigne 1€', 1, 2]
 };
@@ -390,10 +390,11 @@ function dataNotUsed(compareFunc, replyFunc){
         for(let it in decompressedObj){
             if( compareFunc(it) ){
                 replyFunc(products[it][0]);
-                return;
+                return true;
             }
         }
     }
+    return false;
 }
 
 function saveData(key, value){

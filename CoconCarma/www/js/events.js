@@ -1,7 +1,5 @@
 ﻿"use strict";
 
-//FIXME: When modifying directly the name no check is made
-
 // Hide modals when clicks away
 $(".modal").on('click', function(e){
     if (e.target !== this)
@@ -21,16 +19,15 @@ $("#settings").on('click', function(){
 $("#pricesSetting").on('click', '.remProd', function(){
     let id = $(this).parent().data("id");
     
-    dataNotUsed(function(item){
-        if(item == id){
-            return true;
-        }
-        else{
-            return false;
-        }
+    if(dataNotUsed(function(item){
+        if(item == id){ return true; }
+        else{ return false; }
     }, function(name){
-        alert("Le plat '"+ name +"' est dans au moins une formule, il ne peut être modifié");
-    });
+        alert("Le produit '"+ name +"' est dans au moins une formule, il ne peut être modifié");
+    }) ){
+        return;
+    };
+
 
     delete products[id];
     saveData("Prods", JSON.stringify(products));
@@ -41,16 +38,14 @@ $("#pricesSetting").on('click', '.remProd', function(){
 
 
 $("#resetPrices").on('click', function(){
-    dataNotUsed(function(item){
-        if(!(item in defaults) || (products[item][1] != defaults[item][1]) ){
-            return true;
-        }
-        else{
-            return false;
-        }
+    if(dataNotUsed(function(item){
+        if(!(item in defaults) || (products[item][1] != defaults[item][1]) ){ return true; }
+        else{ return false; }
     }, function(name){
-        alert("Le plat '"+ name +"' est dans au moins une formule, il ne peut être modifié");
-    });
+        alert("Le produit '"+ name +"' est dans au moins une formule, il ne peut être modifié");
+    }) ){
+        return;
+    };
 
     removeData("Prods");
     products = JSON.parse(JSON.stringify(defaults));
@@ -140,8 +135,6 @@ $("#confirmNewItem").on('click', function(){
 
 // Saves prices (only updates name and price)
 $("#confirmPrice").on('click', function(){
-    $("#sets").css('visibility', 'hidden');
-
     $("#pricesSetting label").each(function(){
         if($(this).attr('class') == "formul"){
             if($(this).attr('id')!=undefined){
@@ -152,12 +145,39 @@ $("#confirmPrice").on('click', function(){
             }
         }
         else{
-            // MODIFY only the name and price
             let id = parseInt($(this).data('id'));
-            products[id][0] = $(this).children().eq(1).val();
+            let name = $(this).children().eq(1).val();
+
+            if(parseFloat($(this).next().val()) != products[id][1]){ // Check it is not a used product with different price
+                if(dataNotUsed(function(item){
+                    if(item == id){ return true; }
+                    else{ return false; }
+                }, function(name){
+                    alert("Le produit '"+ name +"' est dans au moins une formule, il ne peut être modifié");
+                }) ){
+                    return;
+                };
+            }
+            if(products[id][0] != name){ // Check it is not a used product with same name
+                if($("#pricesSetting label").each(function(){
+                    if($(this).attr('class') != "formul" && parseInt($(this).data('id')) != id){
+                        if($(this).children().eq(1).val().toLowerCase() === name.toLowerCase()){
+                            alert("Impossible d'avoir deux produits avec le même nom");
+                            return true;
+                        }
+                    }
+                }) ){
+                    return;
+                };
+            }
+
+            // MODIFY only the name and price
+            products[id][0] = name;
             products[id][1] = parseFloat($(this).next().val());
         }
     });
+
+    $("#sets").css('visibility', 'hidden');
 
     saveData("Prods", JSON.stringify(products));
     fillTable();

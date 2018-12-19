@@ -2,6 +2,8 @@
 
 function exportExcel(){
     let name = "Bilan " + new Date().toDateString().substring(4) + " " + new Date().getHours() + "h" + new Date().getMinutes();
+
+    // Declaring work book
     let wb = XLSX.utils.book_new();
     wb.Props = {
         Title: "Cocon Carma",
@@ -10,6 +12,13 @@ function exportExcel(){
         CreatedDate: new Date()
     };
     wb.SheetNames.push("Main Sheet");
+    wb.SheetNames.push("La Montagne");
+
+    // General data
+    var newsPaper_data = [];
+    newsPaper_data.push(["", "Jour 1"]);
+    newsPaper_data.push(["Nombre", 0]);
+    newsPaper_data.push(["Prix", 0]);
 
     var ws_data = [];
     let totalNb = 0;
@@ -40,6 +49,7 @@ function exportExcel(){
                             continue;
                         }
 
+                        console.log("real shit");
                         let meal;
 
                         if(key.includes('M')){
@@ -62,17 +72,24 @@ function exportExcel(){
                         }
                     }
                     else{
+                        // If it is a remise in %
                         if(products[key][1] < 0 && products[key][3] === 'P'){
                             remise = obj[key];
                         }
                         else{
                             // If it is a:  meal || dessert || starter || drink
-                            if((products[key].length === 4 && products[key][1] > 0) || products[key][2] === 1){
+                            if((products[key].length === 4 && products[key][1] > 0 && products[key][3] != 'M') || products[key][2] === 1){
                                 isPercentaged = true;
                             }
 
                             thisCost = products[key][1] * obj[key];
                             thisName = products[key][0];
+
+                            // If it is a newsPaper
+                            if(products[key].length === 4 && products[key][3] == 'M'){
+                                newsPaper_data[1][1] += obj[key];
+                                newsPaper_data[2][1] += thisCost;
+                            }
                         }
                     }
 
@@ -128,6 +145,7 @@ function exportExcel(){
     ws_data[1].push("", totalMoney/totalCmd, totalCmd);
     ws_data.push([], ['TOTAL', totalNb, "", totalMoney]);
     var ws = XLSX.utils.aoa_to_sheet(ws_data);
+    var newsPaper = XLSX.utils.aoa_to_sheet(newsPaper_data);
 
     var wscols = [
         {wch:25},
@@ -142,6 +160,7 @@ function exportExcel(){
     ws['!cols'] = wscols;
 
     wb.Sheets["Main Sheet"] = ws;
+    wb.Sheets["La Montagne"] = newsPaper;
     var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
 
     function s2ab(s) { 
