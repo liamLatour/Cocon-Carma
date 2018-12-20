@@ -1,5 +1,3 @@
-/*ADDON: Better rules for width (like clamp when too small)*/
-
 /*Global variables*/
 :root{
     --darker: 20%;
@@ -33,12 +31,20 @@ h2{
     padding: 15px;
 }
 
+.OnePFiveText{
+    font-size: 1.5vw;
+}
+
+/*TODO: add this shit*/
+.twoText{
+    font-size: 2vw;
+}
+
 /*Stylise just les barre de recherche*/
 input[type=number] {
     margin: 0;
     padding: 5px;
 
-    font-size: 1.5vw;
     width: calc(30% - 30px);
     text-align: center;
 
@@ -57,7 +63,6 @@ input[type=text] {
     margin: 0;
     padding: 5px;
 
-    font-size: 1.5vw;
     width: calc(30% - 30px);
     text-align: center;
 
@@ -128,7 +133,6 @@ label{
     border-radius: 20px;
     width: 65%;
     text-align: center;
-    font-size: 1.4vw;
     margin-bottom: 10px;
 }
 #Rest{
@@ -322,8 +326,6 @@ label{
     bottom: 10px;
     right: 10px;
 
-    font-size: 1.5vw;
-    
     color: white;
     background-color: hsl(239, 100%, 43%);
     padding: 1vw;
@@ -341,8 +343,6 @@ label{
     -webkit-transform: translateX(-50%);
     transform: translateX(-50%);
 
-    font-size: 1.5vw;
-    
     color: white;
     background-color: hsl(345, 100%, 43%);
     padding: 1vw;
@@ -359,8 +359,6 @@ label{
     bottom: 10px;
     left: 10px;
     
-    font-size: 1.5vw;
-
     color: white;
     background-color: hsl(64, 100%, 36%);
     padding: 1vw;
@@ -377,13 +375,6 @@ label{
     width: 75vw;
     height: 76vh;
     top: 12vh; 
-}
-
-@media screen and (max-height: 650px) {
-    #addItemContent{
-        top: 5vh; 
-        height: 90vh;
-    }
 }
 
 
@@ -430,7 +421,6 @@ label{
     
     margin-left: 20px;
     margin-right: 20%;
-    font-size: 1.5vw;
     padding: 5px;
     width: 41vw;
 }
@@ -512,16 +502,21 @@ select{
 }
 /* The container */
 .container {
-    display: inline;
+    display: inline-block;
     position: relative;
     padding-left: 35px;
     margin: 10px;
     cursor: pointer;
-    font-size: 1.5vw;
     -webkit-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+
+    width: 15%;
+}
+
+.larger{
+    width: 20%;
 }
 
 /* Hide the browser's default radio button */
@@ -573,12 +568,17 @@ select{
     background: white;
 }
 
+
 .container div{
-    display: inline;
+    display: inline-block;
+    text-align: left;
 }
 
 .container div input{
-    width: 50px;
-    margin-left: 5px; 
+    width: 25%;
+    margin-left: 10px; 
     float: none;
+
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
 }

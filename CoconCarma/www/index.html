@@ -16,6 +16,7 @@
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <link rel="stylesheet" type="text/css" href="css/index.css">
+        <link rel="stylesheet" type="text/css" href="css/clamp.css">
         <link rel="stylesheet" type="text/css" href="css/tableau.css">
         <title>Cocon Carma</title>
     </head>
@@ -26,14 +27,14 @@
                 <h2>Mode de paiement</h2>
 
                 <div id="modes">
-                    <label>CB</label>
-                    <input type="number" step="0.01" class="payMode" id="cb"><br>
-                    <label>Espèces</label>
-                    <input type="number" step="0.01" class="payMode" id="es"><br>
-                    <label>Tickets restaurants</label>
-                    <input type="number" step="0.01" class="payMode" id="ti"><br>
-                    <label>Chèques</label>
-                    <input type="number" step="0.01" class="payMode" id="ch">
+                    <label class="OnePFiveText">CB</label>
+                    <input type="number" step="0.01" class="payMode OnePFiveText" id="cb"><br>
+                    <label class="OnePFiveText">Espèces</label>
+                    <input type="number" step="0.01" class="payMode OnePFiveText" id="es"><br>
+                    <label class="OnePFiveText">Tickets restaurants</label>
+                    <input type="number" step="0.01" class="payMode OnePFiveText" id="ti"><br>
+                    <label class="OnePFiveText">Chèques</label>
+                    <input type="number" step="0.01" class="payMode OnePFiveText" id="ch">
                 </div>
 
                 <span id="Rest">42</span>
@@ -57,9 +58,9 @@
 
                 <div id="pricesSetting">
                 </div>
-                <span id="addPrice">Ajouter plat</span>
-                <span id="resetPrices">Valeurs par défaut</span>
-                <span id="confirmPrice">Sauvegarder</span>
+                <span id="addPrice" class="OnePFiveText">Ajouter plat</span>
+                <span id="resetPrices" class="OnePFiveText">Valeurs par défaut</span>
+                <span id="confirmPrice" class="OnePFiveText">Sauvegarder</span>
             </div>
         </div>
 
@@ -68,9 +69,9 @@
                 <h2>Nouveau Plat</h2>
 
                 <div id="inputs">
-                    Nom<input type="text" id="newName"><br><br>
-                    Prix<input type="number" min="0" step="0.01" id="newPrice"><br><br>
-                    Catégorie<select id="newCategorie">
+                    Nom<input type="text" id="newName" class="OnePFiveText"><br><br>
+                    Prix<input type="number" min="0" step="0.01" id="newPrice" class="OnePFiveText"><br><br>
+                    Catégorie<select id="newCategorie" class="OnePFiveText">
                                     <option value="">--Choisissez une catégorie--</option>
                                     <option value="0">Principale</option>
                                     <option value="1">Boissons</option>
@@ -78,25 +79,24 @@
                                     <option value="3">Autres</option>
                                 </select><br><br>
                     <div id="radioButtons">
-                        <label class="container">Autre
+                        <label class="container OnePFiveText">Autre
                             <input type="radio" checked="checked" name="radio" value="rien">
                             <span class="checkmark"></span>
                         </label>
-                        <label class="container">Dessert
+                        <label class="container OnePFiveText">Dessert
                             <input type="radio" name="radio" value="dessert">
                             <span class="checkmark"></span>
                         </label>
-                        <label class="container">Entrée
+                        <label class="container OnePFiveText">Entrée
                             <input type="radio" name="radio" value="entree">
                             <span class="checkmark"></span>
                         </label>
-                        <label class="container">
+                        <label class="container larger OnePFiveText">
                             <input type="radio" name="radio" value="mf">
                             <span class="checkmark"></span>
                             <div>
-                                Menu<input type="number" min="0" step="0.01" name="menu" id="newMenuPrice">
-                                
-                                Formule<input type="number" min="0" step="0.01" name="formule" id="newFormulePrice">
+                                Menu<input type="number" min="0" step="0.01" name="menu" id="newMenuPrice" class="OnePFiveText"><br>
+                                Formule<input type="number" min="0" step="0.01" name="formule" id="newFormulePrice" class="OnePFiveText">
                             </div>
                         </label>
                     </div>

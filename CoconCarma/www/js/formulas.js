@@ -228,18 +228,18 @@ function fillPrices(){
             continue;
         }
 
-        $("#pricesSetting").append("<label data-id='"+ i +"' data-catid='"+ products[i][2] +"'><span class='remProd'></span><input class='transparent' value='"+products[i][0]+"'></input></label>\
-                                        <input type='number' step='0.01' class='payMode' value='"+ products[i][1] +"'><br>");
+        $("#pricesSetting").append("<label data-id='"+ i +"' data-catid='"+ products[i][2] +"'><span class='remProd'></span><input class='transparent OnePFiveText' value='"+products[i][0]+"'></input></label>\
+                                        <input type='number' step='0.01' class='payMode OnePFiveText' value='"+ products[i][1] +"'><br>");
     }
 
     let formulas = getFormulas();
     for(let i in formulas){
         // Formule
         $("#pricesSetting").append("<label class='formul' id='NB"+ formulas[i] +"'>Formule "+  products[formulas[i]][3][2] +"</label>\
-                                        <input type='number' step='0.01' class='payMode' value='"+ products[formulas[i]][3][0] +"'><br>");
+                                        <input type='number' step='0.01' class='payMode OnePFiveText' value='"+ products[formulas[i]][3][0] +"'><br>");
         // Menu
         $("#pricesSetting").append("<label class='formul'>Menu "+ products[formulas[i]][3][2] +"</label>\
-                                        <input type='number' step='0.01' class='payMode' value='"+ products[formulas[i]][3][1] +"'><br>");
+                                        <input type='number' step='0.01' class='payMode OnePFiveText' value='"+ products[formulas[i]][3][1] +"'><br>");
     }
 }
 
