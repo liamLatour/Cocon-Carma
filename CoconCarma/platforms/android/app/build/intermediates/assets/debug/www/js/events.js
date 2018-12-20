@@ -1,60 +1,187 @@
-﻿$("#sets").on('click', function(e){
+﻿"use strict";
+
+// Hide modals when clicks away
+$(".modal").on('click', function(e){
     if (e.target !== this)
         return;
 
-    $("#sets").css('visibility', 'hidden');
+    $(this).css('visibility', 'hidden');
 });
+
 
 // Fills prices
 $("#settings").on('click', function(){
     $("#sets").css('visibility', 'visible');
-    $("#pricesSetting").empty();
-
-    for(let i in products){
-        if(products[i].length == 3){
-            continue;
-        }
-        $("#pricesSetting").append("<label>"+ products[i][0] +"</label><input type='text' class='payMode' value='"+ products[i][1] +"'><br>");
-    }
-
-    for(let i in formules){
-        $("#pricesSetting").append("<label class='formul' id='NB"+ i +"'>Formule "+ formules[i][0] +"</label>\
-                                        <input type='text' class='payMode' value='"+ formules[i][1] +"'><br>");
-        $("#pricesSetting").append("<label class='formul'>Menu "+ formules[i][0] +"</label>\
-                                        <input type='text' class='payMode' value='"+ formules[i][2] +"'><br>");
-    }
+    fillPrices();
 });
 
-// Saves prices
-$("#confirmPrice").on('click', function(){
-    $("#sets").css('visibility', 'hidden');
+// Remove Item
+$("#pricesSetting").on('click', '.remProd', function(){
+    let id = $(this).parent().data("id");
+    
+    if(dataNotUsed(function(item){
+        if(item == id){ return true; }
+        else{ return false; }
+    }, function(name){
+        alert("Le produit '"+ name +"' est dans au moins une formule, il ne peut être modifié");
+    }) ){
+        return;
+    };
 
-    $("#pricesSetting label").each(function(index){
+
+    delete products[id];
+    saveData("Prods", JSON.stringify(products));
+    fillTable();
+    redraw();
+    fillPrices();
+});
+
+
+$("#resetPrices").on('click', function(){
+    if(dataNotUsed(function(item){
+        if(!(item in defaults) || (products[item][1] != defaults[item][1]) ){ return true; }
+        else{ return false; }
+    }, function(name){
+        alert("Le produit '"+ name +"' est dans au moins une formule, il ne peut être modifié");
+    }) ){
+        return;
+    };
+
+    removeData("Prods");
+    products = JSON.parse(JSON.stringify(defaults));
+    fillTable();
+    redraw();
+    fillPrices();
+});
+
+// Add new item
+$("#addPrice").on('click', function(){
+    $("#addItem").css('visibility', 'visible');
+});
+
+$("#confirmNewItem").on('click', function(){
+    if($("#newName").val() == "" || $("#newName").val() == undefined ||
+       $("#newPrice").val() == "" || $("#newPrice").val() == undefined ||
+       $("#newCategorie").val() == "" || $("#newCategorie").val() == undefined){
+        return;
+    }
+
+    let radioValue = $("input[name='radio']:checked").val();
+
+    if(radioValue === "mf"){
+        if($("#newMenuPrice").val() == undefined || $("#newMenuPrice").val() <= 0 ||
+            $("#newFormulePrice").val() == undefined || $("#newFormulePrice").val() <= 0){
+                alert("Impossible d'avoir ce prix pour les formules");
+                return;
+        }
+    }
+
+
+    if(parseInt($("#newCategorie").val()) === 1){
+        if(radioValue === "dessert"){
+            alert("Impossible d'avoir un dessert dans les boissons");
+            return;
+        }
+        else if(radioValue === "entree"){
+            alert("Impossible d'avoir une entrée dans les boissons");
+            return;
+        }
+    }
+
+    for(let item in products){
+        if(products[item][0].toLowerCase() === $("#newName").val().toLowerCase()){
+            alert("Impossible d'avoir deux produits avec le même nom");
+            return;
+        }
+    }
+
+    $("#addItem").css('visibility', 'hidden');
+
+    let newIndex = 0;
+
+    // Avoids to overwrite anything
+    for(let index in products){
+        if(parseInt(index) >= newIndex){
+            newIndex = parseInt(index)+1;
+        }
+    }
+
+    if(radioValue === "dessert"){
+        products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val()), 'D'];
+    }
+    else if(radioValue === "mf"){
+        products[newIndex] = [$("#newName").val(),
+                                parseFloat($("#newPrice").val()),
+                                parseInt($("#newCategorie").val()),
+                                [$("#newFormulePrice").val(),
+                                    $("#newMenuPrice").val(),
+                                    $("#newName").val()
+                                ]
+                            ];
+    }
+    else if(radioValue === "entree"){
+        products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val()), 'S'];
+    }
+    else{
+        products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val())];
+    }
+
+    saveData("Prods", JSON.stringify(products));
+    fillTable();
+    redraw();
+    fillPrices();
+});
+
+
+// Saves prices (only updates name and price)
+$("#confirmPrice").on('click', function(){
+    $("#pricesSetting label").each(function(){
         if($(this).attr('class') == "formul"){
             if($(this).attr('id')!=undefined){
-                formules[ parseInt($(this).attr('id')[2]) ] = [$(this).html().substring(8), 
-                                                                parseFloat($(this).next().val()), 
-                                                                parseFloat($(this).next().next().next().next().val())
-                                                              ];
+                let id = parseInt($(this).attr('id')[2]);
+                products[id][3][0] = parseFloat($(this).next().val());
+                products[id][3][1] = parseFloat($(this).next().next().next().next().val());
+                products[id][3][2] = $(this).html().replace(/formule /ig, '').replace(/menu /ig, '');
             }
         }
         else{
-            products[index] = [$(this).html(), parseFloat($(this).next().val())];
+            let id = parseInt($(this).data('id'));
+            let name = $(this).children().eq(1).val();
+
+            if(parseFloat($(this).next().val()) != products[id][1]){ // Check it is not a used product with different price
+                if(dataNotUsed(function(item){
+                    if(item == id){ return true; }
+                    else{ return false; }
+                }, function(name){
+                    alert("Le produit '"+ name +"' est dans au moins une formule, il ne peut être modifié");
+                }) ){
+                    return;
+                };
+            }
+            if(products[id][0] != name){ // Check it is not a used product with same name
+                if($("#pricesSetting label").each(function(){
+                    if($(this).attr('class') != "formul" && parseInt($(this).data('id')) != id){
+                        if($(this).children().eq(1).val().toLowerCase() === name.toLowerCase()){
+                            alert("Impossible d'avoir deux produits avec le même nom");
+                            return true;
+                        }
+                    }
+                }) ){
+                    return;
+                };
+            }
+
+            // MODIFY only the name and price
+            products[id][0] = name;
+            products[id][1] = parseFloat($(this).next().val());
         }
     });
 
+    $("#sets").css('visibility', 'hidden');
+
     saveData("Prods", JSON.stringify(products));
-    saveData("Forms", JSON.stringify(formules));
     fillTable();
     redraw();
-});
-
-// Hide commands
-$("#cmds").on('click', function(e){
-    if (e.target !== this)
-        return;
-
-    $("#cmds").css('visibility', 'hidden');
 });
 
 
@@ -68,22 +195,29 @@ $("#myCmd").on('click', function(){
         }
 
         let toShow = "";
-        console.log(item);
         let obj = JSON.parse(getData(item));
         for(let key in obj){
             try{
+                // Check whether it is a payment mode or not
+                if(key[0] != key[0].toUpperCase()){
+                    continue;
+                }
+
                 if(!isNaN(key)){
                     toShow += products[key][0];
                 }
                 else if(key.includes('M')){
-                    toShow += "Menu "+formules[key[1]][0];
+                    toShow += "Menu "+ products[key[1]][3][2];
                 }
                 else{
-                    toShow += "Formules "+formules[key[2]][0];
+                    toShow += "Formules "+ products[key[1]][3][2];
                 }
                 toShow += ", ";
             }
-            catch{}
+            catch(error){
+                console.log(key[2]);
+                console.log(error);
+            }
         }
         toShow = toShow.substring(0, toShow.length-2);
 
@@ -93,9 +227,12 @@ $("#myCmd").on('click', function(){
 
 
 $("#cmdConteneur").on('click', ".suprCmd", function(event){
-    removeData($(this).parent().data("command"));
-    $(this).parent().remove();
-
+    var r = confirm("Voulez vous supprimer cette commande ?");
+    if (r == true) {
+        removeData($(this).parent().data("command"));
+        $(this).parent().remove();
+        updateRealTimeStats();
+    }
     event.stopPropagation();
 });
 
@@ -109,45 +246,17 @@ $("#cmdConteneur").on('click', ".cmdList", function(){
     modifyCmd = $(this).data("command");
     // Cur to raw
     curCommande = JSON.parse(getData(modifyCmd));
-    rawCommande = {};
-    // Pour simplifier
-    rawCommande[0] = 0;
-    rawCommande[5] = 0;
-    rawCommande[1] = 0;
-    rawCommande[2] = 0;
-    rawCommande[3] = 0;
-    rawCommande[4] = 0;
+    rawCommande = demystify(curCommande)[0];
 
-    for(let item in curCommande){
-        if(isNaN(item) && item[0].toUpperCase() === item[0]){
-            if(item.includes('M') || item.includes('e')){
-                rawCommande[0]++;
-            }
-            rawCommande[item.match(/\d+/)[0]]++;
-            if(item.includes('M') || item.includes('d')){
-                rawCommande[5]++;
-            }
-        }
-        else{
-            rawCommande[item] = curCommande[item];
-        }
-    }
     $("#cmds").css('visibility', 'hidden');
     redraw();
-});
-
-// Hide OnSubmit
-$("#modal").on('click', function(e){
-    if (e.target !== this)
-        return;
-
-    $("#modal").css('visibility', 'hidden');
 });
 
 
 // Manages the modal OnSubmit
 $("#submit").on('click', function(){
     if(total <= 0){
+        console.warn("No Items");
         return;
     }
     $("#Rest").html(total);
@@ -170,7 +279,7 @@ $(".payMode").on('input', function(){
             subTotal -= parseFloat($(this).val());
         }
     });
-    subTotal = Math.round(subTotal*100)/100;
+    subTotal = coolRound(subTotal);
     $("#Rest").html(subTotal);
 });
 
@@ -182,6 +291,7 @@ $("#End").on('click', function(){
     
     $("#modal").css('visibility', 'hidden');
     $("#to").empty();
+    $("#fTo .prix").html("");
     rawCommande = {};
 
     // add the payment mode to curCommand
@@ -190,6 +300,8 @@ $("#End").on('click', function(){
             curCommande[$(this).attr('id')] = parseFloat($(this).val());
         }
     });
+
+    curCommande["time"] = new Date();
 
     if (typeof(Storage) !== "undefined") {
         if(modifyCmd == -1){
@@ -205,6 +317,9 @@ $("#End").on('click', function(){
             saveData(modifyCmd, JSON.stringify(curCommande));
         }
         modifyCmd = -1;
+
+        // Update the Real Time Peolple Count
+        updateRealTimeStats();
     }
     else {
         alert("Désolé ce navigateur ne supporte pas la sauvegarde");
@@ -229,6 +344,10 @@ $("#menu").on('click', 'td', function(){
 // Recupère les clicks sur les elements 'tr' qui ont un parent avec l'id 'from' 
 $("table.from").on('click', 'tr', function(){
     let item = $(this).data("item-id");
+    if($(this).data("nbper")){
+        addItem(item, Number($(this).data("nbper")));
+        return;
+    }
     addItem(item, 1);
 });
 

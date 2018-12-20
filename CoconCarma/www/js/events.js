@@ -198,6 +198,11 @@ $("#myCmd").on('click', function(){
         let obj = JSON.parse(getData(item));
         for(let key in obj){
             try{
+                // Check whether it is a payment mode or not
+                if(key[0] != key[0].toUpperCase()){
+                    continue;
+                }
+
                 if(!isNaN(key)){
                     toShow += products[key][0];
                 }
@@ -205,11 +210,14 @@ $("#myCmd").on('click', function(){
                     toShow += "Menu "+ products[key[1]][3][2];
                 }
                 else{
-                    toShow += "Formules "+ products[key[2]][3][2];
+                    toShow += "Formules "+ products[key[1]][3][2];
                 }
                 toShow += ", ";
             }
-            catch{}
+            catch(error){
+                console.log(key[2]);
+                console.log(error);
+            }
         }
         toShow = toShow.substring(0, toShow.length-2);
 
@@ -292,6 +300,8 @@ $("#End").on('click', function(){
             curCommande[$(this).attr('id')] = parseFloat($(this).val());
         }
     });
+
+    curCommande["time"] = new Date();
 
     if (typeof(Storage) !== "undefined") {
         if(modifyCmd == -1){

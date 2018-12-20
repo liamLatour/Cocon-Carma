@@ -1,41 +1,22 @@
 <!DOCTYPE html>
 <!--
-    Licensed to the Apache Software Foundation (ASF) under one
-    or more contributor license agreements.  See the NOTICE file
-    distributed with this work for additional information
-    regarding copyright ownership.  The ASF licenses this file
-    to you under the Apache License, Version 2.0 (the
-    "License"); you may not use this file except in compliance
-    with the License.  You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing,
-    software distributed under the License is distributed on an
-    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-     KIND, either express or implied.  See the License for the
-    specific language governing permissions and limitations
-    under the License.
+    To BUILD in release mode:
+        1- 'cordova build --release android' in VSCode
+        2- 'jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 -keystore CoconCarma-App.keystore E:\Cocon-Carma\CoconCarma\platforms\android\app\build\outputs\apk\release\app-release-unsigned.apk CoconCarma'
+            in cmd at C:\Program Files\Java\jdk1.8.0_191\bin
+        3- 'C:\Users\Administrateur\AppData\Local\Android\Sdk\build-tools\28.0.1\zipalign -v 4 app-release-unsigned.apk CoconCarma.apk'
+            in VSCode at the release folder after having supressed the old one
 -->
 <html lang="fr">
     <head>
-        <!--
-        Customize this policy to fit your own app's needs. For more guidance, see:
-            https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
-        Some notes:
-            * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
-            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
-            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
-                * Enable inline JS: add 'unsafe-inline' to default-src
-        -->
+        <meta charset="utf-8" />
         <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
         <meta name="format-detection" content="telephone=no">
         <meta name="msapplication-tap-highlight" content="no">
         <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
-        <meta charset="utf-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <link rel="stylesheet" type="text/css" href="css/index.css">
-        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <link rel="stylesheet" type="text/css" href="css/clamp.css">
         <link rel="stylesheet" type="text/css" href="css/tableau.css">
         <title>Cocon Carma</title>
     </head>
@@ -43,17 +24,17 @@
     <body>
         <div id="modal" class="modal">
             <div class="content">
-                <h2>Mode de paiment</h2>
+                <h2>Mode de paiement</h2>
 
                 <div id="modes">
-                    <label>CB</label>
-                    <input type="text" class="payMode" id="cb"><br>
-                    <label>Espèces</label>
-                    <input type="text" class="payMode" id="es"><br>
-                    <label>Tickets restaurants</label>
-                    <input type="text" class="payMode" id="ti"><br>
-                    <label>Cheques</label>
-                    <input type="text" class="payMode" id="ch">
+                    <label class="OnePFiveText">CB</label>
+                    <input type="number" step="0.01" class="payMode OnePFiveText" id="cb"><br>
+                    <label class="OnePFiveText">Espèces</label>
+                    <input type="number" step="0.01" class="payMode OnePFiveText" id="es"><br>
+                    <label class="OnePFiveText">Tickets restaurants</label>
+                    <input type="number" step="0.01" class="payMode OnePFiveText" id="ti"><br>
+                    <label class="OnePFiveText">Chèques</label>
+                    <input type="number" step="0.01" class="payMode OnePFiveText" id="ch">
                 </div>
 
                 <span id="Rest">42</span>
@@ -66,7 +47,7 @@
             <div class="content" id="contentCmd">
                 <h2>Anciennes commandes</h2>
                 <ul id="cmdConteneur"></ul>
-                <span id="clearCmd">Remise à zero</span>
+                <span id="clearCmd">Remise à zéro</span>
                 <span id="toExcel">Excel</span>
             </div>
         </div>
@@ -77,7 +58,51 @@
 
                 <div id="pricesSetting">
                 </div>
-                <span id="confirmPrice">Sauvegarder</span>
+                <span id="addPrice" class="OnePFiveText">Ajouter plat</span>
+                <span id="resetPrices" class="OnePFiveText">Valeurs par défaut</span>
+                <span id="confirmPrice" class="OnePFiveText">Sauvegarder</span>
+            </div>
+        </div>
+
+        <div id="addItem" class="modal">
+            <div class="content" id="addItemContent">
+                <h2>Nouveau Plat</h2>
+
+                <div id="inputs">
+                    Nom<input type="text" id="newName" class="OnePFiveText"><br><br>
+                    Prix<input type="number" min="0" step="0.01" id="newPrice" class="OnePFiveText"><br><br>
+                    Catégorie<select id="newCategorie" class="OnePFiveText">
+                                    <option value="">--Choisissez une catégorie--</option>
+                                    <option value="0">Principale</option>
+                                    <option value="1">Boissons</option>
+                                    <option value="2">Couverts</option>
+                                    <option value="3">Autres</option>
+                                </select><br><br>
+                    <div id="radioButtons">
+                        <label class="container OnePFiveText">Autre
+                            <input type="radio" checked="checked" name="radio" value="rien">
+                            <span class="checkmark"></span>
+                        </label>
+                        <label class="container OnePFiveText">Dessert
+                            <input type="radio" name="radio" value="dessert">
+                            <span class="checkmark"></span>
+                        </label>
+                        <label class="container OnePFiveText">Entrée
+                            <input type="radio" name="radio" value="entree">
+                            <span class="checkmark"></span>
+                        </label>
+                        <label class="container larger OnePFiveText">
+                            <input type="radio" name="radio" value="mf">
+                            <span class="checkmark"></span>
+                            <div>
+                                Menu<input type="number" min="0" step="0.01" name="menu" id="newMenuPrice" class="OnePFiveText"><br>
+                                Formule<input type="number" min="0" step="0.01" name="formule" id="newFormulePrice" class="OnePFiveText">
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <span id="confirmNewItem">Confirmer</span>
             </div>
         </div>
 
@@ -86,7 +111,7 @@
                 <td id="Pri" class="">Principale</td>
                 <td id="Boi" class="">Boissons</td>
                 <td id="Cou" class="">Couverts</td>
-                <td id="Red" class="">Réductions</td>
+                <td id="Red" class="">Autres</td>
                 <td width="3%"><span id="myCmd">📰</span></td>
                 <td width="3%"><span id="settings">🔧</span></td>
             </tr>
@@ -94,38 +119,18 @@
 
         <!--Partie gauche de l'écran qui affiche les différents plats-->
         <div class="split left">
-            <div class="noSelect overflow">
-                <table class="itemList from" id="tPri">
-                    <tr class='item' data-item-id='0'></tr>
-                    <tr class='item' data-item-id='1'></tr>
-                    <tr class='item' data-item-id='2'></tr>
-                    <tr class='item' data-item-id='3'></tr>
-                    <tr class='item' data-item-id='4'></tr>
-                    <tr class='item' data-item-id='5'></tr>
-                </table>
-                <table class="itemList from" id="tBoi">
-                    <tr class='item' data-item-id='6'></tr>
-                    <tr class='item' data-item-id='7'></tr>
-                    <tr class='item' data-item-id='8'></tr>
-                    <tr class='item' data-item-id='9'></tr>
-                    <tr class='item' data-item-id='10'></tr>
-                    <tr class='item' data-item-id='11'></tr>
-                    <tr class='item' data-item-id='12'></tr>
-                    <tr class='item' data-item-id='13'></tr>
-                </table>
-                <table class="itemList from" id="tCou">
-                    <tr class='item' data-item-id='14'></tr>
-                    <tr class='item' data-item-id='15'></tr>
-                    <tr class='item' data-item-id='16'></tr>
-                    <tr class='item' data-item-id='17'></tr>
-                </table>
-                <table class="itemList from" id="tRed">
-                    <tr class='item' data-item-id='18'></tr>
-                    <tr class='item' data-item-id='19'></tr>
-                </table>
+            <div class="overflow stopLate">
+                <table class="itemList from" id="tPri"></table>
+                <table class="itemList from" id="tBoi"></table>
+                <table class="itemList from" id="tCou"></table>
+                <table class="itemList from" id="tRed"></table>
+            </div>
+            <!--Real Time Money-->
+            <div>
+                <div id="realPeople">👥 0</div><div id="realMoney">💰 0</div><div id="realAverage">📈 0</div>
             </div>
         </div><div class="split right">
-            <div class="overflow noSelect stop">
+            <div class="overflow stop">
                 <table class="itemList" id="to">
                     <!--C'est ici qu'arrive les produits-->
                 </table>

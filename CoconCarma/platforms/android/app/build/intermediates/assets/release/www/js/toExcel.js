@@ -1,5 +1,9 @@
+// TODO: put newspaper and payment modes apart
+
 function exportExcel(){
     let name = "Bilan " + new Date().toDateString().substring(4) + " " + new Date().getHours() + "h" + new Date().getMinutes();
+
+    // Declaring work book
     let wb = XLSX.utils.book_new();
     wb.Props = {
         Title: "Cocon Carma",
@@ -8,25 +12,36 @@ function exportExcel(){
         CreatedDate: new Date()
     };
     wb.SheetNames.push("Main Sheet");
+    wb.SheetNames.push("La Montagne");
+
+    // General data
+    var newsPaper_data = [];
+    newsPaper_data.push(["", "Jour 1"]);
+    newsPaper_data.push(["Nombre", 0]);
+    newsPaper_data.push(["Prix", 0]);
 
     var ws_data = [];
     let totalNb = 0;
     let totalMoney = 0;
     let totalCmd = 0;
 
+    // To decrease complexity
+    let percentageId = -1;
+
     // loop through commands
     for(let item in getData()){
         if(item[0] == 'C'){
             let obj = JSON.parse(getData(item));
             totalCmd++;
-            let reducPour = 0;
-            let sousTotal = 0;
+            let remise = 0;
+            let normalSum = 0;
+            let percentagedSum = 0;
 
             for(let key in obj){
                 try{
-                    let id = -1;
                     let thisName = "";
                     let thisCost = 0;
+                    let isPercentaged = false;
 
                     if(isNaN(key)){
                         // Check whether it is a payment mode or not
@@ -34,53 +49,67 @@ function exportExcel(){
                             continue;
                         }
 
+                        console.log("real shit");
                         let meal;
 
                         if(key.includes('M')){
                             meal = key.match(/(M)\d+/)[0].substring(1);
 
+                            isPercentaged = true;
                             thisName = "Menu " + products[meal][3][2];
-                            thisCost = products[meal][3][1];
+                            thisCost = products[meal][3][1] * obj[key];
                             if(key.includes('B')){
                                 thisName += " + Boisson";
-                                thisCost += products[ key.match(/(B)\d+/)[0].substring(1) ][1] - 0.5;
+                                thisCost += (products[ key.match(/(B)\d+/)[0].substring(1) ][1] - 0.5) * obj[key];
                             }
                         }
                         else if(key.includes('F')){
                             meal = key.match(/(F)\d+/)[0].substring(1);
     
+                            isPercentaged = true;
                             thisName = "Formule " + products[meal][3][2];
-                            thisCost = products[meal][3][0];
+                            thisCost = products[meal][3][0] * obj[key];
                         }
                     }
                     else{
+                        // If it is a remise in %
                         if(products[key][1] < 0 && products[key][3] === 'P'){
-                            reducPour = obj[key];
+                            remise = obj[key];
                         }
-                        thisName = products[key][0];
-                        thisCost = products[key][1];
-                    }
+                        else{
+                            // If it is a:  meal || dessert || starter || drink
+                            if((products[key].length === 4 && products[key][1] > 0 && products[key][3] != 'M') || products[key][2] === 1){
+                                isPercentaged = true;
+                            }
 
+                            thisCost = products[key][1] * obj[key];
+                            thisName = products[key][0];
 
-                    if(thisCost > 0 || products[key][3] == 'E'){
-                        // Check if already here
-                        for(let i=0; i<ws_data.length; i++){
-                            if(ws_data[i][0] == thisName){
-                                id = i;
-                                break;
+                            // If it is a newsPaper
+                            if(products[key].length === 4 && products[key][3] == 'M'){
+                                newsPaper_data[1][1] += obj[key];
+                                newsPaper_data[2][1] += thisCost;
                             }
                         }
+                    }
+
+                    if(thisCost > 0 || products[key][3] == 'E'){
+                        let id = isItHere(thisName);
 
                         if(id != -1){
                             ws_data[id][1] += obj[key];
-                            ws_data[id][3] += thisCost * obj[key];
+                            ws_data[id][3] += thisCost;
                         }
                         else{
-                            ws_data.push([thisName, obj[key], thisCost, thisCost * obj[key]]);
+                            ws_data.push([thisName, obj[key], thisCost/obj[key], thisCost]);
                         }
 
-                        totalMoney += thisCost * obj[key];
-                        sousTotal += thisCost * obj[key];
+                        if(isPercentaged){
+                            percentagedSum += thisCost;
+                        }
+                        else{
+                            normalSum += thisCost;
+                        }
 
                         if(thisCost > 0){
                             totalNb++;
@@ -92,32 +121,31 @@ function exportExcel(){
                 }
             }
 
-            if(reducPour > 0){
-                let id = -1;
-                // Check if already here
-                for(let i=0; i<ws_data.length; i++){
-                    if(ws_data[i][0] == products[0][0]){
-                        id = i;
-                        break;
-                    }
-                }
-                let reduc = sousTotal/100*Math.abs(reducPour);
-                if(id != -1){
-                    ws_data[id][1] += 1;
-                    ws_data[id][3] -= reduc;
+            if(remise > 0){
+                let reduc = percentagedSum/100*Math.abs(remise);
+
+                if(percentageId != -1){
+                    ws_data[percentageId][1] += 1;
+                    ws_data[percentageId][3] -= reduc;
                 }
                 else{
-                    ws_data.push([products[0][0], 1, -1, -reduc]);
+                    percentageId = ws_data.push([products[0][0], 1, -1, -reduc])-1;
                 }
-                totalMoney -= reduc;
+
+                totalMoney += normalSum + percentagedSum - reduc;
+            }
+            else{
+                totalMoney += normalSum + percentagedSum;
             }
         }
     }
+
     ws_data.sort(sortCommand);
-    ws_data.unshift(['Plats par popularités' , 'Nombre de plats', 'Coût seul', 'Coût total', '', 'Ticket moyen', 'Nombre de repas']);
+    ws_data.unshift(['Plats par popularités' , 'Nombre de produits', 'Coût seul', 'Coût total', '', 'Ticket moyen', 'Nombre de repas']);
     ws_data[1].push("", totalMoney/totalCmd, totalCmd);
     ws_data.push([], ['TOTAL', totalNb, "", totalMoney]);
     var ws = XLSX.utils.aoa_to_sheet(ws_data);
+    var newsPaper = XLSX.utils.aoa_to_sheet(newsPaper_data);
 
     var wscols = [
         {wch:25},
@@ -132,6 +160,7 @@ function exportExcel(){
     ws['!cols'] = wscols;
 
     wb.Sheets["Main Sheet"] = ws;
+    wb.Sheets["La Montagne"] = newsPaper;
     var wbout = XLSX.write(wb, {bookType:'xlsx',  type: 'binary'});
 
     function s2ab(s) { 
@@ -139,6 +168,17 @@ function exportExcel(){
         var view = new Uint8Array(buf);
         for (var i=0; i<s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
         return buf;    
+    }
+
+    function isItHere(thisName){
+        let id = -1;
+        for(let i=0; i<ws_data.length; i++){
+            if(ws_data[i][0] == thisName){
+                id = i;
+                break;
+            }
+        }
+        return id;
     }
 
     function sortCommand(a, b) {
@@ -186,4 +226,52 @@ function exportExcel(){
     catch(error){
         saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), name+".xlsx");
     }
+}
+
+
+
+function fromExcel(){
+    let myPath = cordova.file.externalDataDirectory.replace(cordova.file.externalRootDirectory, '');
+    let excels = listDir(myPath);
+
+    function listDir(path){
+        window.resolveLocalFileSystemURL(path,
+            function (fileSystem) {
+                var reader = fileSystem.createReader();
+                reader.readEntries(
+                function (entries) {
+                    console.log(entries);
+                    return entries;
+                },
+                function (err) {
+                    console.log(err);
+                }
+                );
+            }, function (err) {
+                console.log(err);
+            }
+        );
+      }
+
+
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, successCallback, errorCallback)
+    function successCallback(fs) {
+        fs.root.getFile('log.txt', {}, function(fileEntry) {
+  
+            fileEntry.file(function(file) {
+                var reader = new FileReader();
+    
+                reader.onloadend = function(e) {
+                    var txtArea = document.getElementById('textarea');
+                    txtArea.value = this.result;
+                };
+                reader.readAsText(file);
+
+           }, function(err) {});
+        }, function(err) {});
+     }
+  
+     function errorCallback(error) {
+        alert("Impossible de compléter le excel: " + error.code);
+     }
 }

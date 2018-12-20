@@ -203,11 +203,9 @@ function exportExcel(){
 
     try{
     window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
-        var fileDir = cordova.file.externalDataDirectory.replace(cordova.file.externalRootDirectory, '');
         var fileName = name+".xlsx";
-        var filePath = fileDir + fileName;
     
-        fs.root.getFile(filePath, { create: true, exclusive: false }, function (fileEntry) {
+        fs.root.getFile(fileName, { create: true, exclusive: false }, function (fileEntry) {
             fileEntry.createWriter(function (fileWriter) {
                 fileWriter.onwriteend = function () {
                     console.log("Success");
@@ -220,10 +218,57 @@ function exportExcel(){
                 fileWriter.write(new Blob([s2ab(wbout)],{type:"application/octet-stream"}));
             });
 
-        }, function(err) {});
-    }, function(err) {});
+        }, function(e) {console.log(e);});
+    }, function(e) {console.log(e);});
     }
     catch(error){
         saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), name+".xlsx");
     }
+}
+
+
+
+function fromExcel(){
+    var myPath = cordova.file.externalRootDirectory;
+
+    window.resolveLocalFileSystemURL(myPath, function (dirEntry) {
+        var directoryReader = dirEntry.createReader();
+        directoryReader.readEntries(onSuccessCallback,onFailCallback);
+    });
+    function onSuccessCallback(entries){
+        for (i=0; i<entries.length; i++) {
+            var row = entries[i];
+            if(!row.isDirectory && row.name.includes('.xlsx')){
+                console.log("Excel File:", row.name, " nativeUrl:", row.nativeURL);
+            }
+        }
+        console.log("Found this:", entries, " at:", myPath);
+    }
+    function onFailCallback(e){
+        console.log(e);
+    }
+
+
+/*
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, successCallback, errorCallback)
+    function successCallback(fs) {
+        fs.root.getFile('log.txt', {}, function(fileEntry) {
+  
+            fileEntry.file(function(file) {
+                var reader = new FileReader();
+    
+                reader.onloadend = function(e) {
+                    var txtArea = document.getElementById('textarea');
+                    txtArea.value = this.result;
+                };
+                reader.readAsText(file);
+
+           }, function(err) {});
+        }, function(err) {});
+    }
+  
+    function errorCallback(error) {
+        alert("Impossible de compléter le excel: " + error.code);
+    }
+*/
 }

@@ -1,7 +1,5 @@
 "use strict";
 
-//TODO: Fix the fact that two items can't have the same name
-
 var curCommande = {};
 var rawCommande = {};
 var total = 0;
@@ -32,7 +30,7 @@ var defaults = {
     18 : ['MontBento square', 25, 2],
     19 : ['Kit 4 couverts inox', 2, 2],
 
-    20 : ['Magazine Bien-être', 4.5, 3], 
+    20 : ['Magazine Bien-être', 4.5, 3, 'M'],
     21 : ['Consigne 0.5€', 0.5, 2],
     22 : ['Consigne 1€', 1, 2]
 };
@@ -41,10 +39,7 @@ var products;
 
 var currentMenuId = "Pri";
 
-
-// Does startup things
 let savedProducts = getData("Prods");
-
 if(savedProducts !== false && savedProducts !== null){
     products = JSON.parse(savedProducts);
 }
@@ -53,7 +48,6 @@ else{
 }
 fillTable();
 updateRealTimeStats();
-
 
 // Cleans the array
 function supZeros(c){
@@ -153,21 +147,12 @@ function checkFormules(cmd){
     return supZeros(commande);
 }
 
-
-function recalculateSum(){
-    rawCommande = supZeros(rawCommande);
-
-    curCommande = {};
-    Object.assign(curCommande, rawCommande);
-    curCommande = checkFormules(curCommande);
-
+function redraw(){
+    // Recalculate sum
+    curCommande = checkFormules(JSON.parse(JSON.stringify(supZeros(rawCommande))));
     total = demystify(curCommande)[1];
     $("#fTo .prix").html(total + "€");
-}
 
-
-function redraw(){
-    recalculateSum();
 
     $("#to").empty();
     for(let key in curCommande){
@@ -239,18 +224,18 @@ function fillPrices(){
             continue;
         }
 
-        $("#pricesSetting").append("<label data-id='"+ i +"' data-catid='"+ products[i][2] +"'><span class='remProd'></span><input class='transparent' value='"+products[i][0]+"'></input></label>\
-                                        <input type='number' step='0.01' class='payMode' value='"+ products[i][1] +"'><br>");
+        $("#pricesSetting").append("<label data-id='"+ i +"' data-catid='"+ products[i][2] +"'><span class='remProd'></span><input class='transparent OnePFiveText' value='"+products[i][0]+"'></input></label>\
+                                        <input type='number' step='0.01' class='payMode OnePFiveText' value='"+ products[i][1] +"'><br>");
     }
 
     let formulas = getFormulas();
     for(let i in formulas){
         // Formule
         $("#pricesSetting").append("<label class='formul' id='NB"+ formulas[i] +"'>Formule "+  products[formulas[i]][3][2] +"</label>\
-                                        <input type='number' step='0.01' class='payMode' value='"+ products[formulas[i]][3][0] +"'><br>");
+                                        <input type='number' step='0.01' class='payMode OnePFiveText' value='"+ products[formulas[i]][3][0] +"'><br>");
         // Menu
         $("#pricesSetting").append("<label class='formul'>Menu "+ products[formulas[i]][3][2] +"</label>\
-                                        <input type='number' step='0.01' class='payMode' value='"+ products[formulas[i]][3][1] +"'><br>");
+                                        <input type='number' step='0.01' class='payMode OnePFiveText' value='"+ products[formulas[i]][3][1] +"'><br>");
     }
 }
 
@@ -258,7 +243,8 @@ function fillPrices(){
 // Gets an object of compressed data and uncompress it && also sums it
 function demystify(obj){
     let realObj = {};
-    let sum = 0;
+    let normalSum = 0;
+    let percentagedSum = 0;
     let remise = 0;
 
     function easyAdd(id, nb){
@@ -283,15 +269,15 @@ function demystify(obj){
             // For the sum
             if(key.includes('M')){
                 meal = key.match(/(M)\d+/)[0].substring(1);
-                sum += products[meal][3][1] * obj[key];
+                percentagedSum += products[meal][3][1] * obj[key];
                 if(key.includes('B')){
                     drink = key.match(/(B)\d+/)[0].substring(1);
-                    sum += (products[drink][1] - 0.5) * obj[key];
+                    percentagedSum += (products[drink][1] - 0.5) * obj[key];
                 }
             }
             else{
                 meal = key.match(/(F)\d+/)[0].substring(1);
-                sum += products[meal][3][0] * obj[key];
+                percentagedSum += products[meal][3][0] * obj[key];
             }
 
             // For the rest
@@ -311,12 +297,18 @@ function demystify(obj){
                 remise = obj[key];
             }
             else{
-                sum += products[key][1] * obj[key];
+                // If it is a:  meal || dessert || starter || drink
+                if((products[key].length === 4 && products[key][1] > 0) || products[key][2] === 1){
+                    percentagedSum += products[key][1] * obj[key];
+                }
+                else{
+                    normalSum += products[key][1] * obj[key];
+                }
             }
             easyAdd(key, obj[key]);
         }
     }
-    sum = sum/100*(100- Math.abs(remise));
+    let sum = percentagedSum/100*(100- Math.abs(remise)) + normalSum;
 
     return [realObj, coolRound(sum)];
 }
@@ -383,6 +375,23 @@ function addItem(item, quantity=null){
     redraw();
 }
 
+
+function dataNotUsed(compareFunc, replyFunc){
+    for(let com in getData()){
+        if(com[0] != 'C'){
+            continue;
+        }
+        let obj = JSON.parse(getData(com));
+        let decompressedObj = demystify(obj)[0];
+        for(let it in decompressedObj){
+            if( compareFunc(it) ){
+                replyFunc(products[it][0]);
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 function saveData(key, value){
     try{

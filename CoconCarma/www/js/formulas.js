@@ -39,10 +39,7 @@ var products;
 
 var currentMenuId = "Pri";
 
-
-// Does startup things
 let savedProducts = getData("Prods");
-
 if(savedProducts !== false && savedProducts !== null){
     products = JSON.parse(savedProducts);
 }
@@ -51,7 +48,6 @@ else{
 }
 fillTable();
 updateRealTimeStats();
-
 
 // Cleans the array
 function supZeros(c){

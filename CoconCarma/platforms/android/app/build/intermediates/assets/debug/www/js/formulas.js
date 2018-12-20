@@ -1,68 +1,58 @@
 "use strict";
-// Shape is :
-/*
-    curCommande = {
-        id : quantity,
-        ...
-    }
-*/
+
 var curCommande = {};
 var rawCommande = {};
 var total = 0;
 var modifyCmd = -1;
-// Add em to the modify price thing
-var formules = {
-    1 : ["Snack", 7.5, 11],
-    2 : ["Salade", 10, 13.5],
-    3 : ["Végé", 10, 13.5],
-    4 : ["Omni", 12, 15]
+
+var defaults = {
+    0 : ['Remise pourcentage', -1, 3, 'P'],
+    1 : ['Remise euro', -1, 3, 'E'],
+
+    2 : ['Entrée', 4, 0, 'S'],
+    3 : ['Snack', 5, 0, [7.5, 11, 'Snack']],
+    4 : ['Salade/Buddha Bowl', 8, 0, [10, 13.5, 'Salade']],
+    5 : ['Végétarien', 8, 0, [10, 13.5, 'Végé']],
+    6 : ['Omnivore', 10, 0, [12, 15, 'Omni']],
+    7 : ['Dessert', 4, 0, 'D'],
+
+    8 : ['Eau détox', 1.5, 1],
+    9 : ['Eau minérale plate', 1.5, 1],
+    10 : ['Eau minérale gazeuse', 2.5, 1],
+    11 : ['Lait végétal', 2.5, 1],
+    12 : ['Jus fruits, légumes, smoothie', 5, 1],
+    13 : ['Expresso simple', 2, 1],
+    14 : ['Expresso double', 4, 1],
+    15 : ['Thé, rooibos, infusion', 2.5, 1],
+
+    16 : ['Jetable écologique', 0.5, 2],
+    17 : ['MontBento original', 30, 2],
+    18 : ['MontBento square', 25, 2],
+    19 : ['Kit 4 couverts inox', 2, 2],
+
+    20 : ['Magazine Bien-être', 4.5, 3, 'M'],
+    21 : ['Consigne 0.5€', 0.5, 2],
+    22 : ['Consigne 1€', 1, 2]
 };
-var products = {
-    0 : ['Entrée', 4],
-    1 : ['Snack', 5],
-    2 : ['Salade/Buddha Bowl', 8],
-    3 : ['Végétarian', 8],
-    4 : ['Omnivore', 10],
-    5 : ['Dessert', 4],
 
-    6 : ['Eau détox', 1.5],
-    7 : ['Eau minérale plate', 1.5],
-    8 : ['Eau minérale gazeuse', 2.5],
-    9 : ['Lait végétal', 2.5],
-    10 : ['Jus fruits, légumes, smoothie', 5],
-    11 : ['Expresso simple', 2],
-    12 : ['Expresso double', 4],
-    13 : ['Thé, rooibos, infusion', 2.5],
-
-    14 : ['Jetable écologique', 0.5],
-    15 : ['MontBento original', 30],
-    16 : ['MontBento square', 25],
-    17 : ['Kit 4 couverts inox', 2],
-
-    18 : ['Remise pourcentage', -1, 'P'],
-    19 : ['Remise euro', -1, 'E']
-};
+var products;
 
 var currentMenuId = "Pri";
 
-
-// Does startup things
 let savedProducts = getData("Prods");
-let savedFormules = getData("Forms");
-
 if(savedProducts !== false && savedProducts !== null){
     products = JSON.parse(savedProducts);
 }
-if(savedFormules !== false && savedProducts !== null){
-    formules = JSON.parse(savedFormules);
+else{
+    products = JSON.parse(JSON.stringify(defaults));
 }
 fillTable();
-
+updateRealTimeStats();
 
 // Cleans the array
 function supZeros(c){
     for(let key in c){
-        if(c[key] <= 0){
+        if(c[key] <= 0 || isNaN(c[key])){
             delete c[key];
         }
     }
@@ -71,162 +61,297 @@ function supZeros(c){
 
 // Check for Formulas
 function checkFormules(cmd){
+    // 'commande' is just a copy of 'rawcommand' here
     let commande = supZeros(cmd);
-    
-    let entree = commande[0] === undefined ? 0 : commande[0];
-    let desert = commande[5] === undefined ? 0 : commande[5];
-    let nb = entree > desert ? entree : desert;
-    
-    for(let formu = 0; formu<nb; formu++){
-        for(let i=1; i<5; i++){
-            if(i in commande && commande[i] > 0){
-                let tag = "";
-                if(entree > 0 && desert > 0){
-                    commande[i]--;
-                    commande[0]--;
-                    commande[5]--;
-                    entree--;
-                    desert--;
-                    tag = ("M"+i);
-                }
-                else if(entree > 0){
-                    commande[i]--;
-                    commande[0]--;
-                    entree--;
-                    tag = ("Fe"+i);
-                }
-                else if(desert > 0){
-                    commande[i]--;
-                    commande[5]--;
-                    desert--;
-                    tag = ("Fd"+i);
-                }
 
-                if(tag != ""){
-                    // Add drinks
-                    for(let b=0; b<8; b++){
-                        if((b+6) in commande && commande[(b+6)] > 0){
-                            commande[(b+6)]--;
-                            tag += "B"+b;
-                            break;
+    function easyAdd(id){
+        if(commande[id] === undefined){
+            commande[id] = 1;
+        }
+        else{
+            commande[id]++;
+        }
+    }
+    
+    let formules = getFormulas();
+    let DnS = getStartersDeserts();
+    let entree = {};
+    let desert = {};
+    let meals = {};
+
+    // Does the link between DnS/formules and the real command
+    for(let it in DnS[0]){
+        entree[DnS[0][it]] = commande[DnS[0][it]] === undefined ? 0 : commande[DnS[0][it]];
+    }
+    for(let it in DnS[1]){
+        desert[DnS[1][it]] = commande[DnS[1][it]] === undefined ? 0 : commande[DnS[1][it]];
+    }
+    for(let it in formules){
+        meals[formules[it]] = commande[formules[it]] === undefined ? 0 : commande[formules[it]];
+    }
+    entree = supZeros(entree);
+    desert = supZeros(desert);
+    meals = supZeros(meals);
+
+    // Loop through meals, sure there is some because of supZeros();
+    noMoreMenus:
+    for(let m in meals){
+        for(let nb=0; nb<meals[m]; nb++){ // Loop through the number of main meals
+            let desertFound = -1;
+            let entreeFound = -1;
+            for(let des in desert){
+                if(desert[des] > 0){
+                    desert[des]--;
+                    commande[des]--;
+                    desertFound = des;
+                    break;
+                }
+            }
+            for(let ent in entree){
+                if(entree[ent] > 0){
+                    entree[ent]--;
+                    commande[ent]--;
+                    entreeFound = ent;
+                    break;
+                }
+            }
+
+            // Add drinks inteligently
+            if(desertFound != -1 && entreeFound != -1){
+                commande[m]--;
+                drinks:
+                {
+                    for(let item in commande){
+                        if(!isNaN(item) && products[item][2] == 1 && commande[item] > 0){
+                            commande[item]--;
+                            easyAdd("M"+m+"D"+desertFound+"E"+entreeFound+"B"+item);
+                            break drinks;
                         }
                     }
-
-                    if(tag in commande){
-                        commande[tag]++;                            
-                    }
-                    else{
-                        commande[tag] = 1;
-                    }
+                    easyAdd("M"+m+"D"+desertFound+"E"+entreeFound);
                 }
+            }
+            else if(desertFound != -1){
+                commande[m]--;
+                easyAdd("F"+m+"D"+desertFound);
+            }
+            else if(entreeFound != -1){
+                commande[m]--;
+                easyAdd("F"+m+"E"+entreeFound);
+            }
+            else{
+                break noMoreMenus;
             }
         }
     }
     return supZeros(commande);
 }
 
-
-function recalculateSum(){
-    let remise = 0;
-    total = 0;
-
-    curCommande = {};
-    Object.assign(curCommande, rawCommande);
-    curCommande = checkFormules(curCommande);
-
-    for(let key in curCommande){
-        if(isNaN(key)){
-            if(key.includes('M')){
-                total += formules[key.replace('M', '')[0]][2] * curCommande[key];
-            }
-            else if(key.includes('F')){
-                total += formules[key.substring(2, 3)][1] * curCommande[key];
-            }
-
-            if(key.includes('B')){
-                total += (products[Number(key.substring(key.length-1, key.length))+6][1] - 0.5) * curCommande[key];
-            }
-        }
-        else{
-            if(products[key][1] < 0 && products[key][2] === 'P'){
-                remise = curCommande[key];
-            }
-            else{
-                total += products[key][1] * curCommande[key];
-            }
-        }
-    }
-
-    total = total/100*(100- Math.abs(remise));
-    total = Math.round(total*100)/100;
-
-    $("#fTo .prix").html(total + "€");
-}
-
-
 function redraw(){
-    recalculateSum();
+    // Recalculate sum
+    curCommande = checkFormules(JSON.parse(JSON.stringify(supZeros(rawCommande))));
+    total = demystify(curCommande)[1];
+    $("#fTo .prix").html(total + "€");
+
 
     $("#to").empty();
     for(let key in curCommande){
-        if(isNaN(key) && key[0].toUpperCase() == key[0]){
-            let reducEau = 0;
+        if(key[0].toUpperCase() != key[0]){
+            continue;
+        }
+        if(isNaN(key)){
             let itemData = "<tr class='item' data-item-id='"+key+"'>\
                                 <td class='titre'>";
 
-            if(key.includes('M') || key.includes('e')){
-                itemData += products[0][0] + "</br>";
+            let curObj = {};
+            curObj[key] = 1;
+            let curItem = demystify(curObj);
+
+            for(let it in curItem[0]){
+                itemData += products[it][0] + "</br>";
             }
 
-            let id = key.match(/\d+/)[0];
-            itemData += products[id][0];
-
-            if(key.includes('M') || key.includes('d')){
-                itemData += "</br>" + products[5][0];
-            }
-
-            // drinks
-            if(key.includes('B')){
-                itemData += "</br>" + products[Number(key.substring(key.length-1, key.length))+6][0];
-                reducEau = products[Number(key.substring(key.length-1, key.length))+6][1] - 0.5;
-            }
-
-            itemData += "<td class='quantite'><span class='moins hover'>-</span>"+ curCommande[key] +"<span class='plus hover'>+</span></td>";
-
-            if(key.includes('M')){
-                itemData += "<td class='prix'>"+ ((formules[id][2]+ reducEau) * curCommande[key]) +"</td>";
-            }
-            else{
-                itemData += "<td class='prix'>"+ ((formules[id][1]+ reducEau) * curCommande[key]) +"</td>";
-            }
-
-            itemData += "<td class='supr hover'></td></tr>";
+            itemData += "<td class='quantite'><span class='moins hover'>-</span>"+ curCommande[key] +"<span class='plus hover'>+</span></td>\
+                         <td class='prix'>"+ curItem[1] * curCommande[key] +"</td>\
+                         <td class='supr hover'></td>\
+                    </tr>";
 
             $("#to").prepend(itemData);
         }
-        else if(!isNaN(key)){
+        else{
             let itemData = "<tr class='item' data-item-id='"+ key +"'>\
                                 <td class='titre'>"+ products[key][0] +"</td>\
                                 <td class='quantite'><span class='moins hover'>-</span>"+ curCommande[key] +"<span class='plus hover'>+</span></td>\
-                                <td class='prix'>"+ curCommande[key] * products[key][1] +"</td>\
+                                <td class='prix'>"+ coolRound(curCommande[key] * products[key][1]) +"</td>\
                                 <td class='supr hover'></td>\
                             </tr>";
-                    if(products[key][1] < 0){
-                        $("#to").append(itemData);
-                    }
-                    else{
-                        $("#to").prepend(itemData);
-                    }
+            if(products[key][1] < 0){
+                $("#to").append(itemData);
+            }
+            else{
+                $("#to").prepend(itemData);
+            }
         }
     }
 }
 
 function fillTable(){
-    $(".from .item").empty();
-    $(".from .item").each(function(){
-        $(this).append('<td class="titre">'+ products[$(this).data("item-id")][0] +'</td>\
-                        <td class="prix">'+ products[$(this).data("item-id")][1] +'</td>');
-    });
+    $(".from").empty();
+    for(let item in products){
+        $(".from:eq("+products[item][2]+")").append("<tr class='item' data-item-id='"+Number(item)+"' data-catid='"+ products[item][2] +"'>\
+                                                        <td class='titre'>"+ products[item][0] +"</td>\
+                                                        <td class='prix'>"+ products[item][1] +"</td>\
+                                                    </tr>");
+    }
+
+    // Add the 5% and 10%
+    $(".from:eq(3)").append("<tr class='item' data-item-id='0' data-catid='3' data-nbper='5'>\
+                                <td class='titre'>Remise pourcentage 5%</td>\
+                                <td class='prix'>-5%</td>\
+                            </tr>");
+    $(".from:eq(3)").append("<tr class='item' data-item-id='0' data-catid='3' data-nbper='10'>\
+                                <td class='titre'>Remise pourcentage 10%</td>\
+                                <td class='prix'>-10%</td>\
+                            </tr>");
+}
+
+
+function fillPrices(){
+    $("#pricesSetting").empty();
+
+    for(let i in products){
+        if(products[i][1] < 0 && products[i].length == 4){
+            continue;
+        }
+
+        $("#pricesSetting").append("<label data-id='"+ i +"' data-catid='"+ products[i][2] +"'><span class='remProd'></span><input class='transparent OnePFiveText' value='"+products[i][0]+"'></input></label>\
+                                        <input type='number' step='0.01' class='payMode OnePFiveText' value='"+ products[i][1] +"'><br>");
+    }
+
+    let formulas = getFormulas();
+    for(let i in formulas){
+        // Formule
+        $("#pricesSetting").append("<label class='formul' id='NB"+ formulas[i] +"'>Formule "+  products[formulas[i]][3][2] +"</label>\
+                                        <input type='number' step='0.01' class='payMode OnePFiveText' value='"+ products[formulas[i]][3][0] +"'><br>");
+        // Menu
+        $("#pricesSetting").append("<label class='formul'>Menu "+ products[formulas[i]][3][2] +"</label>\
+                                        <input type='number' step='0.01' class='payMode OnePFiveText' value='"+ products[formulas[i]][3][1] +"'><br>");
+    }
+}
+
+
+// Gets an object of compressed data and uncompress it && also sums it
+function demystify(obj){
+    let realObj = {};
+    let normalSum = 0;
+    let percentagedSum = 0;
+    let remise = 0;
+
+    function easyAdd(id, nb){
+        if(realObj[id] === undefined){
+            realObj[id] = nb;
+        }
+        else{
+            realObj[id] += nb;
+        }
+    }
+
+    for(let key in obj){
+        if(isNaN(key)){
+            // Check whether it is a payment mode or not
+            if(key[0] != key[0].toUpperCase()){
+                continue;
+            }
+
+            let meal;
+            let drink = -1;
+
+            // For the sum
+            if(key.includes('M')){
+                meal = key.match(/(M)\d+/)[0].substring(1);
+                percentagedSum += products[meal][3][1] * obj[key];
+                if(key.includes('B')){
+                    drink = key.match(/(B)\d+/)[0].substring(1);
+                    percentagedSum += (products[drink][1] - 0.5) * obj[key];
+                }
+            }
+            else{
+                meal = key.match(/(F)\d+/)[0].substring(1);
+                percentagedSum += products[meal][3][0] * obj[key];
+            }
+
+            // For the rest
+            if(key.includes('E')){
+                easyAdd(   key.match(/(E)\d+/)[0].substring(1)   , obj[key]);
+            }
+            easyAdd(meal, obj[key]);
+            if(key.includes('D')){
+                easyAdd(   key.match(/(D)\d+/)[0].substring(1)   , obj[key]);
+            }
+            if(drink != -1){
+                easyAdd(drink, obj[key]);
+            }
+        }
+        else{
+            if(products[key][1] < 0 && products[key][3] === 'P'){
+                remise = obj[key];
+            }
+            else{
+                // If it is a:  meal || dessert || starter || drink
+                if((products[key].length === 4 && products[key][1] > 0) || products[key][2] === 1){
+                    percentagedSum += products[key][1] * obj[key];
+                }
+                else{
+                    normalSum += products[key][1] * obj[key];
+                }
+            }
+            easyAdd(key, obj[key]);
+        }
+    }
+    let sum = percentagedSum/100*(100- Math.abs(remise)) + normalSum;
+
+    return [realObj, coolRound(sum)];
+}
+
+function getStartersDeserts(){
+    let starters = [];
+    let deserts = [];
+
+    for(let it in products){
+        if(products[it].length === 4){
+            if(products[it][3] === 'S'){
+                starters.push(it);
+            }
+            else if(products[it][3] === 'D'){
+                deserts.push(it);
+            }
+        }
+    }
+
+    return [starters, deserts];
+}
+function getFormulas(){
+    let indices = [];
+    for(let i in products){
+        if(products[i].length === 4 && typeof products[i][3] !== 'string'){
+            indices.push(i);
+        }
+    }
+    return indices;
+}
+
+function updateRealTimeStats(){
+    let nbPeople = 0;
+    let totMoney = 0;
+    for(let item in getData()){
+        if(item[0] === "C"){
+            nbPeople++;
+            totMoney += demystify( JSON.parse(getData(item)) )[1];
+        }
+    }
+    $("#realPeople").html("👥 "+nbPeople);
+    $("#realMoney").html("💰 "+coolRound(totMoney));
+    $("#realAverage").html("📈 "+coolRound(totMoney/nbPeople));
 }
 
 
@@ -235,29 +360,38 @@ function addItem(item, quantity=null){
         quantity = -curCommande[item];
     }
 
-    if(!(item in rawCommande)){
+    if(!isNaN(item) && (rawCommande[item] == undefined || rawCommande[item] == null)){
         rawCommande[item] = quantity;
     }
     else{
-        if(isNaN(item)){
-            if(item.includes('M') || item.includes('e')){
-                rawCommande[0] += quantity;
-            }
-            rawCommande[item.match(/\d+/)[0]] += quantity;
-            if(item.includes('M') || item.includes('d')){
-                rawCommande[5] += quantity;
-            }
-            if(item.includes('B')){
-                rawCommande[Number(item.substring(item.length-1, item.length))+6] += quantity;
-            }
-        }
-        else{
-            rawCommande[item] += quantity;
+        let thisItem = {};
+        thisItem[item] = quantity;
+        let items = demystify(thisItem)[0];
+
+        for(let it in items){
+            rawCommande[it] += items[it];
         }
     }
     redraw();
 }
 
+
+function dataNotUsed(compareFunc, replyFunc){
+    for(let com in getData()){
+        if(com[0] != 'C'){
+            continue;
+        }
+        let obj = JSON.parse(getData(com));
+        let decompressedObj = demystify(obj)[0];
+        for(let it in decompressedObj){
+            if( compareFunc(it) ){
+                replyFunc(products[it][0]);
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 function saveData(key, value){
     try{
@@ -274,7 +408,6 @@ function removeData(key=null){
     if(key == null){
         localStorage.clear();
         saveData("Prods", JSON.stringify(products));
-        saveData("Forms", JSON.stringify(formules));
     }
     else{
         try{
@@ -303,4 +436,9 @@ function getData(key=null){
             return false;
         }
     }
+}
+
+function coolRound(nb){
+    let finNb = Math.round(nb*100)/100;
+    return isNaN(finNb) ? 0 : finNb;
 }

@@ -15,6 +15,9 @@ div.overflow{
 div.stop{
     height: calc(100% - 80px);
 }
+div.stopLate{
+    height: calc(100% - 50px);
+}
 tr.item{
     height: 45px;
     padding-bottom: 10px;

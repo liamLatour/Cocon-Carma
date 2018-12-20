@@ -1,4 +1,4 @@
-#Wed Dec 05 14:43:40 CET 2018
+#Thu Dec 20 20:31:57 CET 2018
 base.0=E\:\\Cocon-Carma\\CoconCarma\\platforms\\android\\app\\build\\intermediates\\transforms\\dexMerger\\debug\\0
 path.0=classes.dex
 renamed.0=classes.dex
