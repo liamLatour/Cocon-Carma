@@ -215,7 +215,7 @@ function exportExcel(){
                 fileWriter.onerror = function (e) {
                     console.log("Fail with ", e);
                 };
-                fileWriter.write(new Blob([s2ab(wbout)],{type:"application/octet-stream"}));
+                fileWriter.write(new Blob([s2ab(wbout)],{type:"application/octet-stream"}) );
             });
 
         }, function(e) {console.log(e);});
@@ -231,44 +231,53 @@ function exportExcel(){
 function fromExcel(){
     var myPath = cordova.file.externalRootDirectory;
 
+    console.log("Path", myPath);
+
     window.resolveLocalFileSystemURL(myPath, function (dirEntry) {
-        var directoryReader = dirEntry.createReader();
-        directoryReader.readEntries(onSuccessCallback,onFailCallback);
+        let directoryReader = dirEntry.createReader();
+        directoryReader.readEntries(onSuccessCallback, errorCallback);
     });
     function onSuccessCallback(entries){
         for (i=0; i<entries.length; i++) {
-            var row = entries[i];
+            let row = entries[i];
             if(!row.isDirectory && row.name.includes('.xlsx')){
+                let month = row.name.substring(6, 9);
+                let year = row.name.substring(13, 17);
+                if(new Date().toDateString().substring(4, 7) == month && new Date().toDateString().substring(11) == year){
+                    console.log(row.name);
+                    retrieveData(row.name);
+                    return;
+                }
                 console.log("Excel File:", row.name, " nativeUrl:", row.nativeURL);
             }
         }
-        console.log("Found this:", entries, " at:", myPath);
-    }
-    function onFailCallback(e){
-        console.log(e);
-    }
-
-
-/*
-    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, successCallback, errorCallback)
-    function successCallback(fs) {
-        fs.root.getFile('log.txt', {}, function(fileEntry) {
-  
-            fileEntry.file(function(file) {
-                var reader = new FileReader();
-    
-                reader.onloadend = function(e) {
-                    var txtArea = document.getElementById('textarea');
-                    txtArea.value = this.result;
-                };
-                reader.readAsText(file);
-
-           }, function(err) {});
-        }, function(err) {});
     }
   
+    function retrieveData(foundExcel) {
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, successCallback, errorCallback);
+        function successCallback(fs) {
+            fs.root.getFile(foundExcel, {}, function (fileEntry) {
+                fileEntry.file(function (file) {
+                    var reader = new FileReader();
+                    reader.onloadend = function () {
+                        console.log("Success!");
+                        let workbook = XLSX.read(this.result, { type: 'binary' });
+                        workbook.SheetNames.forEach(function (sheetName) {
+                            // Here is your object
+                            var XL_row_object = XLSX.utils.sheet_to_csv(workbook.Sheets[sheetName]);
+
+                            console.log("CSV", XL_row_object);
+                            console.log("Parsed", Papa.parse(XL_row_object));
+                        });
+                    };
+                    reader.onerror = function (e) { console.log(e); };
+                    reader.readAsBinaryString(file);
+                }, function (e) { console.log(e); });
+            }, function (e) { console.log(e); });
+        }
+    }
+
     function errorCallback(error) {
         alert("Impossible de compléter le excel: " + error.code);
     }
-*/
 }
