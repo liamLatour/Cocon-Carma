@@ -393,51 +393,63 @@ function dataNotUsed(compareFunc, replyFunc){
     return false;
 }
 
+
 function saveData(key, value){
-    try{
-        localStorage.setItem(key, value);
+    if (typeof(Storage) !== "undefined") {
+        try{
+            localStorage.setItem(key, value);
+        }
+        catch(error){
+            console.log(error);
+            alert("Sauvegarde échouée");
+            return false;
+        }
     }
-    catch(error){
-        console.log(error);
-        alert("Sauvegarde échouée");
-        return false;
+    else{
+        alert("Désolé ce navigateur ne supporte pas la sauvegarde");
     }
 }
-
 function removeData(key=null){
-    if(key == null){
-        localStorage.clear();
-        saveData("Prods", JSON.stringify(products));
+    if (typeof(Storage) !== "undefined") {
+        if(key == null){
+            localStorage.clear();
+            saveData("Prods", JSON.stringify(products));
+        }
+        else{
+            try{
+                localStorage.removeItem(key);
+            }
+            catch(error){
+                console.log(error);
+                alert("Sauvegarde échouée");
+                return false;
+            }
+        }
     }
     else{
-        try{
-            localStorage.removeItem(key);
-        }
-        catch(error){
-            console.log(error);
-            alert("Sauvegarde échouée");
-            return false;
-        }
+        alert("Désolé ce navigateur ne supporte pas la sauvegarde");
     }
 }
-
 function getData(key=null){
-    if(key === null){
-        // send a list of items
-        return localStorage;
+    if (typeof(Storage) !== "undefined") {
+        if(key === null){
+            return localStorage; // send a list of items
+        }
+        else{
+            try{
+                return localStorage.getItem(key);
+            }
+            catch(error){
+                console.log(error);
+                alert("Sauvegarde échouée");
+                return false;
+            }
+        }
     }
     else{
-        try{
-            return localStorage.getItem(key);
-        }
-        catch(error){
-            console.log(error);
-            alert("Sauvegarde échouée");
-            return false;
-        }
+        alert("Désolé ce navigateur ne supporte pas la sauvegarde");
     }
 }
-
 function coolRound(nb){
     let finNb = Math.round(nb*100)/100;
     return isNaN(finNb) ? 0 : finNb;

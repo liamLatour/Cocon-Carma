@@ -303,27 +303,22 @@ $("#End").on('click', function(){
 
     curCommande["time"] = new Date();
 
-    if (typeof(Storage) !== "undefined") {
-        if(modifyCmd == -1){
-            if(getData("nbC") === null){
-                saveData("nbC", 0);
-            }
-            else{
-                saveData("nbC", Number(getData("nbC"))+1);
-            }
-            saveData("C"+getData("nbC"), JSON.stringify(curCommande));
+    if(modifyCmd == -1){
+        if(getData("nbC") === null){
+            saveData("nbC", 0);
         }
         else{
-            saveData(modifyCmd, JSON.stringify(curCommande));
+            saveData("nbC", Number(getData("nbC"))+1);
         }
-        modifyCmd = -1;
+        saveData("C"+getData("nbC"), JSON.stringify(curCommande));
+    }
+    else{
+        saveData(modifyCmd, JSON.stringify(curCommande));
+    }
+    modifyCmd = -1;
 
-        // Update the Real Time Peolple Count
-        updateRealTimeStats();
-    }
-    else {
-        alert("Désolé ce navigateur ne supporte pas la sauvegarde");
-    }
+    // Update the Real Time Peolple Count
+    updateRealTimeStats();
 });
 
 
@@ -372,5 +367,5 @@ $("#to").on('click', 'span', function(){
 
 
 $("#toExcel").on('click', function(){
-    exportExcel();
+    updateExcel();
 });
