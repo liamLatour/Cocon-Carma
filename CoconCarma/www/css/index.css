@@ -2,6 +2,15 @@
 :root{
     --darker: 20%;
     --highlight: 35%;
+    --red1: hsl(357, 67%, 58%);
+    --red2: hsl(357, 76%, 50%);
+    --red3: #944b4b;
+    --green1: #B2DB77;
+    --green2: rgb(116, 163, 49);
+    --green3: #74922d;
+    --blue1: hsl(192, 57%, 52%);
+    --blue2: hsl(240, 100%, 40%);
+    --blue3: #445f86;
 }
 * {
     -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
@@ -95,7 +104,7 @@ input[type=text]:focus {
     margin-left: 25%;
     margin-right: 25%;
     border-radius: 20px;
-    background-color: #B2DB77;
+    background-color: var(--green1);
     width: 50%;
 }
 
@@ -145,7 +154,7 @@ label{
     padding: 15px;
 }
 #End{
-    background-color: hsl(239, 100%, 43%);
+    background-color: var(--blue2);
     cursor: pointer;
     padding: 10px;
     position: absolute;
@@ -201,7 +210,7 @@ label{
     margin-top: -10px;
     padding: 22px;
 
-    background-color: rgba(255, 228, 196, 0);
+    background-color: rgba(0, 0, 0, 0);
 }
 .suprCmd::after{
     content: 'x';
@@ -214,7 +223,7 @@ label{
     padding-right: 15px;
     border-radius: 20px;
 
-    background-color: #ff0000;    
+    background-color: var(--red2);    
 }
 
 /*Autre truc*/
@@ -274,7 +283,8 @@ label{
 /*The second modal*/
 #toExcel{
     position: absolute;
-    background: hsl(81, 100%, 79%);
+    color: white;
+    background: var(--green2);
     border-radius: 20px;
     padding: 10px;
 
@@ -287,7 +297,7 @@ label{
 }
 #clearCmd{
     position: absolute;
-    background: hsl(0, 100%, 35%);
+    background: var(--red2);
     border-radius: 20px;
     padding: 10px;
     color: white;
@@ -327,7 +337,7 @@ label{
     right: 10px;
 
     color: white;
-    background-color: hsl(239, 100%, 43%);
+    background-color: var(--blue2);
     padding: 1vw;
     border-radius: 20px;
     cursor: pointer;
@@ -344,7 +354,7 @@ label{
     transform: translateX(-50%);
 
     color: white;
-    background-color: hsl(345, 100%, 43%);
+    background-color: var(--red2);
     padding: 1vw;
     border-radius: 20px;
     cursor: pointer;
@@ -360,7 +370,7 @@ label{
     left: 10px;
     
     color: white;
-    background-color: hsl(64, 100%, 36%);
+    background-color: var(--green2);
     padding: 1vw;
     border-radius: 20px;
     cursor: pointer;
@@ -384,7 +394,7 @@ label{
     left: calc(50% - 70px);
     
     color: white;
-    background-color: hsl(64, 100%, 36%);
+    background-color: var(--green2);
     padding: 10px;
     border-radius: 20px;
     cursor: pointer;
@@ -417,7 +427,7 @@ label{
     border-color: transparent;
     text-align: center;
     border-radius: 20px;
-    background-color: #a15050;
+    background-color: var(--red3);
     
     margin-left: 20px;
     margin-right: 20%;
@@ -436,7 +446,7 @@ select{
 .remProd{
     position: absolute;
     border-radius: 20px;
-    background-color: #ff0000;
+    background-color: var(--red2);
     float: left;
     cursor: pointer;
     top: 3px;
@@ -468,7 +478,8 @@ select{
 #realPeople{
     position: fixed;
     display: inline;
-    background-color: #a15050;
+    color: white;
+    background-color: var(--red3);
     padding: 10px;
     border-radius: 20px;
     left: 10px;
@@ -477,7 +488,8 @@ select{
 #realMoney{
     position: fixed;
     display: inline;
-    background-color: #7b9c2d;
+    color: white;
+    background-color: var(--green3);
     padding: 10px;
     border-radius: 20px;
     right: 75%;
@@ -487,7 +499,8 @@ select{
 #realAverage{
     position: fixed;
     display: inline;
-    background-color: #5070a1;
+    color: white;
+    background-color: var(--blue3);
     padding: 10px;
     border-radius: 20px;
     right: calc(50% + 10px);
@@ -543,7 +556,7 @@ select{
 
 /* When the radio button is checked, add a blue background */
 .container input[type=radio]:checked ~ .checkmark {
-    background-color: #2196F3;
+    background-color: var(--blue1);
 }
 
 /* Create the indicator (the dot/circle - hidden when not checked) */

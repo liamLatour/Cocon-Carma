@@ -29,7 +29,7 @@ tr.item{
 }
 td.titre{
     text-align: left;
-    background-color: #B2DB77;
+    background-color: var(--green1);
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
     padding-left: 15px;
@@ -62,17 +62,17 @@ th.prix{
     bottom: 10px;
 }
 #fTo th.titre{
-    background-color: #B2DB77;
+    background-color: var(--green1);
     padding: 10px;
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
 }
 #fTo th.prix{
     width: 25%;
-    background-color: #03AAC0;
+    background-color: var(--blue1);
 }
 #fTo th.confirm{
-    background-color: #03AAC0;
+    background-color: var(--blue1);
     border-top-right-radius: 22px;
     border-bottom-right-radius: 22px;
     text-align: right;
@@ -81,7 +81,7 @@ th.prix{
 }
 #fTo th.confirm::after{
     content: "Confirmer";
-    background-color: red;
+    background-color: var(--red2);
     padding: 13px;
     border-radius: 20px;
 }
@@ -92,7 +92,7 @@ th.prix{
 
 #to td.titre{
     text-align: left;
-    background-color: #B2DB77;
+    background-color: var(--green1);
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
     margin-bottom: 100px;
@@ -107,19 +107,19 @@ td.quantite{
 }
 td.prix{
     text-align: center;
-    background-color: rgb(3, 170, 192);
+    background-color: var(--blue1);
 }
 .supr::after{
     display: block;
     padding: 9px;
     margin-left: 1%;
-    background-color: red;
+    background-color: var(--red2);
     border-radius: 50%;
     content: "✕";
     text-align: center;
 }
 .supr{
-    background-color: rgb(3, 170, 192);
+    background-color: var(--blue1);
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
     padding: 0;

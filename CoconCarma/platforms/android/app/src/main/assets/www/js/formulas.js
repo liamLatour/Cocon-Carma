@@ -240,6 +240,44 @@ function fillPrices(){
 }
 
 
+function fillCommands(){
+    $("#cmdConteneur").empty();
+    for(let item in getData()){
+        if(item[0] != 'C'){
+            continue;
+        }
+
+        let toShow = "";
+        let obj = JSON.parse(getData(item));
+        for(let key in obj){
+            try{
+                // Check whether it is a payment mode or not
+                if(key[0] != key[0].toUpperCase()){
+                    continue;
+                }
+
+                if(!isNaN(key)){
+                    toShow += products[key][0];
+                }
+                else if(key.includes('M')){
+                    toShow += "Menu "+ products[key[1]][3][2];
+                }
+                else{
+                    toShow += "Formules "+ products[key[1]][3][2];
+                }
+                toShow += ", ";
+            }
+            catch(error){
+                console.log(key[2]);
+                console.log(error);
+            }
+        }
+        toShow = toShow.substring(0, toShow.length-2);
+
+        $("#cmdConteneur").prepend("<li class='cmdList' data-command='"+item+"'>"+toShow+"<span class='suprCmd'></span></li>");
+    }
+}
+
 // Gets an object of compressed data and uncompress it && also sums it
 function demystify(obj){
     let realObj = {};
@@ -311,6 +349,38 @@ function demystify(obj){
     let sum = percentagedSum/100*(100- Math.abs(remise)) + normalSum;
 
     return [realObj, coolRound(sum)];
+}
+
+function difference(obj1, obj2){
+    let copy1 = JSON.parse(JSON.stringify(obj1));
+    for(let item in obj2){
+        if(item == "modified"){
+            continue;
+        }
+        if(copy1[item] !== undefined){
+            copy1[item] -= obj2[item];
+        }
+        else{
+            copy1[item] = -obj2[item];
+        }
+    }
+    return copy1;
+}
+
+function addition(obj1, obj2){
+    let copy1 = JSON.parse(JSON.stringify(obj1));
+    for(let item in obj2){
+        if(copy1[item] !== undefined){
+            copy1[item] += obj2[item];
+        }
+        else{
+            copy1[item] = obj2[item];
+        }
+        if(copy1[item] == 0){
+            delete copy1[item];
+        }
+    }
+    return copy1;
 }
 
 function getStartersDeserts(){
@@ -453,4 +523,11 @@ function getData(key=null){
 function coolRound(nb){
     let finNb = Math.round(nb*100)/100;
     return isNaN(finNb) ? 0 : finNb;
+}
+function isEmpty(obj) {
+    for(var key in obj) {
+        if(obj.hasOwnProperty(key))
+            return false;
+    }
+    return true;
 }

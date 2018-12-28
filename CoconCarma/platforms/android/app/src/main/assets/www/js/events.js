@@ -188,41 +188,7 @@ $("#confirmPrice").on('click', function(){
 // Shows commands
 $("#myCmd").on('click', function(){
     $("#cmds").css('visibility', 'visible');
-    $("#cmdConteneur").empty();
-    for(let item in getData()){
-        if(item[0] != 'C'){
-            continue;
-        }
-
-        let toShow = "";
-        let obj = JSON.parse(getData(item));
-        for(let key in obj){
-            try{
-                // Check whether it is a payment mode or not
-                if(key[0] != key[0].toUpperCase()){
-                    continue;
-                }
-
-                if(!isNaN(key)){
-                    toShow += products[key][0];
-                }
-                else if(key.includes('M')){
-                    toShow += "Menu "+ products[key[1]][3][2];
-                }
-                else{
-                    toShow += "Formules "+ products[key[1]][3][2];
-                }
-                toShow += ", ";
-            }
-            catch(error){
-                console.log(key[2]);
-                console.log(error);
-            }
-        }
-        toShow = toShow.substring(0, toShow.length-2);
-
-        $("#cmdConteneur").prepend("<li class='cmdList' data-command='"+item+"'>"+toShow+"<span class='suprCmd'></span></li>");
-    }
+    fillCommands();
 });
 
 
@@ -232,6 +198,7 @@ $("#cmdConteneur").on('click', ".suprCmd", function(event){
         removeData($(this).parent().data("command"));
         $(this).parent().remove();
         updateRealTimeStats();
+        fillCommands();
     }
     event.stopPropagation();
 });
@@ -239,6 +206,7 @@ $("#cmdConteneur").on('click', ".suprCmd", function(event){
 $("#clearCmd").on('click', function(){
     removeData();
     $("#cmds").css('visibility', 'hidden');
+    updateRealTimeStats();
 });
 
 // Get clicks on commands
@@ -301,8 +269,6 @@ $("#End").on('click', function(){
         }
     });
 
-    curCommande["time"] = new Date();
-
     if(modifyCmd == -1){
         if(getData("nbC") === null){
             saveData("nbC", 0);
@@ -310,9 +276,14 @@ $("#End").on('click', function(){
         else{
             saveData("nbC", Number(getData("nbC"))+1);
         }
+        curCommande["time"] = new Date();
         saveData("C"+getData("nbC"), JSON.stringify(curCommande));
     }
     else{
+        // TODO: Specify it has been modified
+        let old = JSON.parse(getData(modifyCmd));
+        curCommande["modified"] = addition(difference(curCommande, old), old["modified"]); // The difference between old one and new one
+        curCommande["time"] = new Date();
         saveData(modifyCmd, JSON.stringify(curCommande));
     }
     modifyCmd = -1;

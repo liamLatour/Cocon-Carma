@@ -2,26 +2,24 @@
 
 // TODO: Upgrade newsPaper thing && do a totalisation sheet
 
+// TODO: if an item is at 0 supress it
+
 function exportExcel(alreadyHere=undefined, summarySheet=undefined){
 
     var newsPaper_data = [];
-
-    if(summarySheet != undefined){
-        newsPaper_data = summarySheet;
-    }
-    else{
-        newsPaper_data.push(["", "Jour 1"]);
-        newsPaper_data.push(["Nombre", 0]);
-        newsPaper_data.push(["Prix", 0]);
-    }
-
-
     let ws_data = [];
     let totalNb = 0;
     let totalMoney = 0;
     let totalCmd = 0;
     let percentageId = -1; // To decrease complexity
 
+    if(summarySheet != undefined){
+        newsPaper_data = summarySheet;
+    }
+    else{
+        newsPaper_data.push(["Jour", "Nombre", "Prix"]);
+    }
+    
     if(alreadyHere != undefined){
         ws_data = alreadyHere;
 
@@ -51,6 +49,20 @@ function exportExcel(alreadyHere=undefined, summarySheet=undefined){
                 continue;
             }
 
+            if(obj["modified"] !== undefined){
+                console.log("MODIFIED");
+                if(isEmpty(obj["modified"])){
+                    continue;
+                }
+                else{
+                    let newObj = JSON.parse(JSON.stringify(obj));
+                    delete newObj["modified"];
+                    obj = obj["modified"];
+                    saveData(item, JSON.stringify(newObj));
+                    console.log(obj);
+                }
+            }
+
             totalCmd++;
             let remise = 0;
             let normalSum = 0;
@@ -68,7 +80,7 @@ function exportExcel(alreadyHere=undefined, summarySheet=undefined){
                             continue;
                         }
 
-                        console.log("real shit");
+                        console.log("real shit", key);
                         let meal;
 
                         if(key.includes('M')){
@@ -88,6 +100,9 @@ function exportExcel(alreadyHere=undefined, summarySheet=undefined){
                             isPercentaged = true;
                             thisName = "Formule " + products[meal][3][2];
                             thisCost = products[meal][3][0] * obj[key];
+                        }
+                        else{
+                            console.log("HU HO !!!");
                         }
                     }
                     else{
@@ -112,12 +127,12 @@ function exportExcel(alreadyHere=undefined, summarySheet=undefined){
                         }
                     }
 
-                    if(thisCost > 0 || products[key][3] == 'E'){
+                    if(!(products[key] !== undefined && products[key].length>3 && products[key][3] == 'P')){ // To check if it's a percentaged
                         let id = isItHere(thisName);
 
                         if(id != -1){
-                            ws_data[id][1] += obj[key];
-                            ws_data[id][3] += thisCost;
+                            ws_data[id][1] = Number(ws_data[id][1])+Number(obj[key]);
+                            ws_data[id][3] = Number(ws_data[id][3])+Number(thisCost);
                         }
                         else{
                             ws_data.push([thisName, obj[key], thisCost/obj[key], thisCost]);
@@ -197,6 +212,7 @@ function exportExcel(alreadyHere=undefined, summarySheet=undefined){
     }
 
     saveData("lastSave", Date.now());
+    console.log("Finish", ws_data);
     return [ws_data, newsPaper_data];
 }
 
