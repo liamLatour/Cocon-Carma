@@ -139,6 +139,7 @@ function checkFormules(cmd) {
     return supZeros(commande);
 }
 
+
 function redraw() {
     // Recalculate sum
     curCommande = checkFormules(JSON.parse(JSON.stringify(supZeros(rawCommande))));
@@ -150,53 +151,41 @@ function redraw() {
         if (key[0].toUpperCase() != key[0]) {
             continue;
         }
-        var itemData;
 
-        // Special prices
-        if (!isNaN(key[0]) && key.includes('P')) {
-            var realKey = Number(key.split("P")[0]);
-
-            itemData = "<tr class='item' data-item-id='" + key + "'>" +
-                "<td class='titre'>" + products[realKey][0] + "</td>" +
-                "<td class='quantite'><span class='moins hover'>-</span>" + curCommande[key] + "<span class='plus hover'>+</span></td>" +
-                "<td class='prix'>" + coolRound(curCommande[key] * parseFloat(key.split("P")[1])) + "</td>" +
-                "<td class='supr hover'></td>" +
-                "</tr>";
-
-            $("#to").prepend(itemData);
-            continue;
-        }
+        var title = "";
+        var quantity = curCommande[key];
+        var price = 0;
 
         if (isNaN(key)) {
-            itemData = "<tr class='item' data-item-id='" + key + "'>" +
-                "<td class='titre'>";
-
             var curObj = {};
             curObj[key] = 1;
             var curItem = demystify(curObj);
 
             for (var it in curItem[0]) {
-                itemData += products[it][0] + "</br>";
+                title += products[it][0] + "</br>";
             }
+            price = curItem[1] * curCommande[key];
 
-            itemData += "<td class='quantite'><span class='moins hover'>-</span>" + curCommande[key] + "<span class='plus hover'>+</span></td>" +
-                "<td class='prix'>" + curItem[1] * curCommande[key] + "</td>" +
-                "<td class='supr hover'></td>" +
-                "</tr>";
-
-            $("#to").prepend(itemData);
         } else {
-            itemData = "<tr class='item' data-item-id='" + key + "'>" +
-                "<td class='titre'>" + products[key][0] + "</td>" +
-                "<td class='quantite'><span class='moins hover'>-</span>" + curCommande[key] + "<span class='plus hover'>+</span></td>" +
-                "<td class='prix'>" + coolRound(curCommande[key] * products[key][1]) + "</td>" +
-                "<td class='supr hover'></td>" +
-                "</tr>";
-            if (products[key][1] < 0) {
-                $("#to").append(itemData);
+            title = products[key][0];
+            if (products[key][1] == 0) {
+                price = coolRound(curCommande[key]);
             } else {
-                $("#to").prepend(itemData);
+                price = coolRound(curCommande[key] * products[key][1]);
             }
+        }
+
+        var itemData = "<tr class='item' data-item-id='" + key + "'>" +
+            "<td class='titre'>" + title + "</td>" +
+            "<td class='quantite'><span class='moins hover'>-</span>" + quantity + "<span class='plus hover'>+</span></td>" +
+            "<td class='prix'>" + price + "</td>" +
+            "<td class='supr hover'></td>" +
+            "</tr>";
+
+        if (price < 0) {
+            $("#to").append(itemData);
+        } else {
+            $("#to").prepend(itemData);
         }
     }
 }
@@ -272,14 +261,13 @@ function fillCommands() {
                 } else if (!isNaN(key[0]) && key.includes('P')) {
                     toShow += products[key.split("P")[0]][0];
                 } else if (key.includes('M')) {
-                    toShow += "Menu " + products[key[1]][3][2]; //HARD CODED 
+                    toShow += "Menu " + products[key.match(/(M)\d+/)[0].substring(1)][3][2];
                 } else {
-                    toShow += "Formules " + products[key[1]][3][2];
+                    toShow += "Formules " + products[key.match(/(F)\d+/)[0].substring(1)][3][2];
                 }
                 toShow += ", ";
             } catch (error) {
-                console.log(key[2]);
-                console.log(error);
+                errorHandle("Erreur: " + error, colourPallets.Error);
             }
         }
         toShow = toShow.substring(0, toShow.length - 2);
@@ -304,13 +292,6 @@ function demystify(obj) {
     }
 
     for (var key in obj) {
-        // Special prices
-        if (!isNaN(key[0]) && key.includes('P')) {
-            normalSum += parseFloat(key.split("P")[1]) * obj[key];
-            easyAdd(key, obj[key]);
-            continue;
-        }
-
         if (isNaN(key)) {
             // Check whether it is a payment mode or not
             if (key[0] != key[0].toUpperCase()) {
@@ -352,7 +333,12 @@ function demystify(obj) {
                 if ((products[key].length === 4 && products[key][1] > 0) || products[key][2] === 1) {
                     percentagedSum += products[key][1] * obj[key];
                 } else {
-                    normalSum += products[key][1] * obj[key];
+                    if (products[key][1] == 0) {
+                        normalSum += obj[key];
+                    } else {
+                        normalSum += products[key][1] * obj[key];
+                    }
+
                 }
             }
             easyAdd(key, obj[key]);
@@ -435,31 +421,20 @@ function updateRealTimeStats() {
 }
 
 
-function addItem(item, quantity, newprice) {
+function addItem(item, quantity) {
     if (quantity == undefined) {
         quantity = -curCommande[item];
     }
 
-    if (newprice != undefined) {
-        rawCommande[item + "P" + newprice] = quantity;
+    if (!isNaN(item) && (rawCommande[item] == undefined || rawCommande[item] == null)) {
+        rawCommande[item] = quantity;
     } else {
-        if (!isNaN(item) && (rawCommande[item] == undefined || rawCommande[item] == null)) {
-            if (products[item][1] == 0) {
-                // Prix libre
-                // TODO: add it
-                $("#askPrice").data("newItem", item);
-                $("#askPrice").css('visibility', 'visible');
-            } else {
-                rawCommande[item] = quantity;
-            }
-        } else {
-            var thisItem = {};
-            thisItem[item] = quantity;
-            var items = demystify(thisItem)[0];
+        var thisItem = {};
+        thisItem[item] = quantity;
+        var items = demystify(thisItem)[0];
 
-            for (var it in items) {
-                rawCommande[it] += items[it];
-            }
+        for (var it in items) {
+            rawCommande[it] += items[it];
         }
     }
     redraw();
@@ -489,12 +464,11 @@ function saveData(key, value) {
         try {
             localStorage.setItem(key, value);
         } catch (error) {
-            console.log(error);
-            alert("Sauvegarde échouée");
+            errorHandle("Sauvegarde échouée, erreur: " + error, colourPallets.Error);
             return false;
         }
     } else {
-        alert("Désolé ce navigateur ne supporte pas la sauvegarde");
+        errorHandle("Désolé ce navigateur ne supporte pas la sauvegarde", colourPallets.Error);
     }
 }
 
@@ -507,13 +481,12 @@ function removeData(key) {
             try {
                 localStorage.removeItem(key);
             } catch (error) {
-                console.log(error);
-                alert("Sauvegarde échouée");
+                errorHandle("Sauvegarde échouée, erreur: " + error, colourPallets.Error);
                 return false;
             }
         }
     } else {
-        alert("Désolé ce navigateur ne supporte pas la sauvegarde");
+        errorHandle("Désolé ce navigateur ne supporte pas la sauvegarde", colourPallets.Error);
     }
 }
 
@@ -525,13 +498,12 @@ function getData(key) {
             try {
                 return localStorage.getItem(key);
             } catch (error) {
-                console.log(error);
-                alert("Sauvegarde échouée");
+                errorHandle("Sauvegarde échouée, erreur: " + error, colourPallets.Error);
                 return false;
             }
         }
     } else {
-        alert("Désolé ce navigateur ne supporte pas la sauvegarde");
+        errorHandle("Désolé ce navigateur ne supporte pas la sauvegarde", colourPallets.Error);
     }
 }
 
@@ -546,4 +518,55 @@ function isEmpty(obj) {
             return false;
     }
     return true;
+}
+
+var colourPallets = {
+    "Normal": ["rgb(105, 105, 105)", "white", "white"],
+    "Error": ["hsl(357, 76%, 50%)", "white", "white"],
+    "Succes": ["#B2DB77", "black", "white"],
+    "Warning": ["hsl(51, 100%, 53%)", "black", "white"]
+};
+
+function errorHandle(name, colorPallet) {
+    if (colorPallet == colourPallets.Error) {
+        console.error(name);
+    } else if (colorPallet == colourPallets.Warning) {
+        console.warn(name);
+    } else if (colorPallet == colourPallets.Succes) {
+        console.info(name);
+    } else {
+        console.log(name);
+    }
+
+    var div = $("#ALERT");
+    div.stop(true);
+
+    div.html(name);
+
+    if (colorPallet != undefined) {
+        div.css('background-color', colorPallet[0]);
+        div.css('color', colorPallet[1]);
+        div.css('border-color', colorPallet[2]);
+    } else {
+        div.css('background-color', colourPallets.Normal[0]);
+        div.css('color', colourPallets.Normal[1]);
+        div.css('border-color', colourPallets.Normal[2]);
+    }
+
+    div.css({
+        visibility: 'visible',
+        top: '-' + div.css('height'),
+        opacity: '1'
+    });
+    div.animate({
+        top: '20px'
+    }, 1000);
+    div.animate({
+        opacity: '1'
+    }, 9000);
+    div.animate({
+        opacity: '0',
+        visibility: 'hidden'
+    }, 1000);
+    div.css('top', '-80px');
 }

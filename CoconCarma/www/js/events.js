@@ -24,7 +24,7 @@ $("#pricesSetting").on('click', '.remProd', function () {
                 return false;
             }
         }, function (name) {
-            alert("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié");
+            errorHandle("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié", colourPallets.Warning);
         })) {
         return;
     }
@@ -45,7 +45,7 @@ $("#resetPrices").on('click', function () {
                 return false;
             }
         }, function (name) {
-            alert("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié");
+            errorHandle("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié", colourPallets.Warning);
         })) {
         return;
     }
@@ -69,14 +69,32 @@ $("#confirmNewItem").on('click', function () {
     var price = $("#newPrice").val();
     var name = $("#newName").val();
 
-    if (name == "" || name == undefined || categorie == "" || categorie == undefined) {
+    if (name == "" || name == undefined || isNaN(categorie)) {
+        errorHandle("Veuillez remplir tous les champs", colourPallets.Warning);
         return;
     }
 
     if (radioValue === "mf") {
         if ($("#newMenuPrice").val() == undefined || $("#newMenuPrice").val() <= 0 ||
             $("#newFormulePrice").val() == undefined || $("#newFormulePrice").val() <= 0) {
-            alert("Impossible d'avoir ce prix pour les formules");
+            errorHandle("Impossible d'avoir un prix négatif pour les formules", colourPallets.Warning);
+            return;
+        }
+    }
+
+    if (categorie === 1) {
+        if (radioValue === "dessert") {
+            errorHandle("Impossible d'avoir un dessert dans les boissons", colourPallets.Warning);
+            return;
+        } else if (radioValue === "entree") {
+            errorHandle("Impossible d'avoir une entrée dans les boissons", colourPallets.Warning);
+            return;
+        }
+    }
+
+    for (var item in products) {
+        if (products[item][0].toLowerCase() === name.toLowerCase()) {
+            errorHandle("Impossible d'avoir deux produits avec le même nom", colourPallets.Warning);
             return;
         }
     }
@@ -85,24 +103,7 @@ $("#confirmNewItem").on('click', function () {
         price = parseFloat(price);
     } else {
         price = 0;
-        console.log("Prix libre");
-    }
-
-    if (categorie === 1) {
-        if (radioValue === "dessert") {
-            alert("Impossible d'avoir un dessert dans les boissons");
-            return;
-        } else if (radioValue === "entree") {
-            alert("Impossible d'avoir une entrée dans les boissons");
-            return;
-        }
-    }
-
-    for (var item in products) {
-        if (products[item][0].toLowerCase() === name.toLowerCase()) {
-            alert("Impossible d'avoir deux produits avec le même nom");
-            return;
-        }
+        errorHandle("Produit à prix libre ajouté", colourPallets.Succes);
     }
 
     $("#addItem").css('visibility', 'hidden');
@@ -154,7 +155,7 @@ $("#confirmPrice").on('click', function () {
                             return false;
                         }
                     }, function (name) {
-                        alert("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié");
+                        errorHandle("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié", colourPallets.Warning);
                     })) {
                     return;
                 }
@@ -163,7 +164,7 @@ $("#confirmPrice").on('click', function () {
                 if ($("#pricesSetting label").each(function () {
                         if ($(this).attr('class') != "formul" && parseInt($(this).data('id')) != id) {
                             if ($(this).children().eq(1).val().toLowerCase() === name.toLowerCase()) {
-                                alert("Impossible d'avoir deux produits avec le même nom");
+                                errorHandle("Impossible d'avoir deux produits avec le même nom", colourPallets.Warning);
                                 return true;
                             }
                         }
@@ -224,8 +225,8 @@ $("#cmdConteneur").on('click', ".cmdList", function () {
 
 // Manages the modal OnSubmit
 $("#submit").on('click', function () {
-    if (total == 0) {
-        console.warn("No Items");
+    if (total == 0 && modifyCmd == -1) {
+        errorHandle("Aucun produits séléctionné", colourPallets.Warning);
         return;
     }
     $("#Rest").html(total);
@@ -312,9 +313,14 @@ $("table.from").on('click', 'tr', function () {
         addItem(item, Number($(this).data("nbper")));
         return;
     }
-    addItem(item, 1);
-});
+    if (products[item][1] == 0) {
+        $("#askPrice").data("newItem", item);
+        $("#askPrice").css('visibility', 'visible');
+    } else {
+        addItem(item, 1);
 
+    }
+});
 
 // Recupère les clicks sur les éléments fils de '#to' ayant la classe 'supr' (et de type 'td')
 $("#to").on('click', 'td.supr', function () {
@@ -342,10 +348,11 @@ $("#toExcel").on('click', function () {
 /*# Special Price #*/
 /*#################*/
 $("#cancelAskPrice").on('click', function () {
-
+    $("#askPrice").css('visibility', 'hidden');
 });
 
 $("#confirmAskPrice").on('click', function () {
-    addItem($("#askPrice").data("newItem"), 1, parseFloat($("#askedprice").val()));
+    console.log($("#askPrice").data("newItem"));
+    addItem($("#askPrice").data("newItem"), parseFloat($("#askedprice").val()));
     $("#askPrice").css('visibility', 'hidden');
 });

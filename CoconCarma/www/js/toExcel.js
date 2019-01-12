@@ -1,13 +1,30 @@
-// TODO: put newspaper and payment modes apart
-
-// TODO: Upgrade newsPaper thing && do a totalisation sheet
-
 // TODO: if an item is at 0 supress it
+
+var wscols = [{
+    wch: 25
+}, {
+    wch: 16
+}, {
+    wch: 8
+}, {
+    wch: 8
+}, {
+    wch: 7
+}, {
+    wch: 13
+}, {
+    wch: 15
+}]; // Cols for "Jour X"
+
+var days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+var payments = {"cb":5, "es":6, "ti":7, "ch":8};
 
 function exportExcel(alreadyHere, summarySheet) {
 
     var newsPaper_data = [];
     var ws_data = [];
+    var now = new Date();
+    var day = new Date().getDate();
     var totalNb = 0;
     var totalMoney = 0;
     var totalCmd = 0;
@@ -16,8 +33,16 @@ function exportExcel(alreadyHere, summarySheet) {
     if (summarySheet != undefined) {
         newsPaper_data = summarySheet;
     } else {
-        newsPaper_data.push(["Jour", "Nombre", "Prix"]);
+        newsPaper_data.push(["Jour", "Quantité", "Prix", "", "", "CB", "Espèces", "Tickets", "Chèques", "", "TOTAL"]);
     }
+
+    // Fills the newsPaper sheet
+    if (newsPaper_data.length < day){
+        for(var i=newsPaper_data.length; i<day+1; i++){
+            newsPaper_data.push([days[new Date(now.getFullYear(), now.getMonth(), i).getDay()] + " " + i, 0, 0, "", "", 0, 0, 0, 0, "", 0]);
+        }
+    }
+
 
     if (alreadyHere != undefined) {
         ws_data = alreadyHere;
@@ -75,6 +100,10 @@ function exportExcel(alreadyHere, summarySheet) {
                     if (isNaN(key)) {
                         // Check whether it is a payment mode or not
                         if (key[0] != key[0].toUpperCase()) {
+                            if (key != "time"){
+                                newsPaper_data[day][payments[key]] += parseFloat(obj[key]);
+                                newsPaper_data[day][10] += parseFloat(obj[key]);
+                            }      
                             continue;
                         }
 
@@ -110,13 +139,18 @@ function exportExcel(alreadyHere, summarySheet) {
                                 isPercentaged = true;
                             }
 
-                            thisCost = products[key][1] * obj[key];
+                            if (products[key][1] == 0) {
+                                thisCost = obj[key];
+                            } else {
+                                thisCost = products[key][1] * obj[key];
+                            }
+
                             thisName = products[key][0];
 
                             // If it is a newsPaper
                             if (products[key].length === 4 && products[key][3] == 'M') {
-                                newsPaper_data[1][1] += obj[key];
-                                newsPaper_data[2][1] += thisCost;
+                                newsPaper_data[day][1] += obj[key];
+                                newsPaper_data[day][2] += thisCost;
                             }
                         }
                     }
@@ -142,7 +176,7 @@ function exportExcel(alreadyHere, summarySheet) {
                         }
                     }
                 } catch (err) {
-                    console.log(err);
+                    errorHandle("Erreur: " + err, colourPallets.Error);
                 }
             }
 
@@ -198,19 +232,52 @@ function exportExcel(alreadyHere, summarySheet) {
         }
     }
 
-    saveData("lastSave", Date.now());
-    console.log("Finish", ws_data);
+    errorHandle("Création du nouveau Excel fini", colourPallets.Succes);
     return [ws_data, newsPaper_data];
 }
 
-
 function updateExcel() {
-    var myPath = cordova.file.externalRootDirectory; // Path to excels
+    try {
+        var myPath = cordova.file.externalRootDirectory; // Path to excels
 
-    window.resolveLocalFileSystemURL(myPath, function (dirEntry) {
-        var directoryReader = dirEntry.createReader();
-        directoryReader.readEntries(onSuccessCallback, errorCallback);
-    });
+        window.resolveLocalFileSystemURL(myPath, function (dirEntry) {
+            var directoryReader = dirEntry.createReader();
+            directoryReader.readEntries(onSuccessCallback, errorCallback);
+        });
+    } catch (error) {
+        var name = "Bilan " + new Date().toDateString().slice(4, 7) + " " + new Date().getFullYear();
+
+        var wb = XLSX.utils.book_new();
+        wb.Props = {
+            Title: "Cocon Carma",
+            Subject: name,
+            Author: "Cocon-Carma",
+            CreatedDate: new Date()
+        };
+
+        oldExcel = {};
+        newExcel = exportExcel();
+        oldExcel["Résumé"] = newExcel[1];
+        oldExcel["Jour " + new Date().getDate()] = newExcel[0];
+
+        for (var sheet in oldExcel) {
+            wb.SheetNames.push(sheet);
+            var ws = XLSX.utils.aoa_to_sheet(oldExcel[sheet]);
+            if (sheet.includes('Jour')) {
+                ws['!cols'] = wscols;
+            }
+            wb.Sheets[sheet] = ws;
+        }
+
+        var wbout = XLSX.write(wb, {
+            bookType: 'xlsx',
+            type: 'binary'
+        });
+
+        saveAs(new Blob([s2ab(wbout)], {
+            type: "application/octet-stream"
+        }), name + ".xlsx");
+    }
 
     function onSuccessCallback(entries) {
         for (var i = 0; i < entries.length; i++) {
@@ -219,7 +286,7 @@ function updateExcel() {
                 var month = row.name.substring(6, 9);
                 var year = row.name.substring(10, 14);
                 if (new Date().toDateString().substring(4, 7) == month && new Date().getFullYear() == year) {
-                    console.log("Found", row.name);
+                    errorHandle("Trouvé un Excel pour ce mois:" + row.name, colourPallets.Succes);
                     retrieveData(row.name);
                     return;
                 }
@@ -262,10 +329,9 @@ function updateExcel() {
     }
 
     function errorCallback(error) {
-        alert("Impossible de compléter le excel: " + error.code);
+        errorHandle("Impossible de compléter le Excel: : " + error, colourPallets.Error);
     }
 }
-
 
 function mergeExcel(oldExcel) {
     // oldExcel is of the form:
@@ -286,7 +352,7 @@ function mergeExcel(oldExcel) {
             if (title.includes(day)) {
                 workingSheet = oldExcel[title];
             }
-            if (title.includes("La Montagne")) {
+            if (title.includes("Résumé")) {
                 newsSheet = oldExcel[title];
             }
         }
@@ -305,7 +371,7 @@ function mergeExcel(oldExcel) {
     if (newsSheet != undefined) {
         newsSheet = mergedSheet[1];
     } else {
-        oldExcel["La Montagne"] = mergedSheet[1];
+        oldExcel["Résumé"] = mergedSheet[1];
     }
 
 
@@ -320,22 +386,6 @@ function mergeExcel(oldExcel) {
         Author: "Cocon-Carma",
         CreatedDate: new Date()
     };
-
-    var wscols = [{
-        wch: 25
-    }, {
-        wch: 16
-    }, {
-        wch: 8
-    }, {
-        wch: 8
-    }, {
-        wch: 7
-    }, {
-        wch: 13
-    }, {
-        wch: 15
-    }]; // Cols for "Jour X"
 
     // Add sheets to excel
     for (var sheet in oldExcel) {
@@ -354,44 +404,38 @@ function mergeExcel(oldExcel) {
         type: 'binary'
     });
 
-    try {
-        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
-            var fileName = name + ".xlsx";
+    window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
+        var fileName = name + ".xlsx";
 
-            fs.root.getFile(fileName, {
-                create: true,
-                exclusive: false
-            }, function (fileEntry) {
-                fileEntry.createWriter(function (fileWriter) {
-                    fileWriter.onwriteend = function () {
-                        console.log("Success");
-                        alert(fileName + " sauvegardé dans vos documents.");
-                        $("#cmds").css('visibility', 'hidden');
-                    };
-                    fileWriter.onerror = function (e) {
-                        console.log("Fail with ", e);
-                    };
-                    fileWriter.write(new Blob([s2ab(wbout)], {
-                        type: "application/octet-stream"
-                    }));
-                });
-
-            }, function (e) {
-                console.log(e);
+        fs.root.getFile(fileName, {
+            create: true,
+            exclusive: false
+        }, function (fileEntry) {
+            fileEntry.createWriter(function (fileWriter) {
+                fileWriter.onwriteend = function () {
+                    errorHandle(fileName + " sauvegardé dans vos documents.", colourPallets.Succes);
+                    saveData("lastSave", Date.now());
+                    $("#cmds").css('visibility', 'hidden');
+                };
+                fileWriter.onerror = function (e) {
+                    errorHandle("Erreur: " + e, colourPallets.Error);
+                };
+                fileWriter.write(new Blob([s2ab(wbout)], {
+                    type: "application/octet-stream"
+                }));
             });
-        }, function (e) {
-            console.log(e);
-        });
-    } catch (error) {
-        saveAs(new Blob([s2ab(wbout)], {
-            type: "application/octet-stream"
-        }), name + ".xlsx");
-    }
 
-    function s2ab(s) {
-        var buf = new ArrayBuffer(s.length);
-        var view = new Uint8Array(buf);
-        for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
-        return buf;
-    }
+        }, function (e) {
+            errorHandle("Erreur: " + e, colourPallets.Error);
+        });
+    }, function (e) {
+        errorHandle("Erreur: " + e, colourPallets.Error);
+    });
+}
+
+function s2ab(s) {
+    var buf = new ArrayBuffer(s.length);
+    var view = new Uint8Array(buf);
+    for (var i = 0; i < s.length; i++) view[i] = s.charCodeAt(i) & 0xFF;
+    return buf;
 }

@@ -1,42 +1,57 @@
 /*Global variables*/
-:root{
+:root {
     --darker: 20%;
     --highlight: 35%;
+    --red1: hsl(357, 67%, 58%);
+    --red2: hsl(357, 76%, 50%);
+    --red3: #944b4b;
+    --green1: #B2DB77;
+    --green2: rgb(116, 163, 49);
+    --green3: #74922d;
+    --blue1: hsl(192, 57%, 52%);
+    --blue2: hsl(240, 100%, 40%);
+    --blue3: #445f86;
 }
+
 * {
-    -webkit-tap-highlight-color: rgba(0,0,0,0); /* make transparent link selection, adjust last value opacity 0 to 1.0 */
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    /* make transparent link selection, adjust last value opacity 0 to 1.0 */
 }
 
-body, html {
+body,
+html {
     overflow-y: hidden;
-    -webkit-touch-callout: none;                /* prevent callout to copy image, etc when tap to hold */
-    -webkit-text-size-adjust: none;             /* prevent webkit from resizing text to fit */
-    -webkit-user-select: none;                  /* prevent copy paste, to allow, change 'none' to 'text' */
+    -webkit-touch-callout: none;
+    /* prevent callout to copy image, etc when tap to hold */
+    -webkit-text-size-adjust: none;
+    /* prevent webkit from resizing text to fit */
+    -webkit-user-select: none;
+    /* prevent copy paste, to allow, change 'none' to 'text' */
     background-color: rgb(233, 233, 233);
-    background-attachment:fixed;
-    font-family:'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif, 'Lucida Console';
-    font-size:20px;
-    text-align:center;
-    text-transform:uppercase;
-    height:100%;
-    width:100%;
-    margin:0px;
-    padding:0px;
+    background-attachment: fixed;
+    font-family: 'HelveticaNeue-Light', 'HelveticaNeue', Helvetica, Arial, sans-serif, 'Lucida Console';
+    font-size: 20px;
+    text-align: center;
+    text-transform: uppercase;
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
 }
 
-h2{
+h2 {
     margin: 0;
     font-size: 3vw;
     color: rgb(0, 0, 0);
     padding: 15px;
 }
 
-.OnePFiveText{
+.OnePFiveText {
     font-size: 1.5vw;
 }
 
 /*TODO: add this shit*/
-.twoText{
+.twoText {
     font-size: 2vw;
 }
 
@@ -55,6 +70,7 @@ input[type=number] {
     border-radius: 20px;
     border-color: transparent;
 }
+
 input[type=number]:focus {
     background-color: rgb(107, 107, 107);
 }
@@ -71,6 +87,7 @@ input[type=text] {
     border-radius: 20px;
     border-color: transparent;
 }
+
 input[type=text]:focus {
     background-color: hsl(56, 57%, calc(58% - var(--darker)));
 }
@@ -78,7 +95,7 @@ input[type=text]:focus {
 /*==================*/
 /*Stylise les popups*/
 /*==================*/
-.modal{
+.modal {
     position: fixed;
     top: 0;
     bottom: 0;
@@ -88,14 +105,15 @@ input[type=text]:focus {
     background-color: rgba(128, 128, 128, 0.7);
     visibility: hidden;
 }
-.content{
+
+.content {
     position: fixed;
     top: 5vh;
     height: 90vh;
     margin-left: 25%;
     margin-right: 25%;
     border-radius: 20px;
-    background-color: #B2DB77;
+    background-color: var(--green1);
     width: 50%;
 }
 
@@ -106,26 +124,33 @@ input[type=text]:focus {
 .split {
     display: inline-block;
     vertical-align: top;
-    width: 50%;
+    width: 50vw;
     height: calc(100% - 55px);
 }
+
 .left {
+    float: left;
     background-color: white;
 }
+
 .right {
     background-color: rgb(211, 211, 211);
 }
 
 
 
-#tBoi, #tCou, #tRed{
+#tBoi,
+#tCou,
+#tRed {
     display: none;
 }
-#modes{
+
+#modes {
     margin: 20px;
     text-align: left;
 }
-label{
+
+label {
     position: relative;
     display: inline-block;
     padding: 10px;
@@ -135,17 +160,20 @@ label{
     text-align: center;
     margin-bottom: 10px;
 }
-#Rest{
+
+#Rest {
     position: absolute;
     top: 10px;
-    right: 10px;;
+    right: 10px;
+    ;
     font-size: 2vw;
     background-color: aliceblue;
     border-radius: 20px;
     padding: 15px;
 }
-#End{
-    background-color: hsl(239, 100%, 43%);
+
+#End {
+    background-color: var(--blue2);
     cursor: pointer;
     padding: 10px;
     position: absolute;
@@ -154,22 +182,24 @@ label{
     border-radius: 20px;
     color: white;
 }
-#End:hover{
+
+#End:hover {
     background-color: hsl(239, 100%, calc(43% - var(--darker)));
 }
 
-#myCmd{
+#myCmd {
     background-color: hsl(0, 0%, 50%);
     padding: 15px;
     border-radius: 20px;
     cursor: pointer;
 }
-#myCmd:hover{
+
+#myCmd:hover {
     background-color: hsl(0, 0%, calc(50% - var(--darker)));
 }
 
 
-#cmdConteneur{
+#cmdConteneur {
     position: relative;
     list-style-type: none;
     text-align: left;
@@ -179,7 +209,8 @@ label{
     height: calc(90vh - 155px);
     overflow-y: auto;
 }
-#cmdConteneur li{
+
+#cmdConteneur li {
     background-color: bisque;
     padding: 10px;
     border-radius: 20px;
@@ -190,20 +221,22 @@ label{
     overflow: hidden;
     white-space: nowrap;
 }
-#contentCmd{
+
+#contentCmd {
     top: 5vh;
     height: 90vh;
 }
 
-.suprCmd{
+.suprCmd {
     position: absolute;
     right: 0;
     margin-top: -10px;
     padding: 22px;
 
-    background-color: rgba(255, 228, 196, 0);
+    background-color: rgba(0, 0, 0, 0);
 }
-.suprCmd::after{
+
+.suprCmd::after {
     content: 'x';
     position: absolute;
 
@@ -214,67 +247,81 @@ label{
     padding-right: 15px;
     border-radius: 20px;
 
-    background-color: #ff0000;    
+    background-color: var(--red2);
 }
 
 /*Autre truc*/
-#menu{
+#menu {
     width: 100%;
     padding: 10px;
     background-color: hsl(0, 0%, 50%);
 }
-#menu td{
+
+#menu td {
     border-radius: 20px;
     padding: 3px;
     margin: 0;
     color: rgb(0, 0, 0);
     cursor: pointer;
 }
-#Boi{
+
+#Boi {
     background-color: hsl(240, 100%, 80%);
 }
-#Boi:hover{
+
+#Boi:hover {
     background-color: hsl(240, 100%, calc(80% - var(--darker)));
 }
-#Boi.highlight{
+
+#Boi.highlight {
     background-color: hsl(240, 100%, calc(80% - var(--highlight)));
     color: white;
 }
-#Pri{
+
+#Pri {
     background-color: hsl(113, 100%, 80%);
 }
-#Pri:hover{
+
+#Pri:hover {
     background-color: hsl(113, 100%, calc(80% - var(--darker)));
 }
-#Pri.highlight{
+
+#Pri.highlight {
     background-color: hsl(113, 100%, calc(80% - var(--highlight)));
     color: white;
 }
-#Cou{
+
+#Cou {
     background-color: hsl(44, 100%, 80%);
 }
-#Cou:hover{
+
+#Cou:hover {
     background-color: hsl(44, 100%, calc(80% - var(--darker)));
 }
-#Cou.highlight{
+
+#Cou.highlight {
     background-color: hsl(44, 100%, calc(80% - var(--highlight)));
     color: white;
 }
-#Red{
+
+#Red {
     background-color: hsl(352, 100%, 80%);
 }
-#Red:hover{
+
+#Red:hover {
     background-color: hsl(352, 100%, calc(80% - var(--darker)));
 }
-#Red.highlight{
+
+#Red.highlight {
     background-color: hsl(352, 100%, calc(80% - var(--highlight)));
     color: white;
 }
 
 /*The second modal*/
-#toExcel{
+#toExcel {
     position: absolute;
-    background: hsl(81, 100%, 79%);
+    color: white;
+    background: var(--green2);
     border-radius: 20px;
     padding: 10px;
 
@@ -282,12 +329,14 @@ label{
     bottom: 10px;
     cursor: pointer;
 }
-#toExcel:hover{
-    background: hsl(81, 100%, calc(79% + var(--darker)));
+
+#toExcel:hover {
+    background: hsl(85, 54%, calc(42% - var(--darker)));
 }
-#clearCmd{
+
+#clearCmd {
     position: absolute;
-    background: hsl(0, 100%, 35%);
+    background: var(--red2);
     border-radius: 20px;
     padding: 10px;
     color: white;
@@ -296,22 +345,24 @@ label{
     left: 10px;
     cursor: pointer;
 }
-#clearCmd:hover{
+
+#clearCmd:hover {
     background: hsl(0, 100%, calc(35% - var(--darker)));
 }
 
 
-#settings{
+#settings {
     background-color: hsl(0, 0%, 50%);
     padding: 15px;
     border-radius: 20px;
     cursor: pointer;
 }
-#settings:hover{
+
+#settings:hover {
     background-color: hsl(0, 0%, calc(50% - var(--darker)));
 }
 
-#pricesSetting{
+#pricesSetting {
     position: relative;
     text-align: left;
     margin-left: 15px;
@@ -321,22 +372,23 @@ label{
     overflow-y: auto;
 }
 
-#confirmPrice{
+#confirmPrice {
     position: absolute;
     bottom: 10px;
     right: 10px;
 
     color: white;
-    background-color: hsl(239, 100%, 43%);
+    background-color: var(--blue2);
     padding: 1vw;
     border-radius: 20px;
     cursor: pointer;
 }
-#confirmPrice:hover{
+
+#confirmPrice:hover {
     background-color: hsl(239, 100%, calc(43% - var(--darker)));
 }
 
-#resetPrices{
+#resetPrices {
     position: absolute;
     bottom: 10px;
     left: 50%;
@@ -344,99 +396,103 @@ label{
     transform: translateX(-50%);
 
     color: white;
-    background-color: hsl(345, 100%, 43%);
+    background-color: var(--red2);
     padding: 1vw;
     border-radius: 20px;
     cursor: pointer;
 }
 
-#resetPrices:hover{
-    background-color: hsl(345, 100%, calc(43% - var(--darker)));    
+#resetPrices:hover {
+    background-color: hsl(345, 100%, calc(43% - var(--darker)));
 }
 
-#addPrice{
+#addPrice {
     position: absolute;
     bottom: 10px;
     left: 10px;
-    
+
     color: white;
-    background-color: hsl(64, 100%, 36%);
+    background-color: var(--green2);
     padding: 1vw;
     border-radius: 20px;
     cursor: pointer;
 }
-#addPrice:hover{
+
+#addPrice:hover {
     background-color: hsl(64, 100%, calc(36% - var(--darker)));
 }
 
-#addItemContent{
+#addItemContent {
     margin-left: 12.5vw;
     margin-right: 12.5vw;
     width: 75vw;
     height: 76vh;
-    top: 12vh; 
+    top: 12vh;
 }
 
 
-#confirmNewItem{
+#confirmNewItem {
     position: absolute;
     bottom: 10px;
     left: calc(50% - 70px);
-    
+
     color: white;
-    background-color: hsl(64, 100%, 36%);
+    background-color: var(--green2);
     padding: 10px;
     border-radius: 20px;
     cursor: pointer;
 }
-#confirmNewItem:hover{
+
+#confirmNewItem:hover {
     background-color: hsl(64, 100%, calc(36% - var(--darker)));
 }
 
 
-#newName{
+#newName {
     margin-top: 20px;
     margin-left: 20px;
     margin-right: 20%;
     width: 40vw;
 }
 
-#newPrice{
+#newPrice {
     float: none;
     margin-left: 20px;
     margin-right: 20%;
     width: 40vw;
 }
 
-#inputs{
+#inputs {
     text-align: right;
     font-size: 2vw;
 }
 
-#newCategorie{
+#newCategorie {
     border-color: transparent;
     text-align: center;
     border-radius: 20px;
-    background-color: #a15050;
-    
+    background-color: var(--red3);
+
     margin-left: 20px;
     margin-right: 20%;
     padding: 5px;
     width: 41vw;
 }
+
 select::-ms-expand {
     display: none;
 }
-select{
+
+select {
     -webkit-appearance: none;
     appearance: none;
 }
 
 
-.remProd{
+.remProd {
     position: absolute;
     border-radius: 20px;
-    background-color: #ff0000;
+    background-color: var(--red2);
     float: left;
     cursor: pointer;
     top: 3px;
@@ -445,7 +501,7 @@ select{
     width: 3vw;
 }
 
-.remProd::after{
+.remProd::after {
     position: absolute;
     content: "X";
 
@@ -454,7 +510,7 @@ select{
     right: 0;
 }
 
-.transparent{
+.transparent {
     all: unset;
     text-align: center;
     width: 100%;
@@ -465,29 +521,32 @@ select{
 /*# Real Time Things #*/
 /*####################*/
 
-#realPeople{
+#realPeople {
     position: fixed;
     display: inline;
-    background-color: #a15050;
+    color: white;
+    background-color: var(--red3);
     padding: 10px;
     border-radius: 20px;
     left: 10px;
 }
 
-#realMoney{
+#realMoney {
     position: fixed;
     display: inline;
-    background-color: #7b9c2d;
+    color: white;
+    background-color: var(--green3);
     padding: 10px;
     border-radius: 20px;
     right: 75%;
     transform: translateX(50%);
 }
 
-#realAverage{
+#realAverage {
     position: fixed;
     display: inline;
-    background-color: #5070a1;
+    color: white;
+    background-color: var(--blue3);
     padding: 10px;
     border-radius: 20px;
     right: calc(50% + 10px);
@@ -497,9 +556,10 @@ select{
 
 
 
-#radioButtons{
+#radioButtons {
     text-align: center;
 }
+
 /* The container */
 .container {
     display: inline-block;
@@ -515,7 +575,7 @@ select{
     width: 15%;
 }
 
-.larger{
+.larger {
     width: 20%;
 }
 
@@ -525,6 +585,7 @@ select{
     opacity: 0;
     cursor: pointer;
 }
+
 /* Create a custom radio button */
 .checkmark {
     position: absolute;
@@ -537,13 +598,13 @@ select{
 }
 
 /* On mouse-over, add a grey background color */
-.container:hover input[type=radio] ~ .checkmark {
+.container:hover input[type=radio]~.checkmark {
     background-color: #ccc;
 }
 
 /* When the radio button is checked, add a blue background */
-.container input[type=radio]:checked ~ .checkmark {
-    background-color: #2196F3;
+.container input[type=radio]:checked~.checkmark {
+    background-color: var(--blue1);
 }
 
 /* Create the indicator (the dot/circle - hidden when not checked) */
@@ -554,7 +615,7 @@ select{
 }
 
 /* Show the indicator (dot/circle) when checked */
-.container input[type=radio]:checked ~ .checkmark:after {
+.container input[type=radio]:checked~.checkmark:after {
     display: block;
 }
 
@@ -569,16 +630,76 @@ select{
 }
 
 
-.container div{
+.container div {
     display: inline-block;
     text-align: left;
 }
 
-.container div input{
+.container div input {
     width: 25%;
-    margin-left: 10px; 
+    margin-left: 10px;
     float: none;
 
     -webkit-appearance: none;
     -moz-appearance: textfield;
+}
+
+#askPrice .content {
+    top: 30vh;
+    height: 40vh;
+}
+
+#askPrice #askedprice {
+    display: block;
+    float: none;
+    margin-left: 10%;
+    width: 80%;
+}
+
+#askPrice #cancelAskPrice {
+    position: absolute;
+    background: var(--red2);
+    border-radius: 20px;
+    padding: 10px;
+    color: white;
+
+    bottom: 10px;
+    left: 10px;
+    cursor: pointer;
+}
+
+#askPrice #cancelAskPrice:hover {
+    background-color: hsl(0, 100%, calc(35% - var(--darker)));
+}
+
+#askPrice #confirmAskPrice {
+    position: absolute;
+    background: var(--green2);
+    border-radius: 20px;
+    padding: 10px;
+    color: white;
+
+    bottom: 10px;
+    right: 10px;
+    cursor: pointer;
+}
+
+#askPrice #confirmAskPrice:hover {
+    background-color: hsl(64, 100%, calc(36% - var(--darker)));
+}
+
+#ALERT {
+    position: fixed;
+    top: 10px;
+    right: 25%;
+    left: 25%;
+    padding: 5px;
+    visibility: hidden;
+    border-radius: 20px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: white;
+    background-color: rgb(105, 105, 105);
+    color: white;
+    z-index: 5;
 }

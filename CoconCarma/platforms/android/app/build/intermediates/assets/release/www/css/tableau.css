@@ -1,98 +1,111 @@
 /*----------------*/
 /*Gere les tableau*/
 /*----------------*/
-.itemList{
-    border-collapse:separate; 
+.itemList {
+    border-collapse: separate;
     border-spacing: 0 0.5em;
 
     width: 98%;
     margin-left: 1%;
 }
-div.overflow{
+
+div.overflow {
     height: calc(100% - 0px);
     overflow: auto;
 }
-div.stop{
+
+div.stop {
     height: calc(100% - 80px);
 }
-div.stopLate{
+
+div.stopLate {
     height: calc(100% - 50px);
 }
-tr.item{
+
+tr.item {
     height: 45px;
     padding-bottom: 10px;
 }
 
 /*Spécifique au tableau de gauche*/
-.from tr{
+.from tr {
     cursor: pointer;
 }
-td.titre{
+
+td.titre {
     text-align: left;
-    background-color: #B2DB77;
+    background-color: var(--green1);
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
     padding-left: 15px;
     margin-bottom: 100px;
     width: 75%;
 }
-.from td.prix{
+
+.from td.prix {
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
 }
 
 /*Spécifique au tableau de droite*/
-th.titre{
+th.titre {
     text-align: center;
     padding-left: 15px;
     margin-bottom: 100px;
     width: 50%;
 }
-#tTo th.quantite{
+
+#tTo th.quantite {
     text-align: center;
     width: 25%;
 }
-th.prix{
+
+th.prix {
     text-align: center;
 }
 
-#fTo{
+#fTo {
     width: 48%;
     position: absolute;
     bottom: 10px;
 }
-#fTo th.titre{
-    background-color: #B2DB77;
+
+#fTo th.titre {
+    background-color: var(--green1);
     padding: 10px;
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
 }
-#fTo th.prix{
+
+#fTo th.prix {
     width: 25%;
-    background-color: #03AAC0;
+    background-color: var(--blue1);
 }
-#fTo th.confirm{
-    background-color: #03AAC0;
+
+#fTo th.confirm {
+    background-color: var(--blue1);
     border-top-right-radius: 22px;
     border-bottom-right-radius: 22px;
     text-align: right;
     font-weight: 500;
     cursor: pointer;
 }
-#fTo th.confirm::after{
+
+#fTo th.confirm::after {
     content: "Confirmer";
-    background-color: red;
+    background-color: var(--red2);
     padding: 13px;
     border-radius: 20px;
 }
-#fTo th.confirm:hover{
+
+#fTo th.confirm:hover {
     font-weight: 900;
 }
 
 
-#to td.titre{
+#to td.titre {
     text-align: left;
-    background-color: #B2DB77;
+    background-color: var(--green1);
     border-top-left-radius: 20px;
     border-bottom-left-radius: 20px;
     margin-bottom: 100px;
@@ -100,36 +113,43 @@ th.prix{
     padding: 10px;
     padding-left: 15px;
 }
-td.quantite{
+
+td.quantite {
     text-align: center;
     background-color: rgb(192, 179, 3);
     width: 25%;
 }
-td.prix{
+
+td.prix {
     text-align: center;
-    background-color: rgb(3, 170, 192);
+    background-color: var(--blue1);
 }
-.supr::after{
+
+.supr::after {
     display: block;
     padding: 9px;
     margin-left: 1%;
-    background-color: red;
+    background-color: var(--red2);
     border-radius: 50%;
     content: "✕";
     text-align: center;
 }
-.supr{
-    background-color: rgb(3, 170, 192);
+
+.supr {
+    background-color: var(--blue1);
     border-top-right-radius: 20px;
     border-bottom-right-radius: 20px;
     padding: 0;
     width: 45px;
     height: 45px;
 }
-.supr:hover{
+
+.supr:hover {
     font-weight: 900;
 }
-.moins, .plus{
+
+.moins,
+.plus {
     display: inline-block;
     margin-right: 5%;
     margin-left: 5%;
@@ -139,6 +159,8 @@ td.prix{
     width: 20px;
     height: 20px;
 }
-.moins:hover, .plus:hover{
+
+.moins:hover,
+.plus:hover {
     background-color: hsl(56, 98%, calc(29% + var(--darker)));
 }

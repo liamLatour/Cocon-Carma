@@ -1,7 +1,5 @@
-﻿"use strict";
-
-// Hide modals when clicks away
-$(".modal").on('click', function(e){
+﻿// Hide modals when clicks away
+$(".modal:not(.persistent)").on('click', function (e) {
     if (e.target !== this)
         return;
 
@@ -10,24 +8,26 @@ $(".modal").on('click', function(e){
 
 
 // Fills prices
-$("#settings").on('click', function(){
+$("#settings").on('click', function () {
     $("#sets").css('visibility', 'visible');
     fillPrices();
 });
 
 // Remove Item
-$("#pricesSetting").on('click', '.remProd', function(){
-    let id = $(this).parent().data("id");
-    
-    if(dataNotUsed(function(item){
-        if(item == id){ return true; }
-        else{ return false; }
-    }, function(name){
-        alert("Le produit '"+ name +"' est dans au moins une formule, il ne peut être modifié");
-    }) ){
-        return;
-    };
+$("#pricesSetting").on('click', '.remProd', function () {
+    var id = $(this).parent().data("id");
 
+    if (dataNotUsed(function (item) {
+            if (item == id) {
+                return true;
+            } else {
+                return false;
+            }
+        }, function (name) {
+            errorHandle("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié");
+        })) {
+        return;
+    }
 
     delete products[id];
     saveData("Prods", JSON.stringify(products));
@@ -37,15 +37,18 @@ $("#pricesSetting").on('click', '.remProd', function(){
 });
 
 
-$("#resetPrices").on('click', function(){
-    if(dataNotUsed(function(item){
-        if(!(item in defaults) || (products[item][1] != defaults[item][1]) ){ return true; }
-        else{ return false; }
-    }, function(name){
-        alert("Le produit '"+ name +"' est dans au moins une formule, il ne peut être modifié");
-    }) ){
+$("#resetPrices").on('click', function () {
+    if (dataNotUsed(function (item) {
+            if (!(item in defaults) || (products[item][1] != defaults[item][1])) {
+                return true;
+            } else {
+                return false;
+            }
+        }, function (name) {
+            errorHandle("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié");
+        })) {
         return;
-    };
+    }
 
     removeData("Prods");
     products = JSON.parse(JSON.stringify(defaults));
@@ -55,75 +58,71 @@ $("#resetPrices").on('click', function(){
 });
 
 // Add new item
-$("#addPrice").on('click', function(){
+$("#addPrice").on('click', function () {
     $("#addItem").css('visibility', 'visible');
 });
 
-$("#confirmNewItem").on('click', function(){
-    if($("#newName").val() == "" || $("#newName").val() == undefined ||
-       $("#newPrice").val() == "" || $("#newPrice").val() == undefined ||
-       $("#newCategorie").val() == "" || $("#newCategorie").val() == undefined){
+$("#confirmNewItem").on('click', function () {
+    var radioValue = $("input[name='radio']:checked").val();
+    var categorie = parseInt($("#newCategorie").val());
+    var newIndex = 0;
+    var price = $("#newPrice").val();
+    var name = $("#newName").val();
+
+    if (name == "" || name == undefined || isNaN(categorie)) {
+        errorHandle("Veuillez remplir tous les champs");
         return;
     }
 
-    let radioValue = $("input[name='radio']:checked").val();
-
-    if(radioValue === "mf"){
-        if($("#newMenuPrice").val() == undefined || $("#newMenuPrice").val() <= 0 ||
-            $("#newFormulePrice").val() == undefined || $("#newFormulePrice").val() <= 0){
-                alert("Impossible d'avoir ce prix pour les formules");
-                return;
-        }
-    }
-
-
-    if(parseInt($("#newCategorie").val()) === 1){
-        if(radioValue === "dessert"){
-            alert("Impossible d'avoir un dessert dans les boissons");
-            return;
-        }
-        else if(radioValue === "entree"){
-            alert("Impossible d'avoir une entrée dans les boissons");
+    if (radioValue === "mf") {
+        if ($("#newMenuPrice").val() == undefined || $("#newMenuPrice").val() <= 0 ||
+            $("#newFormulePrice").val() == undefined || $("#newFormulePrice").val() <= 0) {
+            errorHandle("Impossible d'avoir un prix négatif pour les formules");
             return;
         }
     }
 
-    for(let item in products){
-        if(products[item][0].toLowerCase() === $("#newName").val().toLowerCase()){
-            alert("Impossible d'avoir deux produits avec le même nom");
+    if (price != "" && price != undefined) {
+        price = parseFloat(price);
+    } else {
+        price = 0;
+        errorHandle("Produit à prix libre ajouté");
+    }
+
+    if (categorie === 1) {
+        if (radioValue === "dessert") {
+            errorHandle("Impossible d'avoir un dessert dans les boissons");
+            return;
+        } else if (radioValue === "entree") {
+            errorHandle("Impossible d'avoir une entrée dans les boissons");
+            return;
+        }
+    }
+
+    for (var item in products) {
+        if (products[item][0].toLowerCase() === name.toLowerCase()) {
+            errorHandle("Impossible d'avoir deux produits avec le même nom");
             return;
         }
     }
 
     $("#addItem").css('visibility', 'hidden');
 
-    let newIndex = 0;
-
     // Avoids to overwrite anything
-    for(let index in products){
-        if(parseInt(index) >= newIndex){
-            newIndex = parseInt(index)+1;
+    for (var index in products) {
+        if (parseInt(index) >= newIndex) {
+            newIndex = parseInt(index) + 1;
         }
     }
 
-    if(radioValue === "dessert"){
-        products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val()), 'D'];
-    }
-    else if(radioValue === "mf"){
-        products[newIndex] = [$("#newName").val(),
-                                parseFloat($("#newPrice").val()),
-                                parseInt($("#newCategorie").val()),
-                                [$("#newFormulePrice").val(),
-                                    $("#newMenuPrice").val(),
-                                    $("#newName").val()
-                                ]
-                            ];
-    }
-    else if(radioValue === "entree"){
-        products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val()), 'S'];
-    }
-    else{
-        products[newIndex] = [$("#newName").val(), parseFloat($("#newPrice").val()), parseInt($("#newCategorie").val())];
+    if (radioValue === "dessert") {
+        products[newIndex] = [name, price, categorie, 'D'];
+    } else if (radioValue === "mf") {
+        products[newIndex] = [name, price, categorie, [$("#newFormulePrice").val(), $("#newMenuPrice").val(), name]];
+    } else if (radioValue === "entree") {
+        products[newIndex] = [name, price, categorie, 'S'];
+    } else {
+        products[newIndex] = [name, price, categorie];
     }
 
     saveData("Prods", JSON.stringify(products));
@@ -134,41 +133,44 @@ $("#confirmNewItem").on('click', function(){
 
 
 // Saves prices (only updates name and price)
-$("#confirmPrice").on('click', function(){
-    $("#pricesSetting label").each(function(){
-        if($(this).attr('class') == "formul"){
-            if($(this).attr('id')!=undefined){
-                let id = parseInt($(this).attr('id')[2]);
+$("#confirmPrice").on('click', function () {
+    $("#pricesSetting label").each(function () {
+        var id;
+        if ($(this).attr('class') == "formul") {
+            if ($(this).attr('id') != undefined) {
+                id = parseInt($(this).attr('id')[2]);
                 products[id][3][0] = parseFloat($(this).next().val());
                 products[id][3][1] = parseFloat($(this).next().next().next().next().val());
                 products[id][3][2] = $(this).html().replace(/formule /ig, '').replace(/menu /ig, '');
             }
-        }
-        else{
-            let id = parseInt($(this).data('id'));
-            let name = $(this).children().eq(1).val();
+        } else {
+            id = parseInt($(this).data('id'));
+            var name = $(this).children().eq(1).val();
 
-            if(parseFloat($(this).next().val()) != products[id][1]){ // Check it is not a used product with different price
-                if(dataNotUsed(function(item){
-                    if(item == id){ return true; }
-                    else{ return false; }
-                }, function(name){
-                    alert("Le produit '"+ name +"' est dans au moins une formule, il ne peut être modifié");
-                }) ){
-                    return;
-                };
-            }
-            if(products[id][0] != name){ // Check it is not a used product with same name
-                if($("#pricesSetting label").each(function(){
-                    if($(this).attr('class') != "formul" && parseInt($(this).data('id')) != id){
-                        if($(this).children().eq(1).val().toLowerCase() === name.toLowerCase()){
-                            alert("Impossible d'avoir deux produits avec le même nom");
+            if (parseFloat($(this).next().val()) != products[id][1]) { // Check it is not a used product with different price
+                if (dataNotUsed(function (item) {
+                        if (item == id) {
                             return true;
+                        } else {
+                            return false;
                         }
-                    }
-                }) ){
+                    }, function (name) {
+                        errorHandle("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié");
+                    })) {
                     return;
-                };
+                }
+            }
+            if (products[id][0] != name) { // Check it is not a used product with same name
+                if ($("#pricesSetting label").each(function () {
+                        if ($(this).attr('class') != "formul" && parseInt($(this).data('id')) != id) {
+                            if ($(this).children().eq(1).val().toLowerCase() === name.toLowerCase()) {
+                                errorHandle("Impossible d'avoir deux produits avec le même nom");
+                                return true;
+                            }
+                        }
+                    })) {
+                    return;
+                }
             }
 
             // MODIFY only the name and price
@@ -186,13 +188,13 @@ $("#confirmPrice").on('click', function(){
 
 
 // Shows commands
-$("#myCmd").on('click', function(){
+$("#myCmd").on('click', function () {
     $("#cmds").css('visibility', 'visible');
     fillCommands();
 });
 
 
-$("#cmdConteneur").on('click', ".suprCmd", function(event){
+$("#cmdConteneur").on('click', ".suprCmd", function (event) {
     var r = confirm("Voulez vous supprimer cette commande ?");
     if (r == true) {
         removeData($(this).parent().data("command"));
@@ -203,14 +205,14 @@ $("#cmdConteneur").on('click', ".suprCmd", function(event){
     event.stopPropagation();
 });
 
-$("#clearCmd").on('click', function(){
+$("#clearCmd").on('click', function () {
     removeData();
     $("#cmds").css('visibility', 'hidden');
     updateRealTimeStats();
 });
 
 // Get clicks on commands
-$("#cmdConteneur").on('click', ".cmdList", function(){
+$("#cmdConteneur").on('click', ".cmdList", function () {
     modifyCmd = $(this).data("command");
     // Cur to raw
     curCommande = JSON.parse(getData(modifyCmd));
@@ -222,17 +224,17 @@ $("#cmdConteneur").on('click', ".cmdList", function(){
 
 
 // Manages the modal OnSubmit
-$("#submit").on('click', function(){
-    if(total <= 0){
-        console.warn("No Items");
+$("#submit").on('click', function () {
+    if (total == 0 && modifyCmd == -1) {
+        errorHandle("Aucun produits séléctionné");
         return;
     }
     $("#Rest").html(total);
     // fills the payment mode
-    $(".payMode").each(function(){
-        if(modifyCmd != -1){
+    $(".payMode").each(function () {
+        if (modifyCmd != -1) {
             $(this).val(curCommande[$(this).attr("id")]);
-        }else{
+        } else {
             $(this).val('');
         }
     });
@@ -240,10 +242,10 @@ $("#submit").on('click', function(){
 });
 
 // Auto update sum to pay
-$(".payMode").on('input', function(){
-    let subTotal = total;
-    $(".payMode").each(function(){
-        if(!isNaN(parseFloat($(this).val()))){
+$(".payMode").on('input', function () {
+    var subTotal = total;
+    $(".payMode").each(function () {
+        if (!isNaN(parseFloat($(this).val()))) {
             subTotal -= parseFloat($(this).val());
         }
     });
@@ -252,38 +254,35 @@ $(".payMode").on('input', function(){
 });
 
 // Sauvegarde la commande
-$("#End").on('click', function(){
-    if($("#Rest").text() > 0){
-       return; 
+$("#End").on('click', function () {
+    if ($("#Rest").text() > 0) {
+        return;
     }
-    
+
     $("#modal").css('visibility', 'hidden');
     $("#to").empty();
     $("#fTo .prix").html("");
     rawCommande = {};
 
     // add the payment mode to curCommand
-    $(".payMode").each(function(){
-        if(!isNaN(parseFloat($(this).val()))){
+    $(".payMode").each(function () {
+        if (!isNaN(parseFloat($(this).val()))) {
             curCommande[$(this).attr('id')] = parseFloat($(this).val());
         }
     });
 
-    if(modifyCmd == -1){
-        if(getData("nbC") === null){
+    if (modifyCmd == -1) {
+        if (getData("nbC") === null) {
             saveData("nbC", 0);
+        } else {
+            saveData("nbC", Number(getData("nbC")) + 1);
         }
-        else{
-            saveData("nbC", Number(getData("nbC"))+1);
-        }
-        curCommande["time"] = new Date();
-        saveData("C"+getData("nbC"), JSON.stringify(curCommande));
-    }
-    else{
-        // TODO: Specify it has been modified
-        let old = JSON.parse(getData(modifyCmd));
-        curCommande["modified"] = addition(difference(curCommande, old), old["modified"]); // The difference between old one and new one
-        curCommande["time"] = new Date();
+        curCommande.time = new Date();
+        saveData("C" + getData("nbC"), JSON.stringify(curCommande));
+    } else {
+        var old = JSON.parse(getData(modifyCmd));
+        curCommande.modified = addition(difference(curCommande, old), old.modified); // The difference between old one and new one
+        curCommande.time = new Date();
         saveData(modifyCmd, JSON.stringify(curCommande));
     }
     modifyCmd = -1;
@@ -294,49 +293,66 @@ $("#End").on('click', function(){
 
 
 // Gère le menu
-$("#menu").on('click', 'td', function(){
-    if($(this).attr('id') == null || $(this).attr('id') == undefined ){
+$("#menu").on('click', 'td', function () {
+    if ($(this).attr('id') == null || $(this).attr('id') == undefined) {
         return;
     }
-    $("#t"+currentMenuId).css('display', 'none');
-    $("#"+currentMenuId).removeClass('highlight');
+    $("#t" + currentMenuId).css('display', 'none');
+    $("#" + currentMenuId).removeClass('highlight');
 
     currentMenuId = $(this).attr('id');
-    $("#"+currentMenuId).addClass('highlight');
-    $("#t"+currentMenuId).css('display', 'table');
+    $("#" + currentMenuId).addClass('highlight');
+    $("#t" + currentMenuId).css('display', 'table');
 });
 
 
 // Recupère les clicks sur les elements 'tr' qui ont un parent avec l'id 'from' 
-$("table.from").on('click', 'tr', function(){
-    let item = $(this).data("item-id");
-    if($(this).data("nbper")){
+$("table.from").on('click', 'tr', function () {
+    var item = $(this).data("item-id");
+    if ($(this).data("nbper")) {
         addItem(item, Number($(this).data("nbper")));
         return;
     }
-    addItem(item, 1);
+    if (products[item][1] == 0) {
+        $("#askPrice").data("newItem", item);
+        $("#askPrice").css('visibility', 'visible');
+    } else {
+        addItem(item, 1);
+
+    }
 });
 
-
 // Recupère les clicks sur les éléments fils de '#to' ayant la classe 'supr' (et de type 'td')
-$("#to").on('click', 'td.supr', function(){
-    let item = $(this).parent().data("item-id");
+$("#to").on('click', 'td.supr', function () {
+    var item = $(this).parent().data("item-id");
     addItem(item);
 });
 
 // Gère les '+' et '-'
-$("#to").on('click', 'span', function(){
-    let item = $(this).parent().parent().data("item-id");
+$("#to").on('click', 'span', function () {
+    var item = $(this).parent().parent().data("item-id");
 
-    if($(this).hasClass('moins')){
+    if ($(this).hasClass('moins')) {
         addItem(item, -1);
-    }
-    else if($(this).hasClass('plus')){
+    } else if ($(this).hasClass('plus')) {
         addItem(item, 1);
     }
 });
 
 
-$("#toExcel").on('click', function(){
+$("#toExcel").on('click', function () {
     updateExcel();
+});
+
+/*#################*/
+/*# Special Price #*/
+/*#################*/
+$("#cancelAskPrice").on('click', function () {
+    $("#askPrice").css('visibility', 'hidden');
+});
+
+$("#confirmAskPrice").on('click', function () {
+    console.log($("#askPrice").data("newItem"));
+    addItem($("#askPrice").data("newItem"), parseFloat($("#askedprice").val()));
+    $("#askPrice").css('visibility', 'hidden');
 });

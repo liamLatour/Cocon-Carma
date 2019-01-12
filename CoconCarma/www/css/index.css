@@ -49,7 +49,7 @@ h2 {
 .OnePFiveText {
     font-size: 1.5vw;
 }
-/*TODO: Bug on Excel button*/
+
 /*TODO: add this shit*/
 .twoText {
     font-size: 2vw;
@@ -644,17 +644,19 @@ select {
     -moz-appearance: textfield;
 }
 
-#askPrice .content{
+#askPrice .content {
     top: 30vh;
     height: 40vh;
 }
-#askPrice #askedprice{
+
+#askPrice #askedprice {
     display: block;
     float: none;
     margin-left: 10%;
     width: 80%;
 }
-#askPrice #cancelAskPrice{
+
+#askPrice #cancelAskPrice {
     position: absolute;
     background: var(--red2);
     border-radius: 20px;
@@ -670,7 +672,7 @@ select {
     background-color: hsl(0, 100%, calc(35% - var(--darker)));
 }
 
-#askPrice #confirmAskPrice{
+#askPrice #confirmAskPrice {
     position: absolute;
     background: var(--green2);
     border-radius: 20px;
@@ -684,4 +686,20 @@ select {
 
 #askPrice #confirmAskPrice:hover {
     background-color: hsl(64, 100%, calc(36% - var(--darker)));
+}
+
+#ALERT {
+    position: fixed;
+    top: 10px;
+    right: 25%;
+    left: 25%;
+    padding: 5px;
+    visibility: hidden;
+    border-radius: 20px;
+    border-style: solid;
+    border-width: 2px;
+    border-color: white;
+    background-color: rgb(105, 105, 105);
+    color: white;
+    z-index: 5;
 }
