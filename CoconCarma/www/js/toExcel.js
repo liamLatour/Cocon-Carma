@@ -1,23 +1,5 @@
 // TODO: if an item is at 0 supress it
 
-var wscols = [{
-    wch: 25
-}, {
-    wch: 16
-}, {
-    wch: 8
-}, {
-    wch: 8
-}, {
-    wch: 7
-}, {
-    wch: 13
-}, {
-    wch: 15
-}]; // Cols for "Jour X"
-
-var days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-var payments = {"cb":5, "es":6, "ti":7, "ch":8};
 
 function exportExcel(alreadyHere, summarySheet) {
 
@@ -38,8 +20,8 @@ function exportExcel(alreadyHere, summarySheet) {
 
     // Fills the newsPaper sheet
     if (newsPaper_data.length < day){
-        for(var i=newsPaper_data.length; i<day+1; i++){
-            newsPaper_data.push([days[new Date(now.getFullYear(), now.getMonth(), i).getDay()] + " " + i, 0, 0, "", "", 0, 0, 0, 0, "", 0]);
+        for(var n=newsPaper_data.length; n<day+1; n++){
+            newsPaper_data.push([days[new Date(now.getFullYear(), now.getMonth(), n).getDay()] + " " + n, 0, 0, "", "", 0, 0, 0, 0, "", 0]);
         }
     }
 

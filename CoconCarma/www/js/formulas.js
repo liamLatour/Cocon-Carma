@@ -2,39 +2,7 @@ var curCommande = {};
 var rawCommande = {};
 var total = 0;
 var modifyCmd = -1;
-
-var defaults = {
-    0: ['Remise pourcentage', -1, 3, 'P'],
-    1: ['Remise euro', -1, 3, 'E'],
-
-    2: ['Entrée', 4, 0, 'S'],
-    3: ['Snack', 5, 0, [7.5, 11, 'Snack']],
-    4: ['Salade/Buddha Bowl', 8, 0, [10, 13.5, 'Salade']],
-    5: ['Végétarien', 8, 0, [10, 13.5, 'Végé']],
-    6: ['Omnivore', 10, 0, [12, 15, 'Omni']],
-    7: ['Dessert', 4, 0, 'D'],
-
-    8: ['Eau détox', 1.5, 1],
-    9: ['Eau minérale plate', 1.5, 1],
-    10: ['Eau minérale gazeuse', 2.5, 1],
-    11: ['Lait végétal', 2.5, 1],
-    12: ['Jus fruits, légumes, smoothie', 5, 1],
-    13: ['Expresso simple', 2, 1],
-    14: ['Expresso double', 4, 1],
-    15: ['Thé, rooibos, infusion', 2.5, 1],
-
-    16: ['Jetable écologique', 0.5, 2],
-    17: ['MontBento original', 30, 2],
-    18: ['MontBento square', 25, 2],
-    19: ['Kit 4 couverts inox', 2, 2],
-
-    20: ['Magazine Bien-être', 4.5, 3, 'M'],
-    21: ['Consigne 0.5€', 0.5, 2],
-    22: ['Consigne 1€', 1, 2]
-};
-
 var products;
-var currentMenuId = "Pri";
 
 // Just in case
 var savedProducts = getData("Prods");
@@ -46,17 +14,8 @@ if (savedProducts !== false && savedProducts !== null) {
 fillTable();
 updateRealTimeStats();
 
-// Cleans the array
-function supZeros(c) {
-    for (var key in c) {
-        if (c[key] <= 0 || isNaN(c[key])) {
-            delete c[key];
-        }
-    }
-    return c;
-}
 
-// Check for Formulas
+/* #region Core Functions */
 function checkFormules(cmd) {
     // 'commande' is just a copy of 'rawcommand' here
     var commande = supZeros(cmd);
@@ -139,7 +98,81 @@ function checkFormules(cmd) {
     return supZeros(commande);
 }
 
+function demystify(obj) {
+    var realObj = {};
+    var normalSum = 0;
+    var percentagedSum = 0;
+    var remise = 0;
 
+    function easyAdd(id, nb) {
+        if (realObj[id] === undefined) {
+            realObj[id] = nb;
+        } else {
+            realObj[id] += nb;
+        }
+    }
+
+    for (var key in obj) {
+        if (isNaN(key)) {
+            // Check whether it is a payment mode or not
+            if (key[0] != key[0].toUpperCase()) {
+                continue;
+            }
+
+            var meal;
+            var drink = -1;
+
+            // For the sum
+            if (key.includes('M')) {
+                meal = key.match(/(M)\d+/)[0].substring(1);
+                percentagedSum += products[meal][3][1] * obj[key];
+                if (key.includes('B')) {
+                    drink = key.match(/(B)\d+/)[0].substring(1);
+                    percentagedSum += (products[drink][1] - 0.5) * obj[key];
+                }
+            } else {
+                meal = key.match(/(F)\d+/)[0].substring(1);
+                percentagedSum += products[meal][3][0] * obj[key];
+            }
+
+            // For the rest
+            if (key.includes('E')) {
+                easyAdd(key.match(/(E)\d+/)[0].substring(1), obj[key]);
+            }
+            easyAdd(meal, obj[key]);
+            if (key.includes('D')) {
+                easyAdd(key.match(/(D)\d+/)[0].substring(1), obj[key]);
+            }
+            if (drink != -1) {
+                easyAdd(drink, obj[key]);
+            }
+        } else {
+            if (products[key][1] < 0 && products[key][3] === 'P') {
+                remise = obj[key];
+            } else {
+                // If it is a:  meal || dessert || starter || drink
+                if ((products[key].length === 4 && products[key][1] > 0) || products[key][2] === 1) {
+                    percentagedSum += products[key][1] * obj[key];
+                } else {
+                    if (products[key][1] == 0) {
+                        normalSum += obj[key];
+                    } else {
+                        normalSum += products[key][1] * obj[key];
+                    }
+
+                }
+            }
+            easyAdd(key, obj[key]);
+        }
+    }
+    var sum = percentagedSum / 100 * (100 - Math.abs(remise)) + normalSum;
+
+    return [realObj, coolRound(sum)];
+}
+/* #endregion */
+
+
+/* #region Redraw functions */
 function redraw() {
     // Recalculate sum
     curCommande = checkFormules(JSON.parse(JSON.stringify(supZeros(rawCommande))));
@@ -215,7 +248,6 @@ function fillTable() {
         "</tr>");
 }
 
-
 function fillPrices() {
     $("#pricesSetting").empty();
 
@@ -238,7 +270,6 @@ function fillPrices() {
             "<input type='number' step='0.01' class='payMode OnePFiveText' value='" + products[formulas[i]][3][1] + "'><br>");
     }
 }
-
 
 function fillCommands() {
     $("#cmdConteneur").empty();
@@ -276,77 +307,40 @@ function fillCommands() {
     }
 }
 
-// Gets an object of compressed data and uncompress it && also sums it
-function demystify(obj) {
-    var realObj = {};
-    var normalSum = 0;
-    var percentagedSum = 0;
-    var remise = 0;
-
-    function easyAdd(id, nb) {
-        if (realObj[id] === undefined) {
-            realObj[id] = nb;
-        } else {
-            realObj[id] += nb;
+function updateRealTimeStats() {
+    var nbPeople = 0;
+    var totMoney = 0;
+    for (var item in getData()) {
+        if (item[0] === "C") {
+            nbPeople++;
+            totMoney += demystify(JSON.parse(getData(item)))[1];
         }
     }
+    $("#realPeople").html("👥 " + nbPeople);
+    $("#realMoney").html("💰 " + coolRound(totMoney));
+    $("#realAverage").html("📈 " + coolRound(totMoney / nbPeople));
+}
+/* #endregion */
 
-    for (var key in obj) {
-        if (isNaN(key)) {
-            // Check whether it is a payment mode or not
-            if (key[0] != key[0].toUpperCase()) {
-                continue;
-            }
 
-            var meal;
-            var drink = -1;
+/* #region Utility Functions */
+function addItem(item, quantity) {
+    if (quantity == undefined) {
+        quantity = -curCommande[item];
+    }
 
-            // For the sum
-            if (key.includes('M')) {
-                meal = key.match(/(M)\d+/)[0].substring(1);
-                percentagedSum += products[meal][3][1] * obj[key];
-                if (key.includes('B')) {
-                    drink = key.match(/(B)\d+/)[0].substring(1);
-                    percentagedSum += (products[drink][1] - 0.5) * obj[key];
-                }
-            } else {
-                meal = key.match(/(F)\d+/)[0].substring(1);
-                percentagedSum += products[meal][3][0] * obj[key];
-            }
+    if (!isNaN(item) && (rawCommande[item] == undefined || rawCommande[item] == null)) {
+        rawCommande[item] = quantity;
+    } else {
+        var thisItem = {};
+        thisItem[item] = quantity;
+        var items = demystify(thisItem)[0];
 
-            // For the rest
-            if (key.includes('E')) {
-                easyAdd(key.match(/(E)\d+/)[0].substring(1), obj[key]);
-            }
-            easyAdd(meal, obj[key]);
-            if (key.includes('D')) {
-                easyAdd(key.match(/(D)\d+/)[0].substring(1), obj[key]);
-            }
-            if (drink != -1) {
-                easyAdd(drink, obj[key]);
-            }
-        } else {
-            if (products[key][1] < 0 && products[key][3] === 'P') {
-                remise = obj[key];
-            } else {
-                // If it is a:  meal || dessert || starter || drink
-                if ((products[key].length === 4 && products[key][1] > 0) || products[key][2] === 1) {
-                    percentagedSum += products[key][1] * obj[key];
-                } else {
-                    if (products[key][1] == 0) {
-                        normalSum += obj[key];
-                    } else {
-                        normalSum += products[key][1] * obj[key];
-                    }
-
-                }
-            }
-            easyAdd(key, obj[key]);
+        for (var it in items) {
+            rawCommande[it] += items[it];
         }
     }
-    var sum = percentagedSum / 100 * (100 - Math.abs(remise)) + normalSum;
-
-    return [realObj, coolRound(sum)];
+    redraw();
 }
 
 function difference(obj1, obj2) {
@@ -406,41 +400,6 @@ function getFormulas() {
     return indices;
 }
 
-function updateRealTimeStats() {
-    var nbPeople = 0;
-    var totMoney = 0;
-    for (var item in getData()) {
-        if (item[0] === "C") {
-            nbPeople++;
-            totMoney += demystify(JSON.parse(getData(item)))[1];
-        }
-    }
-    $("#realPeople").html("👥 " + nbPeople);
-    $("#realMoney").html("💰 " + coolRound(totMoney));
-    $("#realAverage").html("📈 " + coolRound(totMoney / nbPeople));
-}
-
-
-function addItem(item, quantity) {
-    if (quantity == undefined) {
-        quantity = -curCommande[item];
-    }
-
-    if (!isNaN(item) && (rawCommande[item] == undefined || rawCommande[item] == null)) {
-        rawCommande[item] = quantity;
-    } else {
-        var thisItem = {};
-        thisItem[item] = quantity;
-        var items = demystify(thisItem)[0];
-
-        for (var it in items) {
-            rawCommande[it] += items[it];
-        }
-    }
-    redraw();
-}
-
-
 function dataNotUsed(compareFunc, replyFunc) {
     for (var com in getData()) {
         if (com[0] != 'C') {
@@ -457,8 +416,10 @@ function dataNotUsed(compareFunc, replyFunc) {
     }
     return false;
 }
+/* #endregion */
 
 
+/* #region Data Management */
 function saveData(key, value) {
     if (typeof (Storage) !== "undefined") {
         try {
@@ -506,7 +467,10 @@ function getData(key) {
         errorHandle("Désolé ce navigateur ne supporte pas la sauvegarde", colourPallets.Error);
     }
 }
+/* #endregion */
 
+
+/* #region Simple Functions */
 function coolRound(nb) {
     var finNb = Math.round(nb * 100) / 100;
     return isNaN(finNb) ? 0 : finNb;
@@ -520,13 +484,18 @@ function isEmpty(obj) {
     return true;
 }
 
-var colourPallets = {
-    "Normal": ["rgb(105, 105, 105)", "white", "white"],
-    "Error": ["hsl(357, 76%, 50%)", "white", "white"],
-    "Succes": ["#B2DB77", "black", "white"],
-    "Warning": ["hsl(51, 100%, 53%)", "black", "white"]
-};
+function supZeros(c) {
+    for (var key in c) {
+        if (c[key] <= 0 || isNaN(c[key])) {
+            delete c[key];
+        }
+    }
+    return c;
+}
+/* #endregion */
 
+
+/* #region Error Management */
 function errorHandle(name, colorPallet) {
     if (colorPallet == colourPallets.Error) {
         console.error(name);
@@ -570,3 +539,4 @@ function errorHandle(name, colorPallet) {
     }, 1000);
     div.css('top', '-80px');
 }
+/* #endregion */
