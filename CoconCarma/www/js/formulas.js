@@ -273,13 +273,36 @@ function fillPrices() {
 
 function fillCommands() {
     $("#cmdConteneur").empty();
+    var commands = [];
     for (var item in getData()) {
-        if (item[0] != 'C') {
-            continue;
+        if (item[0] == 'C') {
+            commands.push(JSON.parse(getData(item)));
         }
+    }
 
+    commands.sort(function(a, b){
+        at = a.time;
+        bt = b.time;
+        if(at === undefined && bt === undefined){
+            return 0;
+        }
+        if(at === undefined){
+            return 1;
+        }
+        if(bt === undefined){
+            return -1;
+        }
+        if(Date.parse(at) > Date.parse(bt)){
+            return 1;
+        }
+        else{
+            return -1;
+        }
+    });
+
+    for(var command in commands){
+        var obj = commands[command];
         var toShow = "";
-        var obj = JSON.parse(getData(item));
         for (var key in obj) {
             try {
                 // Check whether it is a payment mode or not
@@ -301,6 +324,7 @@ function fillCommands() {
                 errorHandle("Erreur: " + error, colourPallets.Error);
             }
         }
+        console.log(toShow);
         toShow = toShow.substring(0, toShow.length - 2);
 
         $("#cmdConteneur").prepend("<li class='cmdList' data-command='" + item + "'>" + toShow + "<span class='suprCmd'></span></li>");
