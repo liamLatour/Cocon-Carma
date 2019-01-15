@@ -23,6 +23,12 @@
 </head>
 
 <body>
+    <div id="loadScreen">
+        <img id="loadImg" src="css/logo.jpg" alt="Cocon Carma">
+    </div>
+
+    
+
     <div id="ALERT">
         TEST
     </div>
@@ -61,6 +67,10 @@
     <div id="cmds" class="modal">
         <div class="content" id="contentCmd">
             <h2>Anciennes commandes</h2>
+            <div id="noContentCommands">
+                <img id="productsImg" src="css/command.png" alt="">
+                <h3>Aucune commande n'a encore été éffectuée</h3>
+            </div>
             <ul id="cmdConteneur"></ul>
             <span id="clearCmd">Remise à zéro</span>
             <span id="toExcel">Excel</span>
@@ -149,8 +159,17 @@
     </div>
     <div class="split right">
         <div class="overflow stop">
+            <div id="noContentProducts">
+                <img id="productsImg" src="css/products.png" alt="">
+                <h3>Aucun produit n'a encore été ajouter</h3>
+                <p>
+                    Vous pouvez cliquer sur les éléments du panneau de gauche pour en ajouter<br>
+                    Sinon ouvrez une ancienne commande pour la modifier
+                </p>
+            </div>
             <table class="itemList" id="to">
                 <!--C'est ici qu'arrive les produits-->
+
             </table>
         </div>
         <table class="itemList" id="fTo">
@@ -169,12 +188,11 @@
     <script src="js/libraries/FileSaver.min.js"></script>
     <script src="js/libraries/parseCsvAOA.min.js"></script>
 
-    <script src="js/formulas.js"></script>
+    <script src="js/config.js"></script>
     <script src="js/toExcel.js"></script>
     <script src="js/events.js"></script>
+    <script src="js/formulas.js"></script>
     <script src="js/index.js"></script>
-    <script src="js/config.js"></script>
 
 </body>
-
 </html>

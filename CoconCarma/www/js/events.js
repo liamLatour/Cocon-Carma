@@ -208,23 +208,23 @@ $("#myCmd").on('click', function () {
 });
 
 $("#cmdConteneur").on('click', ".suprCmd", function (event) {
-    var r = confirm("Voulez vous supprimer cette commande ?");
-    if (r == true) {
+    Confirm("Supprimer", "Voulez vous supprimer cette commande ?", "Oui", "Annuler", function(){
         removeData($(this).parent().data("command"));
         $(this).parent().remove();
         updateRealTimeStats();
         fillCommands();
-    }
+    });
     event.stopPropagation();
 });
 
 $("#cmdConteneur").on('click', ".cmdList", function () {
     modifyCmd = $(this).data("command");
-    // Cur to raw
+
     curCommande = JSON.parse(getData(modifyCmd));
     rawCommande = demystify(curCommande)[0];
 
     $("#cmds").css('visibility', 'hidden');
+    console.log(modifyCmd);
     redraw();
 });
 
@@ -274,6 +274,7 @@ $(".payMode").on('input', function () {
 // Sauvegarde la commande
 $("#End").on('click', function () {
     if ($("#Rest").text() > 0) {
+        errorHandle("La commande n'est pas payé", colourPallets.Warning);
         return;
     }
 
@@ -306,6 +307,7 @@ $("#End").on('click', function () {
     modifyCmd = -1;
 
     // Update the Real Time Peolple Count
+    redraw();
     updateRealTimeStats();
 });
 /* #endregion */

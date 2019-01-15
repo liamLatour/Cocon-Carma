@@ -4,16 +4,19 @@ var total = 0;
 var modifyCmd = -1;
 var products;
 
-// Just in case
-var savedProducts = getData("Prods");
-if (savedProducts !== false && savedProducts !== null) {
-    products = JSON.parse(savedProducts);
-} else {
-    products = JSON.parse(JSON.stringify(defaults));
-}
-fillTable();
-updateRealTimeStats();
-
+$(document).ready(function () {
+    // Just in case
+    var savedProducts = getData("Prods");
+    if (savedProducts !== false && savedProducts !== null) {
+        products = JSON.parse(savedProducts);
+    } else {
+        products = JSON.parse(JSON.stringify(defaults));
+    }
+    fillTable();
+    updateRealTimeStats();
+    // Removes the splash screen
+    $("#loadScreen").css('display', 'none');
+});
 
 /* #region Core Functions */
 function checkFormules(cmd) {
@@ -180,6 +183,14 @@ function redraw() {
     $("#fTo .prix").html(total + "€");
 
     $("#to").empty();
+
+    if (isEmpty(curCommande)) {
+        $('#noContentProducts').css('display', 'block');
+        return;
+    } else {
+        $('#noContentProducts').css('display', 'none');
+    }
+
     for (var key in curCommande) {
         if (key[0].toUpperCase() != key[0]) {
             continue;
@@ -276,31 +287,39 @@ function fillCommands() {
     var commands = [];
     for (var item in getData()) {
         if (item[0] == 'C') {
-            commands.push(JSON.parse(getData(item)));
+            var curCommand = JSON.parse(getData(item));
+            curCommand.item = item;
+            commands.push(curCommand);
         }
     }
 
-    commands.sort(function(a, b){
+    if (isEmpty(commands)) {
+        $('#noContentCommands').css('display', 'block');
+        return;
+    } else {
+        $('#noContentCommands').css('display', 'none');
+    }
+
+    commands.sort(function (a, b) {
         at = a.time;
         bt = b.time;
-        if(at === undefined && bt === undefined){
+        if (at === undefined && bt === undefined) {
             return 0;
         }
-        if(at === undefined){
+        if (at === undefined) {
             return 1;
         }
-        if(bt === undefined){
+        if (bt === undefined) {
             return -1;
         }
-        if(Date.parse(at) > Date.parse(bt)){
+        if (Date.parse(at) > Date.parse(bt)) {
             return 1;
-        }
-        else{
+        } else {
             return -1;
         }
     });
 
-    for(var command in commands){
+    for (var command in commands) {
         var obj = commands[command];
         var toShow = "";
         for (var key in obj) {
@@ -324,10 +343,9 @@ function fillCommands() {
                 errorHandle("Erreur: " + error, colourPallets.Error);
             }
         }
-        console.log(toShow);
         toShow = toShow.substring(0, toShow.length - 2);
 
-        $("#cmdConteneur").prepend("<li class='cmdList' data-command='" + item + "'>" + toShow + "<span class='suprCmd'></span></li>");
+        $("#cmdConteneur").prepend("<li class='cmdList' data-command='" + obj.item + "'>" + toShow + "<span class='suprCmd'></span></li>");
     }
 }
 
@@ -531,8 +549,18 @@ function errorHandle(name, colorPallet) {
         console.log(name);
     }
 
+    var startTime = Date.now();
     var div = $("#ALERT");
     div.stop(true);
+
+    $("html").on('click', function (e) {
+        if (e.target.id == "ALERT" || Date.now() - startTime < 500)
+            return;
+
+        div.stop(true);
+        div.css('top', '-80px');
+        $("html").off();
+    });
 
     div.html(name);
 
@@ -561,6 +589,38 @@ function errorHandle(name, colorPallet) {
         opacity: '0',
         visibility: 'hidden'
     }, 1000);
-    div.css('top', '-80px');
+    div.animate({
+        top: '-80px'
+    }, 1);
+}
+
+function Confirm(title, msg, $true, $false, funct) { /*change*/
+    var $content = "<div class='modal' style='visibility:visible;z-index:99'>" +
+                    "<div class='dialog'><header>" +
+                    " <h3> " + title + " </h3> " +
+                    "</header>" +
+                    "<div class='dialog-msg'>" +
+                    " <p> " + msg + " </p> " +
+                    "</div>" +
+                    "<footer>" +
+                    "<div class='controls'>" +
+                    " <button class='button button-danger doAction'>" + $true + "</button> " +
+                    " <button class='button button-default cancelAction'>" + $false + "</button> " +
+                    "</div>" +
+                    "</footer>" +
+                    "</div>" +
+                    "</div>";
+    $('body').prepend($content);
+    $('.doAction').click(function () {
+        funct();
+        $(this).parents('.modal').fadeOut(10, function () {
+            $(this).remove();
+        });
+    });
+    $('.cancelAction, .fa-close').click(function () {
+        $(this).parents('.modal').fadeOut(10, function () {
+            $(this).remove();
+        });
+    });
 }
 /* #endregion */
