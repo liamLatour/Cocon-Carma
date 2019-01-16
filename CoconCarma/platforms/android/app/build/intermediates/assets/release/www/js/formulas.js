@@ -2,61 +2,23 @@ var curCommande = {};
 var rawCommande = {};
 var total = 0;
 var modifyCmd = -1;
-
-var defaults = {
-    0: ['Remise pourcentage', -1, 3, 'P'],
-    1: ['Remise euro', -1, 3, 'E'],
-
-    2: ['Entrée', 4, 0, 'S'],
-    3: ['Snack', 5, 0, [7.5, 11, 'Snack']],
-    4: ['Salade/Buddha Bowl', 8, 0, [10, 13.5, 'Salade']],
-    5: ['Végétarien', 8, 0, [10, 13.5, 'Végé']],
-    6: ['Omnivore', 10, 0, [12, 15, 'Omni']],
-    7: ['Dessert', 4, 0, 'D'],
-
-    8: ['Eau détox', 1.5, 1],
-    9: ['Eau minérale plate', 1.5, 1],
-    10: ['Eau minérale gazeuse', 2.5, 1],
-    11: ['Lait végétal', 2.5, 1],
-    12: ['Jus fruits, légumes, smoothie', 5, 1],
-    13: ['Expresso simple', 2, 1],
-    14: ['Expresso double', 4, 1],
-    15: ['Thé, rooibos, infusion', 2.5, 1],
-
-    16: ['Jetable écologique', 0.5, 2],
-    17: ['MontBento original', 30, 2],
-    18: ['MontBento square', 25, 2],
-    19: ['Kit 4 couverts inox', 2, 2],
-
-    20: ['Magazine Bien-être', 4.5, 3, 'M'],
-    21: ['Consigne 0.5€', 0.5, 2],
-    22: ['Consigne 1€', 1, 2]
-};
-
 var products;
-var currentMenuId = "Pri";
 
-// Just in case
-var savedProducts = getData("Prods");
-if (savedProducts !== false && savedProducts !== null) {
-    products = JSON.parse(savedProducts);
-} else {
-    products = JSON.parse(JSON.stringify(defaults));
-}
-fillTable();
-updateRealTimeStats();
-
-// Cleans the array
-function supZeros(c) {
-    for (var key in c) {
-        if (c[key] <= 0 || isNaN(c[key])) {
-            delete c[key];
-        }
+$(document).ready(function () {
+    // Just in case
+    var savedProducts = getData("Prods");
+    if (savedProducts !== false && savedProducts !== null) {
+        products = JSON.parse(savedProducts);
+    } else {
+        products = JSON.parse(JSON.stringify(defaults));
     }
-    return c;
-}
+    fillTable();
+    updateRealTimeStats();
+    // Removes the splash screen
+    $("#loadScreen").css('display', 'none');
+});
 
-// Check for Formulas
+/* #region Core Functions */
 function checkFormules(cmd) {
     // 'commande' is just a copy of 'rawcommand' here
     var commande = supZeros(cmd);
@@ -139,144 +101,6 @@ function checkFormules(cmd) {
     return supZeros(commande);
 }
 
-
-function redraw() {
-    // Recalculate sum
-    curCommande = checkFormules(JSON.parse(JSON.stringify(supZeros(rawCommande))));
-    total = demystify(curCommande)[1];
-    $("#fTo .prix").html(total + "€");
-
-    $("#to").empty();
-    for (var key in curCommande) {
-        if (key[0].toUpperCase() != key[0]) {
-            continue;
-        }
-
-        var title = "";
-        var quantity = curCommande[key];
-        var price = 0;
-
-        if (isNaN(key)) {
-            var curObj = {};
-            curObj[key] = 1;
-            var curItem = demystify(curObj);
-
-            for (var it in curItem[0]) {
-                title += products[it][0] + "</br>";
-            }
-            price = curItem[1] * curCommande[key];
-
-        } else {
-            title = products[key][0];
-            if(products[key][1] == 0){
-                price = coolRound(curCommande[key]);
-            }else{
-                price = coolRound(curCommande[key] * products[key][1]);
-            }
-        }
-
-        var itemData = "<tr class='item' data-item-id='" + key + "'>" +
-            "<td class='titre'>" + title + "</td>" +
-            "<td class='quantite'><span class='moins hover'>-</span>" + quantity + "<span class='plus hover'>+</span></td>" +
-            "<td class='prix'>" + price + "</td>" +
-            "<td class='supr hover'></td>" +
-            "</tr>";
-
-        if (price < 0) {
-            $("#to").append(itemData);
-        } else {
-            $("#to").prepend(itemData);
-        }
-    }
-}
-
-function fillTable() {
-    $(".from").empty();
-    for (var item in products) {
-        var prix = products[item][1];
-        if (prix == 0) {
-            prix = 'x';
-        }
-
-        $(".from:eq(" + products[item][2] + ")").append("<tr class='item' data-item-id='" + Number(item) + "' data-catid='" + products[item][2] + "'>" +
-            "<td class='titre'>" + products[item][0] + "</td>" +
-            "<td class='prix'>" + prix + "</td>" +
-            "</tr>");
-    }
-
-    // Add the 5% and 10%
-    $(".from:eq(3)").append("<tr class='item' data-item-id='0' data-catid='3' data-nbper='5'>" +
-        "<td class='titre'>Remise pourcentage 5%</td>" +
-        "<td class='prix'>-5%</td>" +
-        "</tr>");
-    $(".from:eq(3)").append("<tr class='item' data-item-id='0' data-catid='3' data-nbper='10'>" +
-        "<td class='titre'>Remise pourcentage 10%</td>" +
-        "<td class='prix'>-10%</td>" +
-        "</tr>");
-}
-
-
-function fillPrices() {
-    $("#pricesSetting").empty();
-
-    for (var i in products) {
-        if (products[i][1] < 0 && products[i].length == 4) {
-            continue;
-        }
-
-        $("#pricesSetting").append("<label data-id='" + i + "' data-catid='" + products[i][2] + "'><span class='remProd'></span><input class='transparent OnePFiveText' value='" + products[i][0] + "'></input></label>" +
-            "<input type='number' step='0.01' class='payMode OnePFiveText' value='" + products[i][1] + "'><br>");
-    }
-
-    var formulas = getFormulas();
-    for (i in formulas) {
-        // Formule
-        $("#pricesSetting").append("<label class='formul' id='NB" + formulas[i] + "'>Formule " + products[formulas[i]][3][2] + "</label>" +
-            "<input type='number' step='0.01' class='payMode OnePFiveText' value='" + products[formulas[i]][3][0] + "'><br>");
-        // Menu
-        $("#pricesSetting").append("<label class='formul'>Menu " + products[formulas[i]][3][2] + "</label>" +
-            "<input type='number' step='0.01' class='payMode OnePFiveText' value='" + products[formulas[i]][3][1] + "'><br>");
-    }
-}
-
-
-function fillCommands() {
-    $("#cmdConteneur").empty();
-    for (var item in getData()) {
-        if (item[0] != 'C') {
-            continue;
-        }
-
-        var toShow = "";
-        var obj = JSON.parse(getData(item));
-        for (var key in obj) {
-            try {
-                // Check whether it is a payment mode or not
-                if (key[0] != key[0].toUpperCase()) {
-                    continue;
-                }
-
-                if (!isNaN(key)) {
-                    toShow += products[key][0];
-                } else if (!isNaN(key[0]) && key.includes('P')) {
-                    toShow += products[key.split("P")[0]][0];
-                } else if (key.includes('M')) {
-                    toShow += "Menu " + products[key.match(/(M)\d+/)[0].substring(1)][3][2];
-                } else {
-                    toShow += "Formules " + products[key.match(/(F)\d+/)[0].substring(1)][3][2];
-                }
-                toShow += ", ";
-            } catch (error) {
-                errorHandle("Erreur: " + error, 'hsl(357, 76%, 50%)', 'white');
-            }
-        }
-        toShow = toShow.substring(0, toShow.length - 2);
-
-        $("#cmdConteneur").prepend("<li class='cmdList' data-command='" + item + "'>" + toShow + "<span class='suprCmd'></span></li>");
-    }
-}
-
-// Gets an object of compressed data and uncompress it && also sums it
 function demystify(obj) {
     var realObj = {};
     var normalSum = 0;
@@ -348,6 +172,218 @@ function demystify(obj) {
 
     return [realObj, coolRound(sum)];
 }
+/* #endregion */
+
+
+/* #region Redraw functions */
+function redraw() {
+    // Recalculate sum
+    curCommande = checkFormules(JSON.parse(JSON.stringify(supZeros(rawCommande))));
+    total = demystify(curCommande)[1];
+    $("#fTo .prix").html(total + "€");
+
+    $("#to").empty();
+
+    if (isEmpty(curCommande)) {
+        $('#noContentProducts').css('display', 'block');
+        return;
+    } else {
+        $('#noContentProducts').css('display', 'none');
+    }
+
+    for (var key in curCommande) {
+        if (key[0].toUpperCase() != key[0]) {
+            continue;
+        }
+
+        var title = "";
+        var quantity = curCommande[key];
+        var price = 0;
+
+        if (isNaN(key)) {
+            var curObj = {};
+            curObj[key] = 1;
+            var curItem = demystify(curObj);
+
+            for (var it in curItem[0]) {
+                title += products[it][0] + "</br>";
+            }
+            price = curItem[1] * curCommande[key];
+
+        } else {
+            title = products[key][0];
+            if (products[key][1] == 0) {
+                price = coolRound(curCommande[key]);
+            } else {
+                price = coolRound(curCommande[key] * products[key][1]);
+            }
+        }
+
+        var itemData = "<tr class='item' data-item-id='" + key + "'>" +
+            "<td class='titre'>" + title + "</td>" +
+            "<td class='quantite'><span class='moins hover'>-</span>" + quantity + "<span class='plus hover'>+</span></td>" +
+            "<td class='prix'>" + price + "</td>" +
+            "<td class='supr hover'></td>" +
+            "</tr>";
+
+        if (price < 0) {
+            $("#to").append(itemData);
+        } else {
+            $("#to").prepend(itemData);
+        }
+    }
+}
+
+function fillTable() {
+    $(".from").empty();
+    for (var item in products) {
+        var prix = products[item][1];
+        if (prix == 0) {
+            prix = 'x';
+        }
+
+        $(".from:eq(" + products[item][2] + ")").append("<tr class='item' data-item-id='" + Number(item) + "' data-catid='" + products[item][2] + "'>" +
+            "<td class='titre'>" + products[item][0] + "</td>" +
+            "<td class='prix'>" + prix + "</td>" +
+            "</tr>");
+    }
+
+    // Add the 5% and 10%
+    $(".from:eq(3)").append("<tr class='item' data-item-id='0' data-catid='3' data-nbper='5'>" +
+        "<td class='titre'>Remise pourcentage 5%</td>" +
+        "<td class='prix'>-5%</td>" +
+        "</tr>");
+    $(".from:eq(3)").append("<tr class='item' data-item-id='0' data-catid='3' data-nbper='10'>" +
+        "<td class='titre'>Remise pourcentage 10%</td>" +
+        "<td class='prix'>-10%</td>" +
+        "</tr>");
+}
+
+function fillPrices() {
+    $("#pricesSetting").empty();
+
+    for (var i in products) {
+        if (products[i][1] < 0 && products[i].length == 4) {
+            continue;
+        }
+
+        $("#pricesSetting").append("<label data-id='" + i + "' data-catid='" + products[i][2] + "'><span class='remProd'></span><input class='transparent OnePFiveText' value='" + products[i][0] + "'></input></label>" +
+            "<input type='number' step='0.01' class='payMode OnePFiveText' value='" + products[i][1] + "'><br>");
+    }
+
+    var formulas = getFormulas();
+    for (i in formulas) {
+        // Formule
+        $("#pricesSetting").append("<label class='formul' id='NB" + formulas[i] + "'>Formule " + products[formulas[i]][3][2] + "</label>" +
+            "<input type='number' step='0.01' class='payMode OnePFiveText' value='" + products[formulas[i]][3][0] + "'><br>");
+        // Menu
+        $("#pricesSetting").append("<label class='formul'>Menu " + products[formulas[i]][3][2] + "</label>" +
+            "<input type='number' step='0.01' class='payMode OnePFiveText' value='" + products[formulas[i]][3][1] + "'><br>");
+    }
+}
+
+function fillCommands() {
+    $("#cmdConteneur").empty();
+    var commands = [];
+    for (var item in getData()) {
+        if (item[0] == 'C') {
+            var curCommand = JSON.parse(getData(item));
+            curCommand.item = item;
+            commands.push(curCommand);
+        }
+    }
+
+    if (isEmpty(commands)) {
+        $('#noContentCommands').css('display', 'block');
+        return;
+    } else {
+        $('#noContentCommands').css('display', 'none');
+    }
+
+    commands.sort(function (a, b) {
+        at = a.time;
+        bt = b.time;
+        if (at === undefined && bt === undefined) {
+            return 0;
+        }
+        if (at === undefined) {
+            return 1;
+        }
+        if (bt === undefined) {
+            return -1;
+        }
+        if (Date.parse(at) > Date.parse(bt)) {
+            return 1;
+        } else {
+            return -1;
+        }
+    });
+
+    for (var command in commands) {
+        var obj = commands[command];
+        var toShow = "";
+        for (var key in obj) {
+            try {
+                // Check whether it is a payment mode or not
+                if (key[0] != key[0].toUpperCase()) {
+                    continue;
+                }
+
+                if (!isNaN(key)) {
+                    toShow += products[key][0];
+                } else if (!isNaN(key[0]) && key.includes('P')) {
+                    toShow += products[key.split("P")[0]][0];
+                } else if (key.includes('M')) {
+                    toShow += "Menu " + products[key.match(/(M)\d+/)[0].substring(1)][3][2];
+                } else {
+                    toShow += "Formules " + products[key.match(/(F)\d+/)[0].substring(1)][3][2];
+                }
+                toShow += ", ";
+            } catch (error) {
+                errorHandle("Erreur: " + error, colourPallets.Error);
+            }
+        }
+        toShow = toShow.substring(0, toShow.length - 2);
+
+        $("#cmdConteneur").prepend("<li class='cmdList' data-command='" + obj.item + "'>" + toShow + "<span class='suprCmd'></span></li>");
+    }
+}
+
+function updateRealTimeStats() {
+    var nbPeople = 0;
+    var totMoney = 0;
+    for (var item in getData()) {
+        if (item[0] === "C") {
+            nbPeople++;
+            totMoney += demystify(JSON.parse(getData(item)))[1];
+        }
+    }
+    $("#realPeople").html("👥 " + nbPeople);
+    $("#realMoney").html("💰 " + coolRound(totMoney));
+    $("#realAverage").html("📈 " + coolRound(totMoney / nbPeople));
+}
+/* #endregion */
+
+
+/* #region Utility Functions */
+function addItem(item, quantity) {
+    if (quantity == undefined) {
+        quantity = -curCommande[item];
+    }
+
+    if (!isNaN(item) && (rawCommande[item] == undefined || rawCommande[item] == null)) {
+        rawCommande[item] = quantity;
+    } else {
+        var thisItem = {};
+        thisItem[item] = quantity;
+        var items = demystify(thisItem)[0];
+
+        for (var it in items) {
+            rawCommande[it] += items[it];
+        }
+    }
+    redraw();
+}
 
 function difference(obj1, obj2) {
     var copy1 = JSON.parse(JSON.stringify(obj1));
@@ -406,41 +442,6 @@ function getFormulas() {
     return indices;
 }
 
-function updateRealTimeStats() {
-    var nbPeople = 0;
-    var totMoney = 0;
-    for (var item in getData()) {
-        if (item[0] === "C") {
-            nbPeople++;
-            totMoney += demystify(JSON.parse(getData(item)))[1];
-        }
-    }
-    $("#realPeople").html("👥 " + nbPeople);
-    $("#realMoney").html("💰 " + coolRound(totMoney));
-    $("#realAverage").html("📈 " + coolRound(totMoney / nbPeople));
-}
-
-
-function addItem(item, quantity) {
-    if (quantity == undefined) {
-        quantity = -curCommande[item];
-    }
-
-    if (!isNaN(item) && (rawCommande[item] == undefined || rawCommande[item] == null)) {
-        rawCommande[item] = quantity;
-    } else {
-        var thisItem = {};
-        thisItem[item] = quantity;
-        var items = demystify(thisItem)[0];
-
-        for (var it in items) {
-            rawCommande[it] += items[it];
-        }
-    }
-    redraw();
-}
-
-
 function dataNotUsed(compareFunc, replyFunc) {
     for (var com in getData()) {
         if (com[0] != 'C') {
@@ -457,18 +458,20 @@ function dataNotUsed(compareFunc, replyFunc) {
     }
     return false;
 }
+/* #endregion */
 
 
+/* #region Data Management */
 function saveData(key, value) {
     if (typeof (Storage) !== "undefined") {
         try {
             localStorage.setItem(key, value);
         } catch (error) {
-            errorHandle("Sauvegarde échouée, erreur: " + error, 'hsl(357, 76%, 50%)', 'white');
+            errorHandle("Sauvegarde échouée, erreur: " + error, colourPallets.Error);
             return false;
         }
     } else {
-        errorHandle("Désolé ce navigateur ne supporte pas la sauvegarde", 'hsl(357, 76%, 50%)', 'white');
+        errorHandle("Désolé ce navigateur ne supporte pas la sauvegarde", colourPallets.Error);
     }
 }
 
@@ -481,12 +484,12 @@ function removeData(key) {
             try {
                 localStorage.removeItem(key);
             } catch (error) {
-                errorHandle("Sauvegarde échouée, erreur: " + error, 'hsl(357, 76%, 50%)', 'white');
+                errorHandle("Sauvegarde échouée, erreur: " + error, colourPallets.Error);
                 return false;
             }
         }
     } else {
-        errorHandle("Désolé ce navigateur ne supporte pas la sauvegarde", 'hsl(357, 76%, 50%)', 'white');
+        errorHandle("Désolé ce navigateur ne supporte pas la sauvegarde", colourPallets.Error);
     }
 }
 
@@ -498,15 +501,18 @@ function getData(key) {
             try {
                 return localStorage.getItem(key);
             } catch (error) {
-                errorHandle("Sauvegarde échouée, erreur: " + error, 'hsl(357, 76%, 50%)', 'white');
+                errorHandle("Sauvegarde échouée, erreur: " + error, colourPallets.Error);
                 return false;
             }
         }
     } else {
-        errorHandle("Désolé ce navigateur ne supporte pas la sauvegarde", 'hsl(357, 76%, 50%)', 'white');
+        errorHandle("Désolé ce navigateur ne supporte pas la sauvegarde", colourPallets.Error);
     }
 }
+/* #endregion */
 
+
+/* #region Simple Functions */
 function coolRound(nb) {
     var finNb = Math.round(nb * 100) / 100;
     return isNaN(finNb) ? 0 : finNb;
@@ -520,29 +526,52 @@ function isEmpty(obj) {
     return true;
 }
 
-function errorHandle(name, colorBack, colorText, colorBorder) {
-    console.warn(name);
+function supZeros(c) {
+    for (var key in c) {
+        if (c[key] <= 0 || isNaN(c[key])) {
+            delete c[key];
+        }
+    }
+    return c;
+}
+/* #endregion */
+
+
+/* #region Error Management */
+function errorHandle(name, colorPallet) {
+    if (colorPallet == colourPallets.Error) {
+        console.error(name);
+    } else if (colorPallet == colourPallets.Warning) {
+        console.warn(name);
+    } else if (colorPallet == colourPallets.Succes) {
+        console.info(name);
+    } else {
+        console.log(name);
+    }
+
+    var startTime = Date.now();
     var div = $("#ALERT");
     div.stop(true);
 
+    $("html").on('click', function (e) {
+        if (e.target.id == "ALERT" || Date.now() - startTime < 500)
+            return;
+
+        div.stop(true);
+        div.css('top', '-80px');
+        $("html").off();
+    });
+
     div.html(name);
 
-    if (colorBack != undefined) {
-        div.css('background-color', colorBack);
+    if (colorPallet != undefined) {
+        div.css('background-color', colorPallet[0]);
+        div.css('color', colorPallet[1]);
+        div.css('border-color', colorPallet[2]);
     } else {
-        div.css('background-color', 'rgb(105, 105, 105)');
-    }
-
-    if (colorText != undefined) {
-        div.css('color', colorText);
-    } else {
-        div.css('color', 'white');
-    }
-
-    if (colorBorder != undefined) {
-        div.css('border-color', colorBorder);
-    } else {
-        div.css('border-color', 'white');
+        div.css('background-color', colourPallets.Normal[0]);
+        div.css('color', colourPallets.Normal[1]);
+        div.css('border-color', colourPallets.Normal[2]);
     }
 
     div.css({
@@ -560,5 +589,38 @@ function errorHandle(name, colorBack, colorText, colorBorder) {
         opacity: '0',
         visibility: 'hidden'
     }, 1000);
-    div.css('top', '-80px');
+    div.animate({
+        top: '-80px'
+    }, 1);
 }
+
+function Confirm(title, msg, $true, $false, funct) { /*change*/
+    var $content = "<div class='modal' style='visibility:visible;z-index:99'>" +
+                    "<div class='dialog'><header>" +
+                    " <h3> " + title + " </h3> " +
+                    "</header>" +
+                    "<div class='dialog-msg'>" +
+                    " <p> " + msg + " </p> " +
+                    "</div>" +
+                    "<footer>" +
+                    "<div class='controls'>" +
+                    " <button class='button button-danger doAction'>" + $true + "</button> " +
+                    " <button class='button button-default cancelAction'>" + $false + "</button> " +
+                    "</div>" +
+                    "</footer>" +
+                    "</div>" +
+                    "</div>";
+    $('body').prepend($content);
+    $('.doAction').click(function () {
+        funct();
+        $(this).parents('.modal').fadeOut(10, function () {
+            $(this).remove();
+        });
+    });
+    $('.cancelAction, .fa-close').click(function () {
+        $(this).parents('.modal').fadeOut(10, function () {
+            $(this).remove();
+        });
+    });
+}
+/* #endregion */

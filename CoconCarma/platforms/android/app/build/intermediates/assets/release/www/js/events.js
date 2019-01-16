@@ -1,4 +1,5 @@
-﻿// Hide modals when clicks away
+﻿/* #region Evenements Généraux */
+// Hide modals when clicks away
 $(".modal:not(.persistent)").on('click', function (e) {
     if (e.target !== this)
         return;
@@ -6,36 +7,99 @@ $(".modal:not(.persistent)").on('click', function (e) {
     $(this).css('visibility', 'hidden');
 });
 
+// Gère le menu
+$("#menu").on('click', 'td', function () {
+    if ($(this).attr('id') == null || $(this).attr('id') == undefined) {
+        return;
+    }
+    $("#t" + currentMenuId).css('display', 'none');
+    $("#" + currentMenuId).removeClass('highlight');
 
+    currentMenuId = $(this).attr('id');
+    $("#" + currentMenuId).addClass('highlight');
+    $("#t" + currentMenuId).css('display', 'table');
+});
+/* #endregion */
+
+
+/* #region Price Settings */
 // Fills prices
 $("#settings").on('click', function () {
     $("#sets").css('visibility', 'visible');
     fillPrices();
 });
 
-// Remove Item
-$("#pricesSetting").on('click', '.remProd', function () {
-    var id = $(this).parent().data("id");
+$("#addPrice").on('click', function () {
+    $("#addItem").css('visibility', 'visible');
+    $("#confirmNewItem").on('click', function () {
+        var radioValue = $("input[name='radio']:checked").val();
+        var categorie = parseInt($("#newCategorie").val());
+        var newIndex = 0;
+        var price = $("#newPrice").val();
+        var name = $("#newName").val();
 
-    if (dataNotUsed(function (item) {
-            if (item == id) {
-                return true;
-            } else {
-                return false;
+        if (name == "" || name == undefined || isNaN(categorie)) {
+            errorHandle("Veuillez remplir tous les champs", colourPallets.Warning);
+            return;
+        }
+
+        if (radioValue === "mf") {
+            if ($("#newMenuPrice").val() == undefined || $("#newMenuPrice").val() <= 0 ||
+                $("#newFormulePrice").val() == undefined || $("#newFormulePrice").val() <= 0) {
+                errorHandle("Impossible d'avoir un prix négatif pour les formules", colourPallets.Warning);
+                return;
             }
-        }, function (name) {
-            errorHandle("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié");
-        })) {
-        return;
-    }
+        }
 
-    delete products[id];
-    saveData("Prods", JSON.stringify(products));
-    fillTable();
-    redraw();
-    fillPrices();
+        if (categorie === 1) {
+            if (radioValue === "dessert") {
+                errorHandle("Impossible d'avoir un dessert dans les boissons", colourPallets.Warning);
+                return;
+            } else if (radioValue === "entree") {
+                errorHandle("Impossible d'avoir une entrée dans les boissons", colourPallets.Warning);
+                return;
+            }
+        }
+
+        for (var item in products) {
+            if (products[item][0].toLowerCase() === name.toLowerCase()) {
+                errorHandle("Impossible d'avoir deux produits avec le même nom", colourPallets.Warning);
+                return;
+            }
+        }
+
+        if (price != "" && price != undefined) {
+            price = parseFloat(price);
+        } else {
+            price = 0;
+            errorHandle("Produit à prix libre ajouté", colourPallets.Succes);
+        }
+
+        $("#addItem").css('visibility', 'hidden');
+
+        // Avoids to overwrite anything
+        for (var index in products) {
+            if (parseInt(index) >= newIndex) {
+                newIndex = parseInt(index) + 1;
+            }
+        }
+
+        if (radioValue === "dessert") {
+            products[newIndex] = [name, price, categorie, 'D'];
+        } else if (radioValue === "mf") {
+            products[newIndex] = [name, price, categorie, [$("#newFormulePrice").val(), $("#newMenuPrice").val(), name]];
+        } else if (radioValue === "entree") {
+            products[newIndex] = [name, price, categorie, 'S'];
+        } else {
+            products[newIndex] = [name, price, categorie];
+        }
+
+        saveData("Prods", JSON.stringify(products));
+        fillTable();
+        redraw();
+        fillPrices();
+    });
 });
-
 
 $("#resetPrices").on('click', function () {
     if (dataNotUsed(function (item) {
@@ -45,7 +109,7 @@ $("#resetPrices").on('click', function () {
                 return false;
             }
         }, function (name) {
-            errorHandle("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié");
+            errorHandle("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié", colourPallets.Warning);
         })) {
         return;
     }
@@ -56,81 +120,6 @@ $("#resetPrices").on('click', function () {
     redraw();
     fillPrices();
 });
-
-// Add new item
-$("#addPrice").on('click', function () {
-    $("#addItem").css('visibility', 'visible');
-});
-
-$("#confirmNewItem").on('click', function () {
-    var radioValue = $("input[name='radio']:checked").val();
-    var categorie = parseInt($("#newCategorie").val());
-    var newIndex = 0;
-    var price = $("#newPrice").val();
-    var name = $("#newName").val();
-
-    if (name == "" || name == undefined || isNaN(categorie)) {
-        errorHandle("Veuillez remplir tous les champs");
-        return;
-    }
-
-    if (radioValue === "mf") {
-        if ($("#newMenuPrice").val() == undefined || $("#newMenuPrice").val() <= 0 ||
-            $("#newFormulePrice").val() == undefined || $("#newFormulePrice").val() <= 0) {
-            errorHandle("Impossible d'avoir un prix négatif pour les formules");
-            return;
-        }
-    }
-
-    if (price != "" && price != undefined) {
-        price = parseFloat(price);
-    } else {
-        price = 0;
-        errorHandle("Produit à prix libre ajouté");
-    }
-
-    if (categorie === 1) {
-        if (radioValue === "dessert") {
-            errorHandle("Impossible d'avoir un dessert dans les boissons");
-            return;
-        } else if (radioValue === "entree") {
-            errorHandle("Impossible d'avoir une entrée dans les boissons");
-            return;
-        }
-    }
-
-    for (var item in products) {
-        if (products[item][0].toLowerCase() === name.toLowerCase()) {
-            errorHandle("Impossible d'avoir deux produits avec le même nom");
-            return;
-        }
-    }
-
-    $("#addItem").css('visibility', 'hidden');
-
-    // Avoids to overwrite anything
-    for (var index in products) {
-        if (parseInt(index) >= newIndex) {
-            newIndex = parseInt(index) + 1;
-        }
-    }
-
-    if (radioValue === "dessert") {
-        products[newIndex] = [name, price, categorie, 'D'];
-    } else if (radioValue === "mf") {
-        products[newIndex] = [name, price, categorie, [$("#newFormulePrice").val(), $("#newMenuPrice").val(), name]];
-    } else if (radioValue === "entree") {
-        products[newIndex] = [name, price, categorie, 'S'];
-    } else {
-        products[newIndex] = [name, price, categorie];
-    }
-
-    saveData("Prods", JSON.stringify(products));
-    fillTable();
-    redraw();
-    fillPrices();
-});
-
 
 // Saves prices (only updates name and price)
 $("#confirmPrice").on('click', function () {
@@ -155,7 +144,7 @@ $("#confirmPrice").on('click', function () {
                             return false;
                         }
                     }, function (name) {
-                        errorHandle("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié");
+                        errorHandle("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié", colourPallets.Warning);
                     })) {
                     return;
                 }
@@ -164,7 +153,7 @@ $("#confirmPrice").on('click', function () {
                 if ($("#pricesSetting label").each(function () {
                         if ($(this).attr('class') != "formul" && parseInt($(this).data('id')) != id) {
                             if ($(this).children().eq(1).val().toLowerCase() === name.toLowerCase()) {
-                                errorHandle("Impossible d'avoir deux produits avec le même nom");
+                                errorHandle("Impossible d'avoir deux produits avec le même nom", colourPallets.Warning);
                                 return true;
                             }
                         }
@@ -186,23 +175,57 @@ $("#confirmPrice").on('click', function () {
     redraw();
 });
 
+// Remove Item
+$("#pricesSetting").on('click', '.remProd', function () {
+    var id = $(this).parent().data("id");
 
-// Shows commands
+    if (dataNotUsed(function (item) {
+            if (item == id) {
+                return true;
+            } else {
+                return false;
+            }
+        }, function (name) {
+            errorHandle("Le produit '" + name + "' est dans au moins une formule, il ne peut être modifié", colourPallets.Warning);
+        })) {
+        return;
+    }
+
+    delete products[id];
+    saveData("Prods", JSON.stringify(products));
+    fillTable();
+    redraw();
+    fillPrices();
+});
+
+/* #endregion */
+
+
+/* #region Commands Panel */
 $("#myCmd").on('click', function () {
     $("#cmds").css('visibility', 'visible');
     fillCommands();
 });
 
-
 $("#cmdConteneur").on('click', ".suprCmd", function (event) {
-    var r = confirm("Voulez vous supprimer cette commande ?");
-    if (r == true) {
+    Confirm("Supprimer", "Voulez vous supprimer cette commande ?", "Oui", "Annuler", function(){
         removeData($(this).parent().data("command"));
         $(this).parent().remove();
         updateRealTimeStats();
         fillCommands();
-    }
+    });
     event.stopPropagation();
+});
+
+$("#cmdConteneur").on('click', ".cmdList", function () {
+    modifyCmd = $(this).data("command");
+
+    curCommande = JSON.parse(getData(modifyCmd));
+    rawCommande = demystify(curCommande)[0];
+
+    $("#cmds").css('visibility', 'hidden');
+    console.log(modifyCmd);
+    redraw();
 });
 
 $("#clearCmd").on('click', function () {
@@ -211,22 +234,17 @@ $("#clearCmd").on('click', function () {
     updateRealTimeStats();
 });
 
-// Get clicks on commands
-$("#cmdConteneur").on('click', ".cmdList", function () {
-    modifyCmd = $(this).data("command");
-    // Cur to raw
-    curCommande = JSON.parse(getData(modifyCmd));
-    rawCommande = demystify(curCommande)[0];
-
-    $("#cmds").css('visibility', 'hidden');
-    redraw();
+$("#toExcel").on('click', function () {
+    updateExcel();
 });
+/* #endregion */
 
 
+/* #region Payment Panel */
 // Manages the modal OnSubmit
 $("#submit").on('click', function () {
     if (total == 0 && modifyCmd == -1) {
-        errorHandle("Aucun produits séléctionné");
+        errorHandle("Aucun produits séléctionné", colourPallets.Warning);
         return;
     }
     $("#Rest").html(total);
@@ -256,6 +274,7 @@ $(".payMode").on('input', function () {
 // Sauvegarde la commande
 $("#End").on('click', function () {
     if ($("#Rest").text() > 0) {
+        errorHandle("La commande n'est pas payé", colourPallets.Warning);
         return;
     }
 
@@ -288,24 +307,13 @@ $("#End").on('click', function () {
     modifyCmd = -1;
 
     // Update the Real Time Peolple Count
+    redraw();
     updateRealTimeStats();
 });
+/* #endregion */
 
 
-// Gère le menu
-$("#menu").on('click', 'td', function () {
-    if ($(this).attr('id') == null || $(this).attr('id') == undefined) {
-        return;
-    }
-    $("#t" + currentMenuId).css('display', 'none');
-    $("#" + currentMenuId).removeClass('highlight');
-
-    currentMenuId = $(this).attr('id');
-    $("#" + currentMenuId).addClass('highlight');
-    $("#t" + currentMenuId).css('display', 'table');
-});
-
-
+/* #region Ajout de produit */
 // Recupère les clicks sur les elements 'tr' qui ont un parent avec l'id 'from' 
 $("table.from").on('click', 'tr', function () {
     var item = $(this).data("item-id");
@@ -338,15 +346,10 @@ $("#to").on('click', 'span', function () {
         addItem(item, 1);
     }
 });
+/* #endregion */
 
 
-$("#toExcel").on('click', function () {
-    updateExcel();
-});
-
-/*#################*/
-/*# Special Price #*/
-/*#################*/
+/* #region Special Price */
 $("#cancelAskPrice").on('click', function () {
     $("#askPrice").css('visibility', 'hidden');
 });
@@ -356,3 +359,4 @@ $("#confirmAskPrice").on('click', function () {
     addItem($("#askPrice").data("newItem"), parseFloat($("#askedprice").val()));
     $("#askPrice").css('visibility', 'hidden');
 });
+/* #endregion */

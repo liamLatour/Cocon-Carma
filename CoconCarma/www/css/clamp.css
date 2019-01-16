@@ -37,4 +37,12 @@
         top: 5vh;
         height: 90vh;
     }
+
+    h3 {
+        margin-top: 5px;
+    }
+
+    #productsImg {
+        margin-top: 20px;
+    }
 }

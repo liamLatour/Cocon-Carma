@@ -1,23 +1,5 @@
 // TODO: if an item is at 0 supress it
 
-var wscols = [{
-    wch: 25
-}, {
-    wch: 16
-}, {
-    wch: 8
-}, {
-    wch: 8
-}, {
-    wch: 7
-}, {
-    wch: 13
-}, {
-    wch: 15
-}]; // Cols for "Jour X"
-
-var days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-var payments = {"cb":5, "es":6, "ti":7, "ch":8};
 
 function exportExcel(alreadyHere, summarySheet) {
 
@@ -38,8 +20,8 @@ function exportExcel(alreadyHere, summarySheet) {
 
     // Fills the newsPaper sheet
     if (newsPaper_data.length < day){
-        for(var i=newsPaper_data.length; i<day+1; i++){
-            newsPaper_data.push([days[new Date(now.getFullYear(), now.getMonth(), i).getDay()] + " " + i, 0, 0, "", "", 0, 0, 0, 0, "", 0]);
+        for(var n=newsPaper_data.length; n<day+1; n++){
+            newsPaper_data.push([days[new Date(now.getFullYear(), now.getMonth(), n).getDay()] + " " + n, 0, 0, "", "", 0, 0, 0, 0, "", 0]);
         }
     }
 
@@ -176,7 +158,7 @@ function exportExcel(alreadyHere, summarySheet) {
                         }
                     }
                 } catch (err) {
-                    errorHandle("Erreur: " + err, 'hsl(357, 76%, 50%)', 'white');
+                    errorHandle("Erreur: " + err, colourPallets.Error);
                 }
             }
 
@@ -232,7 +214,7 @@ function exportExcel(alreadyHere, summarySheet) {
         }
     }
 
-    errorHandle("Création du nouveau Excel fini");
+    errorHandle("Création du nouveau Excel fini", colourPallets.Succes);
     return [ws_data, newsPaper_data];
 }
 
@@ -286,7 +268,7 @@ function updateExcel() {
                 var month = row.name.substring(6, 9);
                 var year = row.name.substring(10, 14);
                 if (new Date().toDateString().substring(4, 7) == month && new Date().getFullYear() == year) {
-                    errorHandle("Trouvé un Excel pour ce mois:" + row.name);
+                    errorHandle("Trouvé un Excel pour ce mois:" + row.name, colourPallets.Succes);
                     retrieveData(row.name);
                     return;
                 }
@@ -329,7 +311,7 @@ function updateExcel() {
     }
 
     function errorCallback(error) {
-        errorHandle("Impossible de compléter le Excel: : " + error, 'hsl(357, 76%, 50%)', 'white');
+        errorHandle("Impossible de compléter le Excel: : " + error, colourPallets.Error);
     }
 }
 
@@ -413,12 +395,12 @@ function mergeExcel(oldExcel) {
         }, function (fileEntry) {
             fileEntry.createWriter(function (fileWriter) {
                 fileWriter.onwriteend = function () {
-                    errorHandle(fileName + " sauvegardé dans vos documents.");
+                    errorHandle(fileName + " sauvegardé dans vos documents.", colourPallets.Succes);
                     saveData("lastSave", Date.now());
                     $("#cmds").css('visibility', 'hidden');
                 };
                 fileWriter.onerror = function (e) {
-                    errorHandle("Erreur: " + e, 'hsl(357, 76%, 50%)', 'white');
+                    errorHandle("Erreur: " + e, colourPallets.Error);
                 };
                 fileWriter.write(new Blob([s2ab(wbout)], {
                     type: "application/octet-stream"
@@ -426,10 +408,10 @@ function mergeExcel(oldExcel) {
             });
 
         }, function (e) {
-            errorHandle("Erreur: " + e, 'hsl(357, 76%, 50%)', 'white');
+            errorHandle("Erreur: " + e, colourPallets.Error);
         });
     }, function (e) {
-        errorHandle("Erreur: " + e, 'hsl(357, 76%, 50%)', 'white');
+        errorHandle("Erreur: " + e, colourPallets.Error);
     });
 }
 

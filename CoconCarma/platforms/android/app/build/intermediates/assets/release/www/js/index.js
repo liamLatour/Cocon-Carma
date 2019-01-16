@@ -26,6 +26,9 @@ var app = {
             fs.root.getFile("lol", { create: false, exclusive: false }, function () {}, function() {});
         }, function() {});
         AndroidFullScreen.immersiveMode();
+
+        // Removes the splash screen
+        $("#loadScreen").css('display', 'none');
     },
 };
 
