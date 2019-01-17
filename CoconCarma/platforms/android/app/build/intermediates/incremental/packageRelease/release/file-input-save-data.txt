@@ -1,5 +1,5 @@
 #Internal package file, do not edit.
-#Tue Jan 15 20:32:21 CET 2019
+#Thu Jan 17 07:45:31 CET 2019
 5.base=E\:\\Cocon-Carma\\CoconCarma\\platforms\\android\\app\\build\\intermediates\\assets\\release
 42.base=E\:\\Cocon-Carma\\CoconCarma\\platforms\\android\\app\\build\\intermediates\\assets\\release
 22.path=www/plugins/cordova-plugin-file/www/FileUploadResult.js

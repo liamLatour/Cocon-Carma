@@ -39,4 +39,6 @@
     <preference name="Orientation" value="landscape" />
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
     <preference name="AndroidExtraFilesystems" value="files,cache, sdcard, cache-external, files-external" />
+    <preference name="DisallowOverscroll" value="false" />
+    <preference name="UIWebViewBounce" value="true" />
 </widget>

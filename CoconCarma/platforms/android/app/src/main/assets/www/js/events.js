@@ -208,12 +208,12 @@ $("#myCmd").on('click', function () {
 });
 
 $("#cmdConteneur").on('click', ".suprCmd", function (event) {
-    Confirm("Supprimer", "Voulez vous supprimer cette commande ?", "Oui", "Annuler", function(){
-        removeData($(this).parent().data("command"));
-        $(this).parent().remove();
+    Confirm("Supprimer", "Voulez vous supprimer cette commande ?", "Oui", "Annuler", function(obg){
+        removeData($(obg).parent().data("command"));
+        $(obg).parent().remove();
         updateRealTimeStats();
         fillCommands();
-    });
+    }, this);
     event.stopPropagation();
 });
 

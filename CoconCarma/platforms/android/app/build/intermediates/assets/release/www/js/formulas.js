@@ -594,7 +594,7 @@ function errorHandle(name, colorPallet) {
     }, 1);
 }
 
-function Confirm(title, msg, $true, $false, funct) { /*change*/
+function Confirm(title, msg, $true, $false, funct, args) { /*change*/
     var $content = "<div class='modal' style='visibility:visible;z-index:99'>" +
                     "<div class='dialog'><header>" +
                     " <h3> " + title + " </h3> " +
@@ -612,7 +612,7 @@ function Confirm(title, msg, $true, $false, funct) { /*change*/
                     "</div>";
     $('body').prepend($content);
     $('.doAction').click(function () {
-        funct();
+        funct(args);
         $(this).parents('.modal').fadeOut(10, function () {
             $(this).remove();
         });

@@ -149,15 +149,18 @@ $("#confirmPrice").on('click', function () {
                     return;
                 }
             }
+
             if (products[id][0] != name) { // Check it is not a used product with same name
                 if ($("#pricesSetting label").each(function () {
                         if ($(this).attr('class') != "formul" && parseInt($(this).data('id')) != id) {
                             if ($(this).children().eq(1).val().toLowerCase() === name.toLowerCase()) {
-                                errorHandle("Impossible d'avoir deux produits avec le même nom", colourPallets.Warning);
+                                console.log(parseInt($(this).data('id')));
                                 return true;
                             }
                         }
-                    })) {
+                    }) === true)
+                {
+                    errorHandle("Impossible d'avoir deux produits avec le même nom", colourPallets.Warning);
                     return;
                 }
             }

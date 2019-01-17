@@ -34,6 +34,8 @@
     <preference name="Orientation" value="landscape" />
     <preference name="AndroidPersistentFileLocation" value="Compatibility" />
     <preference name="AndroidExtraFilesystems" value="files,cache, sdcard, cache-external, files-external" />
+    <preference name="DisallowOverscroll" value="false" />
+    <preference name="UIWebViewBounce" value="true" />
     <plugin name="cordova-plugin-fullscreen" spec="^1.2.0" />
     <engine name="android" spec="^7.1.4" />
 </widget>
