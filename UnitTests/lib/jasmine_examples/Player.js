@@ -1,8 +1,11 @@
-var curCommande = {};
-var rawCommande = {};
-var total = 0;
-var products;
-var modifyCmd = -1;
+function Formulas() {
+}
+Formulas.prototype.play = function(song) {
+  this.currentlyPlayingSong = song;
+  this.isPlaying = true;
+};
+
+rawCommande = {};
 
 /* #region Core Functions */
 function checkFormules(cmd) {
@@ -171,9 +174,7 @@ function redraw() {
 
     // Recalculate sum
     var curCommande = checkFormules(JSON.parse(JSON.stringify(supZeros(rawCommande))));
-    //TODO: remove this (not OOP)
-    total = demystify(curCommande)[1];
-    $("#fTo .prix").html(total + "€");
+    $("#fTo .prix").html(demystify(curCommande)[1] + "€");
 
     $("#to").empty();
 
@@ -520,115 +521,118 @@ function getData(key) {
 
 
 /* #region Simple Functions */
-function coolRound(nb) {
+Formulas.prototype.coolRound = function(nb) {
     var finNb = Math.round(nb * 100) / 100;
     return isNaN(finNb) ? 0 : finNb;
-}
+};
 
-function isEmpty(obj) {
+Formulas.prototype.isEmpty = function(obj) {
     for (var key in obj) {
         if (obj.hasOwnProperty(key))
             return false;
     }
     return true;
-}
+};
 
-function supZeros(c) {
+Formulas.prototype.supZeros = function(c) {
     for (var key in c) {
+      c[key] = parseFloat(c[key]);
         if (c[key] <= 0 || isNaN(c[key])) {
             delete c[key];
         }
     }
     return c;
-}
+};
 /* #endregion */
 
 
 /* #region Error Management */
 function errorHandle(name, colorPallet) {
-    if (colorPallet == colourPallets.Error) {
-        console.error(name);
-    } else if (colorPallet == colourPallets.Warning) {
-        console.warn(name);
-    } else if (colorPallet == colourPallets.Succes) {
-        console.info(name);
-    } else {
-        console.log(name);
-    }
+  if (colorPallet == colourPallets.Error) {
+      console.error(name);
+  } else if (colorPallet == colourPallets.Warning) {
+      console.warn(name);
+  } else if (colorPallet == colourPallets.Succes) {
+      console.info(name);
+  } else {
+      console.log(name);
+  }
 
-    var startTime = Date.now();
-    var div = $("#ALERT");
-    div.stop(true);
+  var startTime = Date.now();
+  var div = $("#ALERT");
+  div.stop(true);
 
-    $("html").on('click', function (e) {
-        if (e.target.id == "ALERT" || Date.now() - startTime < 500)
-            return;
+  $("html").on('click', function (e) {
+      if (e.target.id == "ALERT" || Date.now() - startTime < 500)
+          return;
 
-        div.stop(true);
-        div.css('top', '-80px');
-        $("html").off();
-    });
+      div.stop(true);
+      div.css('top', '-80px');
+      $("html").off();
+  });
 
-    div.html(name);
+  div.html(name);
 
-    if (colorPallet != undefined) {
-        div.css('background-color', colorPallet[0]);
-        div.css('color', colorPallet[1]);
-        div.css('border-color', colorPallet[2]);
-    } else {
-        div.css('background-color', colourPallets.Normal[0]);
-        div.css('color', colourPallets.Normal[1]);
-        div.css('border-color', colourPallets.Normal[2]);
-    }
+  if (colorPallet != undefined) {
+      div.css('background-color', colorPallet[0]);
+      div.css('color', colorPallet[1]);
+      div.css('border-color', colorPallet[2]);
+  } else {
+      div.css('background-color', colourPallets.Normal[0]);
+      div.css('color', colourPallets.Normal[1]);
+      div.css('border-color', colourPallets.Normal[2]);
+  }
 
-    div.css({
-        visibility: 'visible',
-        top: '-' + div.css('height'),
-        opacity: '1'
-    });
-    div.animate({
-        top: '20px'
-    }, 1000);
-    div.animate({
-        opacity: '1'
-    }, 9000);
-    div.animate({
-        opacity: '0',
-        visibility: 'hidden'
-    }, 1000);
-    div.animate({
-        top: '-80px'
-    }, 1);
+  div.css({
+      visibility: 'visible',
+      top: '-' + div.css('height'),
+      opacity: '1'
+  });
+  div.animate({
+      top: '20px'
+  }, 1000);
+  div.animate({
+      opacity: '1'
+  }, 9000);
+  div.animate({
+      opacity: '0',
+      visibility: 'hidden'
+  }, 1000);
+  div.animate({
+      top: '-80px'
+  }, 1);
 }
 
 function Confirm(title, msg, $true, $false, funct, args) { /*change*/
-    var $content = "<div class='modal' style='visibility:visible;z-index:99'>" +
-        "<div class='dialog'><header>" +
-        " <h3> " + title + " </h3> " +
-        "</header>" +
-        "<div class='dialog-msg'>" +
-        " <p> " + msg + " </p> " +
-        "</div>" +
-        "<footer>" +
-        "<div class='controls'>" +
-        " <button class='button button-danger doAction'>" + $true + "</button> " +
-        " <button class='button button-default cancelAction'>" + $false + "</button> " +
-        "</div>" +
-        "</footer>" +
-        "</div>" +
-        "</div>";
-    $('body').prepend($content);
-    $('.doAction').click(function () {
-        funct(args);
-        $(this).parents('.modal').fadeOut(10, function () {
-            $(this).remove();
-        });
-    });
-    $('.cancelAction, .fa-close').click(function () {
-        $(this).parents('.modal').fadeOut(10, function () {
-            $(this).remove();
-        });
-    });
+  var $content = "<div class='modal' style='visibility:visible;z-index:99'>" +
+      "<div class='dialog'><header>" +
+      " <h3> " + title + " </h3> " +
+      "</header>" +
+      "<div class='dialog-msg'>" +
+      " <p> " + msg + " </p> " +
+      "</div>" +
+      "<footer>" +
+      "<div class='controls'>" +
+      " <button class='button button-danger doAction'>" + $true + "</button> " +
+      " <button class='button button-default cancelAction'>" + $false + "</button> " +
+      "</div>" +
+      "</footer>" +
+      "</div>" +
+      "</div>";
+  $('body').prepend($content);
+  $('.doAction').click(function () {
+      funct(args);
+      $(this).parents('.modal').fadeOut(10, function () {
+          $(this).remove();
+      });
+  });
+  $('.cancelAction, .fa-close').click(function () {
+      $(this).parents('.modal').fadeOut(10, function () {
+          $(this).remove();
+      });
+  });
 }
 /* #endregion */
 
+
+module.exports = Formulas;
