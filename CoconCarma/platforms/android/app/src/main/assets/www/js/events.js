@@ -1,4 +1,54 @@
-﻿/* #region Evenements Généraux */
+﻿/* #region Loading */
+// Normal Workflow
+$(document).ready(function () {
+    // Just in case
+    var savedProducts = getData("Prods");
+    if (savedProducts !== false && savedProducts !== null) {
+        products = JSON.parse(savedProducts);
+    } else {
+        products = JSON.parse(JSON.stringify(defaults));
+    }
+    redraw();
+    // Removes the splash screen
+    $("#loadScreen").css('display', 'none');
+});
+
+var app = {
+    // Application Constructor
+    initialize: function() {
+        document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
+    },
+
+    // deviceready Event Handler
+    //
+    // Bind any cordova events here. Common events are:
+    // 'pause', 'resume', etc.
+    onDeviceReady: function() {
+        var savedProducts = getData("Prods");
+
+        if(savedProducts !== false && savedProducts !== null){
+            products = JSON.parse(savedProducts);
+        }
+        else{
+            products = JSON.parse(JSON.stringify(defaults));
+        }
+
+        // Just to ask for permition, does nothing
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fs) {
+            fs.root.getFile("lol", { create: false, exclusive: false }, function () {}, function() {});
+        }, function() {});
+        AndroidFullScreen.immersiveMode();
+
+        redraw();
+        // Removes the splash screen
+        $("#loadScreen").css('display', 'none');
+    },
+};
+
+app.initialize();
+/* #endregion */
+
+/* #region Evenements Généraux */
 // Hide modals when clicks away
 $(".modal:not(.persistent)").on('click', function (e) {
     if (e.target !== this)
@@ -26,7 +76,6 @@ $("#menu").on('click', 'td', function () {
 // Fills prices
 $("#settings").on('click', function () {
     $("#sets").css('visibility', 'visible');
-    fillPrices();
 });
 
 $("#addPrice").on('click', function () {
@@ -95,9 +144,6 @@ $("#addPrice").on('click', function () {
         }
 
         saveData("Prods", JSON.stringify(products));
-        fillTable();
-        redraw();
-        fillPrices();
     });
 });
 
@@ -116,9 +162,6 @@ $("#resetPrices").on('click', function () {
 
     removeData("Prods");
     products = JSON.parse(JSON.stringify(defaults));
-    fillTable();
-    redraw();
-    fillPrices();
 });
 
 // Saves prices (only updates name and price)
@@ -149,15 +192,17 @@ $("#confirmPrice").on('click', function () {
                     return;
                 }
             }
+
             if (products[id][0] != name) { // Check it is not a used product with same name
                 if ($("#pricesSetting label").each(function () {
                         if ($(this).attr('class') != "formul" && parseInt($(this).data('id')) != id) {
                             if ($(this).children().eq(1).val().toLowerCase() === name.toLowerCase()) {
-                                errorHandle("Impossible d'avoir deux produits avec le même nom", colourPallets.Warning);
+                                console.log(parseInt($(this).data('id')));
                                 return true;
                             }
                         }
-                    })) {
+                    }) === true) {
+                    errorHandle("Impossible d'avoir deux produits avec le même nom", colourPallets.Warning);
                     return;
                 }
             }
@@ -171,8 +216,6 @@ $("#confirmPrice").on('click', function () {
     $("#sets").css('visibility', 'hidden');
 
     saveData("Prods", JSON.stringify(products));
-    fillTable();
-    redraw();
 });
 
 // Remove Item
@@ -193,9 +236,6 @@ $("#pricesSetting").on('click', '.remProd', function () {
 
     delete products[id];
     saveData("Prods", JSON.stringify(products));
-    fillTable();
-    redraw();
-    fillPrices();
 });
 
 /* #endregion */
@@ -204,15 +244,13 @@ $("#pricesSetting").on('click', '.remProd', function () {
 /* #region Commands Panel */
 $("#myCmd").on('click', function () {
     $("#cmds").css('visibility', 'visible');
-    fillCommands();
 });
 
+//TODO: check
 $("#cmdConteneur").on('click', ".suprCmd", function (event) {
-    Confirm("Supprimer", "Voulez vous supprimer cette commande ?", "Oui", "Annuler", function(obg){
+    Confirm("Supprimer", "Voulez vous supprimer cette commande ?", "Oui", "Annuler", function (obg) {
         removeData($(obg).parent().data("command"));
-        $(obg).parent().remove();
-        updateRealTimeStats();
-        fillCommands();
+        //$(obg).parent().remove();
     }, this);
     event.stopPropagation();
 });
@@ -221,7 +259,9 @@ $("#cmdConteneur").on('click', ".cmdList", function () {
     modifyCmd = $(this).data("command");
 
     curCommande = JSON.parse(getData(modifyCmd));
-    rawCommande = demystify(curCommande)[0];
+
+    addItem(); // clears rawCommands
+    addItem(demystify(curCommande)[0]);
 
     $("#cmds").css('visibility', 'hidden');
     console.log(modifyCmd);
@@ -231,7 +271,6 @@ $("#cmdConteneur").on('click', ".cmdList", function () {
 $("#clearCmd").on('click', function () {
     removeData();
     $("#cmds").css('visibility', 'hidden');
-    updateRealTimeStats();
 });
 
 $("#toExcel").on('click', function () {
@@ -244,6 +283,7 @@ $("#toExcel").on('click', function () {
 // Manages the modal OnSubmit
 $("#submit").on('click', function () {
     if (total == 0 && modifyCmd == -1) {
+        console.log(total);
         errorHandle("Aucun produits séléctionné", colourPallets.Warning);
         return;
     }
@@ -292,9 +332,9 @@ $("#End").on('click', function () {
 
     if (modifyCmd == -1) {
         if (getData("nbC") === null) {
-            saveData("nbC", 0);
+            saveData("nbC", 0, false);
         } else {
-            saveData("nbC", Number(getData("nbC")) + 1);
+            saveData("nbC", Number(getData("nbC")) + 1, false);
         }
         curCommande.time = new Date();
         saveData("C" + getData("nbC"), JSON.stringify(curCommande));
@@ -305,10 +345,6 @@ $("#End").on('click', function () {
         saveData(modifyCmd, JSON.stringify(curCommande));
     }
     modifyCmd = -1;
-
-    // Update the Real Time Peolple Count
-    redraw();
-    updateRealTimeStats();
 });
 /* #endregion */
 
@@ -333,7 +369,7 @@ $("table.from").on('click', 'tr', function () {
 // Recupère les clicks sur les éléments fils de '#to' ayant la classe 'supr' (et de type 'td')
 $("#to").on('click', 'td.supr', function () {
     var item = $(this).parent().data("item-id");
-    addItem(item);
+    addItem(item, -curCommande[item]);
 });
 
 // Gère les '+' et '-'

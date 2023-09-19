@@ -1,22 +1,8 @@
 var curCommande = {};
 var rawCommande = {};
 var total = 0;
-var modifyCmd = -1;
 var products;
-
-$(document).ready(function () {
-    // Just in case
-    var savedProducts = getData("Prods");
-    if (savedProducts !== false && savedProducts !== null) {
-        products = JSON.parse(savedProducts);
-    } else {
-        products = JSON.parse(JSON.stringify(defaults));
-    }
-    fillTable();
-    updateRealTimeStats();
-    // Removes the splash screen
-    $("#loadScreen").css('display', 'none');
-});
+var modifyCmd = -1;
 
 /* #region Core Functions */
 function checkFormules(cmd) {
@@ -177,8 +163,15 @@ function demystify(obj) {
 
 /* #region Redraw functions */
 function redraw() {
+    // Redraws everything (not optimized but who cares)
+    fillTable();
+    fillPrices();
+    fillCommands();
+    updateRealTimeStats();
+
     // Recalculate sum
-    curCommande = checkFormules(JSON.parse(JSON.stringify(supZeros(rawCommande))));
+    var curCommande = checkFormules(JSON.parse(JSON.stringify(supZeros(rawCommande))));
+    //TODO: remove this (not OOP)
     total = demystify(curCommande)[1];
     $("#fTo .prix").html(total + "€");
 
@@ -366,20 +359,28 @@ function updateRealTimeStats() {
 
 
 /* #region Utility Functions */
-function addItem(item, quantity) {
-    if (quantity == undefined) {
-        quantity = -curCommande[item];
+function addItem(product, quantity) {
+    if (quantity !== undefined) {
+        var newPoduct = {};
+        newPoduct[product] = quantity;
+        product = newPoduct;
     }
-
-    if (!isNaN(item) && (rawCommande[item] == undefined || rawCommande[item] == null)) {
-        rawCommande[item] = quantity;
+    
+    if (product == undefined) {
+        rawCommande = {};
     } else {
-        var thisItem = {};
-        thisItem[item] = quantity;
-        var items = demystify(thisItem)[0];
+        for (var item in product) {
+            if (!isNaN(item) && (rawCommande[item] == undefined || rawCommande[item] == null)) {
+                rawCommande[item] = product[item];
+            } else {
+                var thisItem = {};
+                thisItem[item] = product[item];
+                var items = demystify(thisItem)[0];
 
-        for (var it in items) {
-            rawCommande[it] += items[it];
+                for (var it in items) {
+                    rawCommande[it] += items[it];
+                }
+            }
         }
     }
     redraw();
@@ -462,7 +463,7 @@ function dataNotUsed(compareFunc, replyFunc) {
 
 
 /* #region Data Management */
-function saveData(key, value) {
+function saveData(key, value, draw = true) {
     if (typeof (Storage) !== "undefined") {
         try {
             localStorage.setItem(key, value);
@@ -473,9 +474,12 @@ function saveData(key, value) {
     } else {
         errorHandle("Désolé ce navigateur ne supporte pas la sauvegarde", colourPallets.Error);
     }
+    if (draw) {
+        redraw();
+    }
 }
 
-function removeData(key) {
+function removeData(key, draw = true) {
     if (typeof (Storage) !== "undefined") {
         if (key == undefined) {
             localStorage.clear();
@@ -490,6 +494,9 @@ function removeData(key) {
         }
     } else {
         errorHandle("Désolé ce navigateur ne supporte pas la sauvegarde", colourPallets.Error);
+    }
+    if (draw) {
+        redraw();
     }
 }
 
@@ -596,20 +603,20 @@ function errorHandle(name, colorPallet) {
 
 function Confirm(title, msg, $true, $false, funct, args) { /*change*/
     var $content = "<div class='modal' style='visibility:visible;z-index:99'>" +
-                    "<div class='dialog'><header>" +
-                    " <h3> " + title + " </h3> " +
-                    "</header>" +
-                    "<div class='dialog-msg'>" +
-                    " <p> " + msg + " </p> " +
-                    "</div>" +
-                    "<footer>" +
-                    "<div class='controls'>" +
-                    " <button class='button button-danger doAction'>" + $true + "</button> " +
-                    " <button class='button button-default cancelAction'>" + $false + "</button> " +
-                    "</div>" +
-                    "</footer>" +
-                    "</div>" +
-                    "</div>";
+        "<div class='dialog'><header>" +
+        " <h3> " + title + " </h3> " +
+        "</header>" +
+        "<div class='dialog-msg'>" +
+        " <p> " + msg + " </p> " +
+        "</div>" +
+        "<footer>" +
+        "<div class='controls'>" +
+        " <button class='button button-danger doAction'>" + $true + "</button> " +
+        " <button class='button button-default cancelAction'>" + $false + "</button> " +
+        "</div>" +
+        "</footer>" +
+        "</div>" +
+        "</div>";
     $('body').prepend($content);
     $('.doAction').click(function () {
         funct(args);
@@ -624,3 +631,4 @@ function Confirm(title, msg, $true, $false, funct, args) { /*change*/
     });
 }
 /* #endregion */
+

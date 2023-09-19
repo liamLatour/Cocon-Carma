@@ -1,5 +1,3 @@
-/*TODO: Refactor this*/
-
 /*Global variables*/
 :root {
     --darker: 20%;
@@ -116,11 +114,6 @@ p {
 
 .OnePFiveText {
     font-size: 1.5vw;
-}
-
-/*TODO: add this shit*/
-.twoText {
-    font-size: 2vw;
 }
 /* #endregion */
 
@@ -446,6 +439,11 @@ p {
     background-color: hsl(64, 100%, calc(36% - var(--darker)));
 }
 
+.transparent {
+    all: unset;
+    text-align: center;
+    width: 100%;
+}
 /* #endregion */
 
 /* #region Add item modal*/

@@ -22,7 +22,11 @@
             "cordova-plugin-fullscreen": {}
         },
         "platforms": [
-            "android"
+            "android",
+            "browser"
         ]
+    },
+    "devDependencies": {
+        "cordova-browser": "^7.0.0"
     }
 }
